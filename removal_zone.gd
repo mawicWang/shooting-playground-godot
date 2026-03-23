@@ -1,7 +1,17 @@
 # removal_zone.gd
 extends PanelContainer
 
+var drop_enabled = true
+
+func set_drag_enabled(enabled: bool):
+	drop_enabled = enabled
+	# Visual feedback
+	modulate.a = 1.0 if enabled else 0.5
+
 func _can_drop_data(_at_position, data):
+	if not drop_enabled:
+		return false
+	
 	# Allow dropping if:
 	# 1. It's a valid tower drag (dict with "is_moving": true, "tower_instance", "source_cell")
 	return (typeof(data) == TYPE_DICTIONARY and 

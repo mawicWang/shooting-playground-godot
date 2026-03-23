@@ -7,6 +7,12 @@ extends TextureRect
 
 var current_drag_rotation = DragManager.ROT_UP # Stores the calculated rotation for current drag (default to UP)
 var is_dragging_initiated = false # Flag to know if this icon started a drag
+var drag_enabled = true # 是否允许拖拽
+
+func set_drag_enabled(enabled: bool):
+	drag_enabled = enabled
+	# Visual feedback: reduce opacity when disabled
+	modulate.a = 1.0 if enabled else 0.5
 
 func _process(_delta):
 	# Only calculate rotation if this icon is the current drag source, and drag is active
@@ -31,7 +37,7 @@ func _update_drag_rotation():
 	var angle = DragManager.ROT_UP # Default to UP when mouse is near center or no valid hover
 	var direction_string = "UP (Default)"
 
-	if offset.length() < 20: # If mouse is very close to center, keep default (UP)
+	if offset.length() < 3: # If mouse is very close to center, keep default (UP)
 		angle = DragManager.ROT_UP
 		direction_string = "UP (Near Center)"
 	elif abs(offset.x) > abs(offset.y): # Horizontal dominance
@@ -50,16 +56,21 @@ func _update_drag_rotation():
 			direction_string = "UP"
 	
 	current_drag_rotation = angle
-	print("TowerIcon - Drag Rotation: ", direction_string, " (", rad_to_deg(current_drag_rotation), " degrees)") # Debug log
+	#print("TowerIcon - Drag Rotation: ", direction_string, " (", rad_to_deg(current_drag_rotation), " degrees)") # Debug log
 
 # This method will be called by DragManager to get the current rotation
 func get_current_drag_rotation() -> float:
 	return current_drag_rotation # Return directly, no correction needed
 
 func _get_drag_data(_at_position):
-	# Reset rotation and set flag for new drag
-	current_drag_rotation = DragManager.ROT_UP # Reset for the current drag operation (default to UP)
+	if not drag_enabled:
+		return null
+	
+	# Set flag for new drag
 	is_dragging_initiated = true # Mark that this icon started a drag
+
+	# Calculate initial rotation when drag starts
+	_update_drag_rotation()
 
 	# Inform DragManager to start custom drag preview
 	# Pass self as the source node, so DragManager can query its rotation

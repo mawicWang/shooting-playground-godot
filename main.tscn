@@ -1,9 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=8 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid_manager.gd" id="1_f9bqe"]
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://c4r887bchyyov" path="res://tower_icon.gd" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://byp6qolbgukvm" path="res://removal_zone.gd" id="4_removal_zone_script"]
+[ext_resource type="Script" uid="uid://ciexd3qgugumt" path="res://main.gd" id="5_main_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lquwl"]
+content_margin_top = 20.0
+content_margin_bottom = 5.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_removal_zone_style"]
 bg_color = Color(0.2, 0.2, 0.2, 0.5)
@@ -14,8 +20,22 @@ border_width_bottom = 1
 border_color = Color(0.8, 0.8, 0.8, 0.5)
 
 [node name="main" type="Node2D"]
+script = ExtResource("5_main_script")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lquwl")
+
+[node name="StartStopButton" type="Button" parent="CanvasLayer/PanelContainer"]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "开始"
 
 [node name="CenterContainer" type="CenterContainer" parent="CanvasLayer"]
 anchors_preset = 8

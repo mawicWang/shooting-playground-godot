@@ -11,6 +11,7 @@ var _drag_preview_node: Control = null
 var _drag_texture_rect: TextureRect = null
 var _drag_source_node: Node = null # Reference to the node that initiated the drag (cell or tower_icon)
 var hovered_valid_cell: Node = null # Reference to the currently hovered valid cell
+var last_known_drag_rotation = ROT_UP # Stores the last calculated rotation
 
 func _ready():
 	set_process(false) # Start with process disabled
@@ -28,9 +29,10 @@ func _process(_delta):
 			# print("DragManager: Getting rotation from ", _drag_source_node.name, ": ", rad_to_deg(current_rotation), " degrees") # Debug log
 		# else: current_rotation remains ROT_UP
 
-		# Apply rotation to the preview texture
+		# Apply rotation to the preview texture and store it
 		if _drag_texture_rect:
 			_drag_texture_rect.rotation = current_rotation # Rotation in radians
+			last_known_drag_rotation = current_rotation # Cache the last known rotation
 
 func start_drag(texture: Texture2D, source_node: Node):
 	# Clear any existing preview and reset state
@@ -76,9 +78,8 @@ func end_drag():
 
 # Public getter for the current drag rotation (delegates to source_node)
 func get_current_drag_rotation() -> float:
-	if is_instance_valid(_drag_source_node) and _drag_source_node.has_method("get_current_drag_rotation"):
-		return _drag_source_node.get_current_drag_rotation()
-	return ROT_UP # Default to UP if no valid source or method
+	# Return the last known rotation, as _drag_source_node might be nullified by the time drop occurs
+	return last_known_drag_rotation
 
 # NEW: Set the currently hovered valid cell
 func set_hovered_valid_cell(cell: Node):

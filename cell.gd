@@ -5,6 +5,7 @@ const COLOR_NORMAL = Color("#F2EAE0")       # 默认色
 const COLOR_OCCUPIED = Color(0, 0.7, 0, 0.8) # 已放置炮塔的绿色
 const COLOR_VALID = Color(0, 1, 0, 0.5)      # 拖拽可放置的高亮（半透明绿）
 const COLOR_INVALID = Color(1, 0, 0, 0.5)    # 拖拽不可放置的高亮（半透明红）
+const COLOR_DISABLED = Color(0.5, 0.5, 0.5, 0.5) # 禁用状态的颜色
 
 # Rotation constants are now defined in DragManager.gd
 
@@ -12,6 +13,7 @@ var is_occupied = false
 var is_drag_active = false
 var is_being_dragged_from = false # 标记是否是当前拖拽的发源地
 var drag_rotation_offset = DragManager.ROT_UP # Default rotation to UP when not hovering over a valid cell
+var drag_enabled = true # 是否允许拖拽
 
 var style_box: StyleBoxFlat
 var tower_node: Node = null
@@ -90,7 +92,7 @@ func _update_drag_rotation():
 	var direction_string = "UP (Default)"
 
 	# Quadrant-based snapping logic (dividing by diagonals)
-	if offset.length() < 20: # If mouse is very close to center, keep default (UP)
+	if offset.length() < 3: # If mouse is very close to center, keep default (UP)
 		angle = DragManager.ROT_UP
 		direction_string = "UP (Near Center)"
 	elif abs(offset.x) > abs(offset.y): # Horizontal dominance
@@ -109,10 +111,15 @@ func _update_drag_rotation():
 			direction_string = "UP"
 	
 	drag_rotation_offset = angle
-	print( "Cell ", get_meta("index"), " - Drag Rotation: ", direction_string, " (", rad_to_deg(drag_rotation_offset), " degrees)") # Debug log
+	#print( "Cell ", get_meta("index"), " - Drag Rotation: ", direction_string, " (", rad_to_deg(drag_rotation_offset), " degrees)") # Debug log
 
 # Update the cell's background color
 func _update_visuals():
+	if not drag_enabled:
+		# When drag is disabled, show disabled color
+		style_box.bg_color = COLOR_DISABLED
+		return
+	
 	if is_drag_active:
 		# When dragging, always use DragManager.hovered_valid_cell's color if valid
 		if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
@@ -151,12 +158,14 @@ func _can_drop_data(_at_position, data):
 	
 	return is_valid_drop_target
 
+signal tower_deployed(tower_instance)
+
 func _drop_data(_at_position, data):
 	# print("Drop data received on cell ", get_meta("index"), ": ", data) # Debug log
 
 	var tower
 	var source_cell_instance = data.get("source_cell", null) # The original cell that initiated the drag
-	
+
 	var final_rotation = DragManager.ROT_UP # Initialize with default rotation (Up)
 
 	if data.has("is_moving") and data.is_moving:
@@ -168,29 +177,30 @@ func _drop_data(_at_position, data):
 		else:
 			# Fallback if source_cell is null, try DragManager or default
 			final_rotation = DragManager.get_current_drag_rotation() 
-			
+
 		if is_instance_valid(source_cell_instance) and source_cell_instance != self: # Only clean up if moving from a different cell
+			source_cell_instance.remove_child(tower)
 			source_cell_instance.remove_tower_reference() # Remove reference from old cell
-			if is_instance_valid(tower) and tower.get_parent() == source_cell_instance: # Ensure it's still parented by the source_cell
-				source_cell_instance.remove_child(tower)
 	else:
 		# Dragging a new tower from the store
 		var tower_scene = data["scene"]
 		tower = tower_scene.instantiate()
 		# Get rotation from DragManager, as it tracks the source (tower_icon) rotation
 		final_rotation = DragManager.get_current_drag_rotation()
-	
+
 	# Add the tower to this cell
 	add_child(tower)
 	_setup_tower_visuals(tower) # Apply position, scale, and ensure visibility
-	
+
 	# Update cell state
 	is_occupied = true
 	tower_node = tower
 	is_being_dragged_from = false # Reset flag after drop
-	
+
+	# Emit signal after tower is fully set up
+	tower_deployed.emit(tower)
+
 	# Apply the rotation determined (no correction needed here now)
-	print("  Applying final_rotation: ", rad_to_deg(final_rotation), " degrees to tower.")
 	if is_instance_valid(tower) and tower.has_method("_apply_rotation"):
 		tower._apply_rotation(final_rotation)
 	elif is_instance_valid(tower) and tower is Node2D:
@@ -201,6 +211,10 @@ func _drop_data(_at_position, data):
 		pass 
 
 	_update_visuals() # Update cell color to occupied green
+
+func get_deployed_tower():
+	return tower_node
+
 
 func _setup_tower_visuals(tower):
 	tower.visible = true # Ensure it's visible
@@ -216,9 +230,17 @@ func _setup_tower_visuals(tower):
 		tower.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 		tower.custom_minimum_size = size * 0.8 # Limit control size
 
+# --- Drag Enable/Disable ---
+
+func set_drag_enabled(enabled: bool):
+	drag_enabled = enabled
+	_update_visuals()
+
 # --- Initiating Drag (Drag) ---
 
 func _get_drag_data(_at_position):
+	if not drag_enabled:
+		return null
 	if not is_occupied or not is_instance_valid(tower_node):
 		return null
 	

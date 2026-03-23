@@ -4,15 +4,10 @@ const CELL_COLOR = Color("#F2EAE0")
 var cell_script = preload("res://cell.gd") # 提前加载脚本
 
 func _ready():
-	print("GridManager ready!")
-	
 	# 获取 GridContainer
 	var grid = $Grid
 	if not grid:
-		print("Error: GridContainer not found!")
 		return
-	
-	print("GridContainer found!")
 	
 	# 配置网格列数
 	grid.columns = 5
@@ -41,7 +36,3 @@ func _center_grid():
 		cell.set_meta("index", i)
 		
 		grid.add_child(cell)
-		print("Added cell ", i)
-
-
-	print("Grid setup complete! Total cells: ", grid.get_child_count())
