@@ -52,7 +52,7 @@ func _create_zone(name: String, position: Vector2, size: Vector2):
 	var area = Area2D.new()
 	area.name = "DeadZone" + name						
 	area.position = position
-	area.collision_layer = 0  # 不参与碰撞层
+	area.collision_layer = 8  # 墙壁/障碍物层（第4层）
 	area.collision_mask = 4   # 只检测子弹层（第3层）
 	area.monitoring = true    # 必须开启才能检测进入的物体
 	area.monitorable = true   # 必须开启才能被检测
