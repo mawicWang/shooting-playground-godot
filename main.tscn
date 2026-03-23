@@ -19,25 +19,57 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.8, 0.8, 0.8, 0.5)
 
-[node name="main" type="Node2D"]
+[node name="main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("5_main_script")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.101961, 0.101961, 0.101961, 1)
 
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
+[node name="GameContent" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -360.0
+offset_right = -360.0
+grow_horizontal = 2
+
+[node name="ColorRect" type="ColorRect" parent="GameContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="GameContent"]
+
+[node name="PanelContainer" type="PanelContainer" parent="GameContent/CanvasLayer"]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 31.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_lquwl")
 
-[node name="StartStopButton" type="Button" parent="CanvasLayer/PanelContainer"]
+[node name="StartStopButton" type="Button" parent="GameContent/CanvasLayer/PanelContainer"]
 custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "开始"
 
-[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer"]
+[node name="CenterContainer" type="CenterContainer" parent="GameContent/CanvasLayer"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -50,11 +82,11 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GridRoot" type="Control" parent="CanvasLayer/CenterContainer"]
+[node name="GridRoot" type="Control" parent="GameContent/CanvasLayer/CenterContainer"]
 layout_mode = 2
 script = ExtResource("1_f9bqe")
 
-[node name="Grid" type="GridContainer" parent="CanvasLayer/CenterContainer/GridRoot"]
+[node name="Grid" type="GridContainer" parent="GameContent/CanvasLayer/CenterContainer/GridRoot"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -67,7 +99,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 5
 
-[node name="RemovalZonePanel" type="PanelContainer" parent="CanvasLayer"]
+[node name="RemovalZonePanel" type="PanelContainer" parent="GameContent/CanvasLayer"]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -77,30 +109,30 @@ grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_removal_zone_style")
 script = ExtResource("4_removal_zone_script")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/RemovalZonePanel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="GameContent/CanvasLayer/RemovalZonePanel"]
 layout_mode = 2
 theme_override_constants/separation = 25
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="GameContent/CanvasLayer/RemovalZonePanel/HBoxContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 texture = ExtResource("2_0xm2m")
 expand_mode = 1
 script = ExtResource("3_h2yge")
 
-[node name="TextureRect2" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect2" type="TextureRect" parent="GameContent/CanvasLayer/RemovalZonePanel/HBoxContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 texture = ExtResource("2_0xm2m")
 expand_mode = 1
 
-[node name="TextureRect3" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect3" type="TextureRect" parent="GameContent/CanvasLayer/RemovalZonePanel/HBoxContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 texture = ExtResource("2_0xm2m")
 expand_mode = 1
 
-[node name="TextureRect4" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect4" type="TextureRect" parent="GameContent/CanvasLayer/RemovalZonePanel/HBoxContainer"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 texture = ExtResource("2_0xm2m")
