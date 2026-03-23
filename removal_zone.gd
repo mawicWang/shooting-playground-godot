@@ -1,14 +1,9 @@
 # removal_zone.gd
 extends PanelContainer
 
-# 假设 PanelContainer 的样式（背景、边框）已经在编辑器中设置好。
-
 func _can_drop_data(_at_position, data):
-	# 允许放置的条件：
-	# 1. 拖拽的数据是有效的字典
-	# 2. 包含 "is_moving" 并且为 true (表示是从格子中拖出来的)
-	# 3. 包含 "tower_instance" (炮塔节点)
-	# 4. 包含 "source_cell" (炮塔的原格子)
+	# Allow dropping if:
+	# 1. It's a valid tower drag (dict with "is_moving": true, "tower_instance", "source_cell")
 	return (typeof(data) == TYPE_DICTIONARY and 
 		data.has("is_moving") and data.is_moving and
 		data.has("tower_instance") and 
@@ -17,14 +12,20 @@ func _can_drop_data(_at_position, data):
 func _drop_data(_at_position, data):
 	if data.has("tower_instance") and data.has("source_cell"):
 		var tower = data.tower_instance
-		var source_cell = data.source_cell
+		var source_cell = data.get("source_cell", null)
 		
-		# 从源格子移除炮塔的引用和节点
-		if source_cell and source_cell.has_method("remove_tower_reference"):
+		# From grid, remove tower reference and node
+		if is_instance_valid(source_cell) and source_cell.has_method("remove_tower_reference"):
 			source_cell.remove_tower_reference()
-		
-		# 销毁炮塔节点
-		tower.queue_free()
-		print("Tower removed/sold by dropping into the removal zone!")
+			# Ensure the tower is removed from its original parent if it's still there
+			if is_instance_valid(tower) and tower.get_parent() == source_cell:
+				source_cell.remove_child(tower)
+
+		# Destroy the tower node
+		if is_instance_valid(tower):
+			tower.queue_free()
+			print("Tower removed/sold by dropping into the removal zone!")
+		DragManager.end_drag() # Notify DragManager that drag has ended
 	else:
-		print("Drop data invalid for removal zone.")
+		printerr("Drop data invalid for removal zone.")
+		DragManager.end_drag() # Even if invalid, drag operation has ended
