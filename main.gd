@@ -4,10 +4,10 @@ const MAX_WIDTH = 720.0
 
 var game_started = false
 @onready var game_content = $GameContent
-@onready var start_stop_button = $GameContent/CanvasLayer/PanelContainer/StartStopButton
-@onready var grid_root = $GameContent/CanvasLayer/CenterContainer/GridRoot
-@onready var grid_container = $GameContent/CanvasLayer/CenterContainer/GridRoot/Grid
-@onready var canvas_layer = $GameContent/CanvasLayer
+@onready var start_stop_button = $GameContent/PanelContainer/StartStopButton
+@onready var grid_root = $GameContent/CenterContainer/GridRoot
+@onready var grid_container = $GameContent/CenterContainer/GridRoot/Grid
+@onready var removal_zone = $GameContent/RemovalZonePanel
 
 var dead_zone_manager: Node = null
 
@@ -31,12 +31,34 @@ func _ready():
 func _on_window_resize():
 	var window_size = get_viewport_rect().size
 	var target_width = min(window_size.x, MAX_WIDTH)
-	var target_height = window_size.y
 	
-	# 设置 GameContent 大小（白色背景区域）
-	game_content.size = Vector2(target_width, target_height)
+	# 计算水平边距
+	var margin_left = (window_size.x - target_width) / 2
+	var margin_right = margin_left
 	
+	# 调整内部 UI 元素的边距来模拟限宽效果
+	# 顶部面板
+	var panel = $GameContent/PanelContainer
+	panel.anchor_left = 0.0
+	panel.anchor_right = 1.0
+	panel.offset_left = margin_left
+	panel.offset_right = -margin_right
 	
+	# 中间网格容器
+	var center = $GameContent/CenterContainer
+	center.anchor_left = 0.0
+	center.anchor_right = 1.0
+	center.offset_left = margin_left
+	center.offset_right = -margin_right
+	
+	# 底部商店
+	var removal = $GameContent/RemovalZonePanel
+	removal.anchor_left = 0.0
+	removal.anchor_right = 1.0
+	removal.offset_left = margin_left
+	removal.offset_right = -margin_right
+	
+	print("Window: ", window_size, " Content width: ", target_width, " Margins: ", margin_left)
 
 func _on_start_stop_button_pressed():
 	game_started = not game_started
@@ -57,7 +79,6 @@ func _set_drag_enabled(enabled: bool):
 		if cell.has_method("set_drag_enabled"):
 			cell.set_drag_enabled(enabled)
 	
-	var removal_zone = canvas_layer.get_node_or_null("RemovalZonePanel")
 	if is_instance_valid(removal_zone) and removal_zone.has_method("set_drag_enabled"):
 		removal_zone.set_drag_enabled(enabled)
 	

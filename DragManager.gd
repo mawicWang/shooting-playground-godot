@@ -47,9 +47,11 @@ func start_drag(texture: Texture2D, source_node: Node):
 	# Create the custom drag preview node
 	_drag_preview_node = Control.new()
 	_drag_preview_node.name = "CustomDragPreview"
+	_drag_preview_node.mouse_filter = Control.MOUSE_FILTER_IGNORE # 忽略鼠标事件，让事件穿透到下层
 	
 	_drag_texture_rect = TextureRect.new()
 	_drag_texture_rect.texture = texture
+	_drag_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE # 同样忽略
 	_drag_preview_node.add_child(_drag_texture_rect) # Add texture to the preview container
 
 	# Set properties for the TextureRect preview

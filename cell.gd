@@ -143,16 +143,13 @@ func _can_drop_data(_at_position, data):
 	
 	var is_valid_drop_target = false
 	if can_drop_from_store:
-		is_valid_drop_target = not is_occupied # Only allow dropping new towers into empty cells
+		is_valid_drop_target = not is_occupied
 	elif can_drop_from_grid:
-		# Allow dropping if it's from us OR if the cell is empty
 		is_valid_drop_target = not is_occupied or data.get("source_cell") == self
 	
-	# Inform DragManager if this is a valid drop target
 	if is_valid_drop_target:
 		DragManager.set_hovered_valid_cell(self)
 	else:
-		# If this is not a valid drop target, ensure it's cleared from DragManager if it was set to this cell
 		if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
 			DragManager.clear_hovered_valid_cell()
 	

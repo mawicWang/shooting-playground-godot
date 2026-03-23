@@ -1,105 +1,134 @@
 # shooting-playground-godot
 
-一个简单的 Godot 射击练习游戏原型，使用 5x5 网格布局。
+一个 Godot 塔防游戏原型，支持拖拽部署炮塔、射击子弹、响应式布局。
+
+## 功能特性
+
+- ✅ 5x5 网格布局，支持拖拽放置炮塔
+- ✅ 拖拽旋转：拖拽时移动鼠标可调整炮塔朝向（上/下/左/右）
+- ✅ 游戏控制：开始/停止按钮控制炮塔射击
+- ✅ 死亡区域：子弹飞出屏幕后自动销毁
+- ✅ 响应式布局：
+  - 屏幕宽度 > 600px：游戏居中，左右深灰色边距
+  - 屏幕宽度 ≤ 600px：游戏占满宽度
+- ✅ 中文像素字体（Zpix）
+- ✅ HTML5 导出支持
+
+## 操作说明
+
+| 操作 | 说明 |
+|------|------|
+| 拖拽商店图标 | 从底部拖拽炮塔到网格 |
+| 拖拽网格炮塔 | 移动已部署的炮塔位置 |
+| 拖拽时移动鼠标 | 调整炮塔发射方向 |
+| 点击开始/停止 | 控制游戏运行状态 |
+| 拖拽到删除区 | 移除炮塔 |
 
 ## 项目结构
 
 ```
 shooting-playground-godot/
-├── main.tscn          # 主场景（包含 GridRoot 和 GridContainer）
-├── grid_manager.gd    # 网格管理器脚本（处理单元格创建和点击交互）
-├── project.godot      # Godot 项目配置
-├── icon.svg          # 项目图标
-└── README.md         # 本文件
+├── main.tscn              # 主场景
+├── main.gd                # 主控制器（游戏状态、限宽布局）
+├── grid_manager.gd        # 网格管理器
+├── cell.gd                # 单元格逻辑（拖拽、放置）
+├── tower.gd               # 炮塔逻辑（发射子弹）
+├── bullet.gd              # 子弹逻辑
+├── tower_icon.gd          # 商店图标（拖拽生成）
+├── DragManager.gd         # 全局拖拽管理器（单例）
+├── dead_zone_manager.gd   # 死亡区域管理器
+├── removal_zone.gd        # 删除区域
+├── assets/
+│   ├── zpix.ttf          # 中文像素字体
+│   ├── tower1.svg        # 炮塔图标
+│   └── bullet.svg        # 子弹图标
+├── default_theme.tres     # 默认主题（字体设置）
+└── web/                   # HTML5 导出文件
+    └── index.html
 ```
-
-## 功能特性
-
-- ✅ 5x5 (25个) 单元格网格
-- ✅ 网格居中显示，上下留空间放其他 UI
-  - 顶部留 15%（标题/计分）
-  - 底部留 15%（控制按钮）
-  - 左右各留 10% 边距
-- ✅ 点击单元格显示红色击中效果，0.2秒后恢复灰色
-- ✅ 响应式布局，适配各种屏幕尺寸
-- ✅ 单元格带边框
-- ✅ 支持触摸屏（手机）
-- ✅ 可导出为 HTML5 (WebAssembly)
 
 ## 运行方法
 
-### 在 Godot 编辑器中（开发测试）
-1. 使用 Godot 4.4 打开项目文件夹
-2. 按 **F6** 运行项目
-3. 点击任意单元格查看交互效果
-4. 为了测试手机布局，可调整运行窗口大小为竖屏（如 720×1280）
+### Godot 编辑器
+1. 使用 Godot 4.4+ 打开项目
+2. 按 **F5** 运行
 
-### 导出为 HTML5 并在浏览器中运行
-
-#### 1. 导出项目
-1. 在 Godot 编辑器中选择 **项目 → 导出**
-2. 添加 **Web** 平台（如果尚未添加）
-3. 配置导出路径（例如 `web/index.html` 或 `web_build/index.html`）
-4. 点击 **导出项目**
-
-#### 2. 通过 HTTP 服务器运行（重要！）
-**不要直接双击打开 `index.html`**，这会因为 CORS 策略导致 `.wasm` 和 `.pck` 文件无法加载。
-
-正确做法是使用本地 HTTP 服务器：
-
-**方法 A：使用提供的脚本**（如果你在 `web/` 目录导出）
-```bash
-cd /Users/wangyiwen/Projects/shooting-playground-godot/web
-./serve.sh
-```
-然后访问 `http://localhost:8000`
-
-**方法 B：使用 Python**
-```bash
-cd /Users/wangyiwen/Projects/shooting-playground-godot/web
-python3 -m http.server 8000
-```
-然后访问 `http://localhost:8000`
-
-**方法 C：使用 Node.js**
-```bash
-cd /Users/wangyiwen/Projects/shooting-playground-godot/web
-npx serve .
-```
-
-#### 3. 手机测试（可选）
-- 确保手机和电脑在同一网络
-- 使用 `python3 -m http.server 0.0.0.0:8000` 监听所有网络接口
-- 在手机浏览器访问 `http://你的电脑IP:8000`
-
-### 部署到 Web 服务器
-将整个导出文件夹（包含 `index.html`、`.wasm`、`.pck` 等文件）上传到任何 Web 服务器（如 GitHub Pages、Netlify、Vercel 或自己的服务器）即可。
+### HTML5 导出
+1. **导出**：项目 → 导出 → Web → 导出项目到 `web/` 文件夹
+2. **运行服务器**：
+   ```bash
+   cd web
+   python3 -m http.server 8000
+   ```
+3. **访问**：浏览器打开 `http://localhost:8000`
 
 ## 技术说明
 
-- 使用 **GridContainer** 进行网格布局
-- 每个单元格是 **ColorRect** 控件
-- 通过脚本动态生成 25 个单元格
-- **锚点系统**实现响应式布局：
-  - grid.anchor_left = 0.1, grid.anchor_right = 0.9（左右各 10% 边距）
-  - grid.anchor_top = 0.15, grid.anchor_bottom = 0.85（上下各 15% 空间）
-  - 网格占比：80% × 70%，始终居中
-- 避免在 `_ready()` 中直接设置控件大小（Godot 锚点警告）
-- 单元格使用 **StyleBoxFlat** 边框，点击时同步更新 `ColorRect.color` 和 `StyleBox.bg_color`
-- 支持 **鼠标点击** 和 **触摸屏输入**（Godot 自动映射）
-- 单元格尺寸 80×80 像素，适合手机触摸
-- 显示模式：`canvas_items`（适合 HTML5 导出）
+### 布局系统
+- 根节点 `main` 为 `Control` 类型，全屏显示
+- `Background` 节点：深灰色背景（`#1a1a1a`）
+- `GameContent` 节点：白色游戏区域，最大宽度 600px，自动居中
+- 通过 `_on_window_resize()` 动态计算大小和位置
 
-## HTML5 注意事项
+### 拖拽系统
+- `DragManager` 单例管理全局拖拽状态
+- 支持从商店拖拽新炮塔
+- 支持在网格间移动已有炮塔
+- 拖拽时实时计算鼠标相对位置，确定炮塔朝向
 
-- ❌ 不要使用 `file://` 协议打开（会触发 CORS 错误）
-- ✅ 必须通过 HTTP/HTTPS 服务器访问
-- ✅ 浏览器开发者工具按 F12 查看控制台，确保没有 404 错误
+### 字体
+- 使用 [Zpix](https://github.com/SolidZORO/zpix-pixel-font) 开源中文像素字体
+- 通过 `default_theme.tres` 设置为项目默认字体
+
+### Godot 项目设置
+```
+[display]
+window/stretch/mode = "canvas_items"
+window/stretch/aspect = "expand"
+window/size/viewport_width = 720
+window/size/viewport_height = 1280
+
+[gui]
+theme/custom = "res://default_theme.tres"
+```
+
+## HTML5 适配
+
+CSS 关键设置（`web/index.html`）：
+```css
+html, body, #canvas {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: #1a1a1a;
+}
+```
+
+Godot 配置：
+```javascript
+"canvasResizePolicy": 2  // 让 Godot 自动适配父容器
+```
+
+## 注意事项
+
+- ❌ 不要直接用 `file://` 打开 HTML（CORS 错误）
+- ✅ 必须使用 HTTP 服务器运行
+- ✅ 浏览器需要支持 WebGL
+
+## 开源资源
+
+- 字体：[Zpix](https://github.com/SolidZORO/zpix-pixel-font) - 开源中文像素字体
 
 ## 修改历史
 
-**2026-03-22 15:00**: HTML5 导出和服务器运行指南
-- 添加详细的 HTTP 服务器运行步骤
-- 包含 Python、Node.js 和 serve.sh 脚本的使用方法
-- 说明 CORS 问题的原因和解决方案
-- 添加手机测试和部署说明
+**2026-03-23**: 完整游戏功能
+- 添加拖拽部署和旋转系统
+- 添加开始/停止游戏控制
+- 添加死亡区域和子弹清理
+- 添加响应式布局（最大宽度 600px）
+- 添加中文像素字体
+- 优化 HTML5 导出体验
+
+**2026-03-22**: 初始版本
+- 基础网格布局
+- HTML5 导出支持
