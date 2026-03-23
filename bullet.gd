@@ -8,7 +8,9 @@ var lifetime: float = 0.0
 var warned: bool = false  # 是否已经打印过警告
 
 func _ready():
-	pass
+	# 启用Area2D监控以便敌人检测
+	$Area2D.monitoring = true
+	$Area2D.monitorable = true
 
 func _physics_process(delta):
 	velocity = direction * SPEED

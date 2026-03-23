@@ -19,6 +19,7 @@ var style_box: StyleBoxFlat
 var tower_node: Node = null
 
 func _ready():
+	add_to_group("grid_cells")
 	style_box = StyleBoxFlat.new()
 	style_box.bg_color = COLOR_NORMAL
 	style_box.set_border_width_all(5)

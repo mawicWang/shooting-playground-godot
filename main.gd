@@ -10,6 +10,7 @@ var game_started = false
 @onready var removal_zone = $GameContent/RemovalZonePanel
 
 var dead_zone_manager: Node = null
+var enemy_manager: Node = null
 
 func _ready():
 	# 监听窗口大小变化
@@ -67,11 +68,13 @@ func _on_start_stop_button_pressed():
 	if game_started:
 		_set_drag_enabled(false)
 		_create_dead_zones()
+		_create_enemy_manager()
 		_start_all_towers()
 	else:
 		_stop_all_towers()
 		_clear_all_bullets()
 		_remove_dead_zones()
+		_remove_enemy_manager()
 		_set_drag_enabled(true)
 
 func _set_drag_enabled(enabled: bool):
@@ -116,6 +119,27 @@ func _remove_dead_zones():
 		dead_zone_manager.clear_all()
 		dead_zone_manager.queue_free()
 		dead_zone_manager = null
+
+func _create_enemy_manager():
+	if is_instance_valid(enemy_manager):
+		enemy_manager.queue_free()
+	enemy_manager = Node2D.new()
+	enemy_manager.name = "EnemyManager"
+	enemy_manager.set_script(load("res://enemy_manager.gd"))
+	add_child(enemy_manager)
+	
+	# 设置网格信息
+	var grid_rect = grid_container.get_global_rect()
+	enemy_manager.set_grid_info(grid_rect, 80.0)
+	
+	# 生成敌人
+	enemy_manager.spawn_enemies()
+
+func _remove_enemy_manager():
+	if is_instance_valid(enemy_manager):
+		enemy_manager.clear_enemies()
+		enemy_manager.queue_free()
+		enemy_manager = null
 
 func _clear_all_bullets():
 	var bullets_to_remove = []
