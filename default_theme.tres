@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://b33pfsv62uf5b"]
+
+[ext_resource type="FontFile" uid="uid://dpqtjkjlywara" path="res://assets/zpix.ttf" id="1_zpix"]
+
+[resource]
+default_font = ExtResource("1_zpix")
+default_font_size = 25

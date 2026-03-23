@@ -35,20 +35,8 @@ func _on_window_resize():
 	
 	# 设置 GameContent 大小（白色背景区域）
 	game_content.size = Vector2(target_width, target_height)
-	#
-	## GameContent 居中
-	#game_content.position = Vector2(
-		#(window_size.x - target_width) / 2 - target_width / 2,
-		#-window_size.y / 2
-	#)
-	#
-	## CanvasLayer 跟随 GameContent 位置
-	#canvas_layer.offset = Vector2(
-		#(window_size.x - target_width) / 2,
-		#0
-	#)
-	#
-	#print("Window: ", window_size, " Content size: ", target_width, "x", target_height, " Canvas offset: ", canvas_layer.offset)
+	
+	
 
 func _on_start_stop_button_pressed():
 	game_started = not game_started
