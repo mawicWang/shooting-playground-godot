@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhvku2e3n7bsn"]
+
+[ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="1_k1sas"]
+
+[node name="tower" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_k1sas")

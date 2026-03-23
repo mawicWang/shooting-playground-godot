@@ -1,6 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=6 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid_manager.gd" id="1_f9bqe"]
+[ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://c4r887bchyyov" path="res://tower_icon.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://byp6qolbgukvm" path="res://removal_zone.gd" id="4_removal_zone_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_removal_zone_style"]
+bg_color = Color(0.2, 0.2, 0.2, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.8, 0.8, 0.5)
 
 [node name="main" type="Node2D"]
 
@@ -36,6 +47,41 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 5
 
-[node name="Label" type="Label" parent="CanvasLayer/CenterContainer"]
+[node name="RemovalZonePanel" type="PanelContainer" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_removal_zone_style")
+script = ExtResource("4_removal_zone_script")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/RemovalZonePanel"]
 layout_mode = 2
-text = "aaaaaa"
+theme_override_constants/separation = 25
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("2_0xm2m")
+expand_mode = 1
+script = ExtResource("3_h2yge")
+
+[node name="TextureRect2" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("2_0xm2m")
+expand_mode = 1
+
+[node name="TextureRect3" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("2_0xm2m")
+expand_mode = 1
+
+[node name="TextureRect4" type="TextureRect" parent="CanvasLayer/RemovalZonePanel/HBoxContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("2_0xm2m")
+expand_mode = 1

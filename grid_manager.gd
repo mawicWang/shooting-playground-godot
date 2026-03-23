@@ -1,6 +1,7 @@
 extends Control
 
 const CELL_COLOR = Color("#F2EAE0")
+var cell_script = preload("res://cell.gd") # 提前加载脚本
 
 func _ready():
 	print("GridManager ready!")
@@ -33,46 +34,14 @@ func _center_grid():
 	# 创建 5x5 = 25 个单元格
 	for i in range(25):
 		var cell = PanelContainer.new()
+		cell.clip_contents = true # 启用裁剪，防止内容溢出
+		cell.set_script(cell_script) # 重要：给生成的节点挂载脚本
 		cell.custom_minimum_size = Vector2(80, 80)
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP
 		cell.set_meta("index", i)
-		
-		# 集中配置样式
-		var style_box = StyleBoxFlat.new()
-		style_box.bg_color = CELL_COLOR
-		style_box.set_border_width_all(5)
-		style_box.border_color = Color.BLACK
-		# 如果想要圆角，开启下面这行
-		# style_box.set_corner_radius_all(4) 
-		
-		# 抗锯齿，让边框更平滑
-		style_box.anti_aliasing = true 
-		
-		cell.add_theme_stylebox_override("panel", style_box)
-		
-		# 信号连接（确保 _on_cell_input 接收两个参数：event 和 index）
-		cell.gui_input.connect(_on_cell_input.bind(i))
 		
 		grid.add_child(cell)
 		print("Added cell ", i)
 
 
 	print("Grid setup complete! Total cells: ", grid.get_child_count())
-
-func _on_cell_input(event, cell_index):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		print("click ", cell_index)
-		var cell = $Grid.get_child(cell_index) as PanelContainer
-		# 切换单元格颜色（模拟射击效果）
-		if cell:
-			var new_color = Color.RED  # 红色表示击中
-			# 同步更新 stylebox 的背景色
-			var style_box = cell.get_theme_stylebox("panel") as StyleBoxFlat
-			print(style_box)
-			if style_box:
-				style_box.bg_color = new_color
-			print("Cell %d clicked!" % cell_index)
-			# 0.2秒后恢复
-			await get_tree().create_timer(0.2).timeout
-			if style_box:
-				style_box.bg_color = CELL_COLOR
