@@ -152,3 +152,31 @@ func update_button_text():
 		start_stop_button.text = "停止"
 	else:
 		start_stop_button.text = "开始"
+	
+	# Create base StyleBoxFlat with 2px black border
+	var style_box = StyleBoxFlat.new()
+	style_box.border_width_left = 2
+	style_box.border_width_top = 2
+	style_box.border_width_right = 2
+	style_box.border_width_bottom = 2
+	style_box.border_color = Color.BLACK
+	
+	if game_started:
+		# Red background when game is running
+		style_box.bg_color = Color(0.9, 0.2, 0.2, 1.0)
+	else:
+		# Green background when game is stopped
+		style_box.bg_color = Color(0.2, 0.8, 0.2, 1.0)
+	
+	# Apply normal style
+	start_stop_button.add_theme_stylebox_override("normal", style_box)
+	
+	# Create hover style (lightened version)
+	var hover_style = style_box.duplicate()
+	hover_style.bg_color = style_box.bg_color.lightened(0.1)
+	start_stop_button.add_theme_stylebox_override("hover", hover_style)
+	
+	# Create pressed style (darkened version)
+	var pressed_style = style_box.duplicate()
+	pressed_style.bg_color = style_box.bg_color.darkened(0.1)
+	start_stop_button.add_theme_stylebox_override("pressed", pressed_style)
