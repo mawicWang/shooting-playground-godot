@@ -65,11 +65,42 @@ func _add_border_hitbox(cell: Control):
 	rectangle.size = Vector2(80, 80)
 	collision_shape.shape = rectangle
 	
+	# 添加debug可视化 - 半透明红色边框，与cell的米色背景形成对比
+	var debug_visual = _create_debug_visual(rectangle.size)
+	hitbox.add_child(debug_visual)
+	
 	hitbox.add_child(collision_shape)
 	cell.add_child(hitbox)
 	
 	# 连接信号
 	hitbox.area_entered.connect(_on_border_hitbox_area_entered.bind(cell))
+
+func _create_debug_visual(size: Vector2) -> Node2D:
+	"""创建碰撞体积的debug可视化"""
+	var visual = Node2D.new()
+	visual.name = "DebugVisual"
+	
+	# 使用ColorRect作为背景
+	var color_rect = ColorRect.new()
+	color_rect.size = size
+	color_rect.position = -size / 2  # 居中
+	
+	# 使用醒目的半透明红色，与cell的米色背景(#F2EAE0)形成强烈对比
+	color_rect.color = Color(1, 0.2, 0.2, 0.3)  # 半透明红色
+	
+	visual.add_child(color_rect)
+	
+	# 添加边框使其更明显
+	var border = ReferenceRect.new()
+	border.size = size
+	border.position = -size / 2
+	border.editor_only = false  # 在游戏时也显示
+	border.border_color = Color(1, 0, 0, 0.8)  # 不透明红色边框
+	border.border_width = 2.0
+	
+	visual.add_child(border)
+	
+	return visual
 
 func _on_border_hitbox_area_entered(area: Area2D, cell: Control):
 	"""当敌人触碰边界cell时触发"""
