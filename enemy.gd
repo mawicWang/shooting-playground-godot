@@ -17,6 +17,8 @@ func _ready():
 	# 连接碰撞检测信号
 	hitbox.body_entered.connect(_on_hitbox_body_entered)
 	hitbox.area_entered.connect(_on_hitbox_area_entered)
+	# 设置统一朝向（正立朝上）
+	rotation = 0
 
 func _physics_process(delta):
 	# 不使用move_and_slide，直接修改位置避免物理碰撞
@@ -24,7 +26,8 @@ func _physics_process(delta):
 
 func set_direction(dir: Vector2):
 	direction = dir.normalized()
-	rotation = direction.angle()
+	# 保持统一朝向，不随移动方向旋转
+	# 如需调整朝向，修改下面的 rotation 值
 
 func set_grid_aligned_position(pos: Vector2):
 	# 对齐到网格中心
