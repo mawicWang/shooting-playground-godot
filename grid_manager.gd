@@ -59,11 +59,16 @@ func _add_border_hitbox(cell: Control):
 	hitbox.monitoring = true
 	hitbox.monitorable = true
 	
+	# 将hitbox位置设置为cell中心（相对于cell的左上角）
+	var cell_size = cell.custom_minimum_size
+	hitbox.position = cell_size / 2  # (40, 40) - cell中心
+	
 	# 创建碰撞形状，覆盖整个cell
 	var collision_shape = CollisionShape2D.new()
 	var rectangle = RectangleShape2D.new()
-	rectangle.size = Vector2(80, 80)
+	rectangle.size = cell_size
 	collision_shape.shape = rectangle
+	# collision_shape位置保持(0,0)，因为hitbox已经在cell中心了
 	
 	# 添加debug可视化 - 半透明红色边框，与cell的米色背景形成对比
 	var debug_visual = _create_debug_visual(rectangle.size)
@@ -80,10 +85,10 @@ func _create_debug_visual(size: Vector2) -> Node2D:
 	var visual = Node2D.new()
 	visual.name = "DebugVisual"
 	
-	# 使用ColorRect作为背景
+	# 使用ColorRect作为背景 - 位置从左上角开始，因为父节点hitbox已经在cell中心
 	var color_rect = ColorRect.new()
 	color_rect.size = size
-	color_rect.position = -size / 2  # 居中
+	color_rect.position = -size / 2  # 相对于hitbox中心居中
 	
 	# 使用醒目的半透明红色，与cell的米色背景(#F2EAE0)形成强烈对比
 	color_rect.color = Color(1, 0.2, 0.2, 0.3)  # 半透明红色
@@ -93,7 +98,7 @@ func _create_debug_visual(size: Vector2) -> Node2D:
 	# 添加边框使其更明显
 	var border = ReferenceRect.new()
 	border.size = size
-	border.position = -size / 2
+	border.position = -size / 2  # 相对于hitbox中心居中
 	border.editor_only = false  # 在游戏时也显示
 	border.border_color = Color(1, 0, 0, 0.8)  # 不透明红色边框
 	border.border_width = 2.0
