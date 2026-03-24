@@ -83,26 +83,32 @@ func _on_border_hitbox_area_entered(area: Area2D, cell: Control):
 			parent.destroy()
 
 func _trigger_screen_shake():
-	"""触发屏幕抖动效果"""
-	var camera = get_viewport().get_camera_2d()
-	if camera == null:
-		camera = Camera2D.new()
-		camera.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
-		get_tree().root.add_child(camera)
-		camera.make_current()
+	"""触发屏幕抖动效果 - 抖动游戏内容层"""
+	var game_content = get_node_or_null("/root/main/GameContent")
+	if game_content == null:
+		print("[SCREEN] Cannot find game content for shake")
+		return
+	
+	# 保存原始位置
+	var original_position = game_content.position
+	
+	# 抖动参数 - 保守设置确保不会超出屏幕
+	var shake_intensity = 5.0
+	var shake_duration = 0.3
+	var shake_count = 8
 	
 	var tween = create_tween()
-	var original_position = camera.offset
-	var shake_intensity = 15.0
-	var shake_duration = 0.4
-	var shake_count = 12
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_IN_OUT)
 	
 	for i in range(shake_count):
 		var random_offset = Vector2(
 			randf_range(-shake_intensity, shake_intensity),
 			randf_range(-shake_intensity, shake_intensity)
 		)
-		tween.tween_property(camera, "offset", original_position + random_offset, shake_duration / shake_count)
+		tween.tween_property(game_content, "position", original_position + random_offset, shake_duration / shake_count)
 	
-	tween.tween_property(camera, "offset", original_position, shake_duration / shake_count)
-	print("[SCREEN] Screen shake triggered by border hit!")
+	# 恢复原始位置
+	tween.tween_property(game_content, "position", original_position, shake_duration / shake_count)
+	
+	print("[SCREEN] Screen shake triggered! Intensity: ", shake_intensity)
