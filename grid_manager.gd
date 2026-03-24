@@ -83,7 +83,7 @@ func _on_border_hitbox_area_entered(area: Area2D, cell: Control):
 			parent.destroy()
 
 func _trigger_screen_shake():
-	"""触发屏幕抖动效果"""
+	"""触发屏幕抖动效果，限制在屏幕可视范围内"""
 	var camera = get_viewport().get_camera_2d()
 	if camera == null:
 		camera = Camera2D.new()
@@ -91,18 +91,41 @@ func _trigger_screen_shake():
 		get_tree().root.add_child(camera)
 		camera.make_current()
 	
-	var tween = create_tween()
+	# 获取屏幕尺寸和计算最大允许偏移
+	var viewport_size = get_viewport_rect().size
+	var canvas_transform = get_viewport().canvas_transform
+	var current_zoom = camera.zoom if camera.zoom != Vector2.ZERO else Vector2.ONE
+	
+	# 计算相机可以移动的最大范围（确保画面不超出屏幕）
+	# 考虑相机锚点模式和当前位置
+	var max_offset_x = viewport_size.x * 0.05  # 限制在屏幕宽度的5%内
+	var max_offset_y = viewport_size.y * 0.05  # 限制在屏幕高度的5%内
+	
 	var original_position = camera.offset
 	var shake_intensity = 15.0
 	var shake_duration = 0.4
 	var shake_count = 12
 	
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_IN_OUT)
+	
 	for i in range(shake_count):
+		# 生成随机偏移，但限制在最大范围内
 		var random_offset = Vector2(
 			randf_range(-shake_intensity, shake_intensity),
 			randf_range(-shake_intensity, shake_intensity)
 		)
-		tween.tween_property(camera, "offset", original_position + random_offset, shake_duration / shake_count)
+		
+		# 限制偏移在屏幕范围内
+		var clamped_offset = Vector2(
+			clamp(random_offset.x, -max_offset_x, max_offset_x),
+			clamp(random_offset.y, -max_offset_y, max_offset_y)
+		)
+		
+		tween.tween_property(camera, "offset", original_position + clamped_offset, shake_duration / shake_count)
 	
+	# 恢复原始位置
 	tween.tween_property(camera, "offset", original_position, shake_duration / shake_count)
-	print("[SCREEN] Screen shake triggered by border hit!")
+	
+	print("[SCREEN] Screen shake triggered! Max offset: (", max_offset_x, ", ", max_offset_y, ")")
