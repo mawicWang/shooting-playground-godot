@@ -108,20 +108,8 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 		enemy.destroy()  # 销毁敌人
 		return
 	
-	# 检查是否触碰网格（通过检查body是否在grid_cells组中）
-	if body.is_in_group("grid_cells"):
-		print("[ENEMY] Enemy reached the grid at cell: ", body.name, "! Game Over!")
-		if enemy in active_enemies:
-			active_enemies.erase(enemy)
-		enemy.destroy()
-		return
-	
-	# 检查是否触碰grid容器本身
-	if body.name == "Grid":
-		print("[ENEMY] Enemy reached the grid container! Game Over!")
-		if enemy in active_enemies:
-			active_enemies.erase(enemy)
-		enemy.destroy()
+	# 注意：边界cell的碰撞现在由grid_manager处理
+	# 敌人触碰边界cell时会触发屏幕抖动并销毁敌人
 
 func clear_enemies():
 	for enemy in active_enemies:
