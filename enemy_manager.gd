@@ -101,7 +101,8 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	
 	if is_bullet:
 		print("[ENEMY] Enemy hit by bullet!")
-		body.queue_free()  # 销毁子弹
+		if is_instance_valid(body):
+			body.queue_free()  # 销毁子弹
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()  # 销毁敌人

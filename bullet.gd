@@ -8,9 +8,10 @@ var lifetime: float = 0.0
 var warned: bool = false  # 是否已经打印过警告
 
 func _ready():
-	# 启用Area2D监控以便敌人检测
-	$Area2D.monitoring = true
-	$Area2D.monitorable = true
+	# 启用Hitbox监控以便敌人检测
+	$Hitbox.monitoring = true
+	$Hitbox.monitorable = true
+	# 注意：碰撞检测由敌人处理，子弹只负责移动
 
 func _physics_process(delta):
 	velocity = direction * SPEED

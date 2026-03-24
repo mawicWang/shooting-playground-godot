@@ -7,20 +7,17 @@
 radius = 5.0
 
 [node name="Bullet" type="CharacterBody2D"]
-collision_layer = 4
-collision_mask = 11
+collision_layer = 0
+collision_mask = 0
 script = ExtResource("2_bullet_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.33, 0.33)
 texture = ExtResource("1_bullet_svg")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_bullet")
-
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 4
 collision_mask = 15
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("CircleShape2D_bullet")
