@@ -20,22 +20,7 @@ func _ready():
 
 func _physics_process(delta):
 	# 不使用move_and_slide，直接修改位置避免物理碰撞
-	var new_position = global_position + direction * SPEED * delta
-	
-	# 检查是否会进入grid区域
-	var grid_rect = get_node_or_null("/root/main/GameContent/CenterContainer/GridRoot/Grid")?.get_global_rect()
-	if grid_rect != null:
-		# 获取敌人的碰撞大小（近似值）
-		var enemy_radius = 20.0
-		var enemy_rect = Rect2(new_position - Vector2(enemy_radius, enemy_radius), Vector2(enemy_radius * 2, enemy_radius * 2))
-		
-		# 如果新位置会与grid重叠，则停止移动并触发碰撞
-		if grid_rect.intersects(enemy_rect):
-			# 不移动，保持在当前位置
-			# 碰撞检测由hitbox信号处理
-			return
-	
-	global_position = new_position
+	global_position += direction * SPEED * delta
 
 func set_direction(dir: Vector2):
 	direction = dir.normalized()

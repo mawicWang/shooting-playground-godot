@@ -110,8 +110,7 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	
 	# 检查是否触碰网格（通过检查body是否在grid_cells组中）
 	if body.is_in_group("grid_cells"):
-		print("[ENEMY] Enemy reached the grid at cell: ", body.name, "! Triggering screen shake!")
-		_trigger_screen_shake()
+		print("[ENEMY] Enemy reached the grid at cell: ", body.name, "! Game Over!")
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()
@@ -119,40 +118,10 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	
 	# 检查是否触碰grid容器本身
 	if body.name == "Grid":
-		print("[ENEMY] Enemy reached the grid container! Triggering screen shake!")
-		_trigger_screen_shake()
+		print("[ENEMY] Enemy reached the grid container! Game Over!")
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()
-
-func _trigger_screen_shake():
-	# 触发屏幕抖动效果
-	var camera = get_viewport().get_camera_2d()
-	if camera == null:
-		# 如果没有Camera2D，创建一个临时的
-		camera = Camera2D.new()
-		camera.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
-		get_tree().root.add_child(camera)
-		camera.make_current()
-	
-	# 创建抖动动画
-	var tween = create_tween()
-	var original_position = camera.offset
-	var shake_intensity = 10.0
-	var shake_duration = 0.3
-	var shake_count = 10
-	
-	for i in range(shake_count):
-		var random_offset = Vector2(
-			randf_range(-shake_intensity, shake_intensity),
-			randf_range(-shake_intensity, shake_intensity)
-		)
-		tween.tween_property(camera, "offset", original_position + random_offset, shake_duration / shake_count)
-	
-	# 恢复原始位置
-	tween.tween_property(camera, "offset", original_position, shake_duration / shake_count)
-	
-	print("[SCREEN] Screen shake triggered!")
 
 func clear_enemies():
 	for enemy in active_enemies:
