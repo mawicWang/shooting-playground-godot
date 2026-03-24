@@ -19,6 +19,7 @@ noise = SubResource("FastNoiseLite_qi2p4")
 shader = ExtResource("3_enemy_shader")
 shader_parameter/shake_amplitude = 22.049
 shader_parameter/shake_fps = 2.0
+shader_parameter/rot_amplitude = 30.0
 shader_parameter/shake_noise_tex = SubResource("NoiseTexture2D_iifgy")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]

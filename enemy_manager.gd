@@ -37,6 +37,9 @@ func spawn_enemies():
 		Vector2(-1, 0)   # 右 -> 左
 	]
 	
+	# 追踪已使用的生成位置，避免重叠
+	var used_positions = {}
+	
 	# 随机选择要生成的行/列，不是所有都生成
 	var spawned_count = 0
 	var attempts = 0
@@ -50,6 +53,7 @@ func spawn_enemies():
 		
 		var spawn_pos = Vector2.ZERO
 		var target_grid_pos = Vector2.ZERO
+		var pos_key = ""  # 用于检测重复位置的键
 		
 		if direction == Vector2(0, 1):  # 从上往下
 			# 随机选择一列
@@ -57,24 +61,36 @@ func spawn_enemies():
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, -SPAWN_MARGIN)
 			target_grid_pos = Vector2(x, grid_rect.position.y + grid_cell_size / 2)
+			pos_key = "top_" + str(col)
 			
 		elif direction == Vector2(0, -1):  # 从下往上
 			var col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, viewport_size.y + SPAWN_MARGIN)
 			target_grid_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y - grid_cell_size / 2)
+			pos_key = "bottom_" + str(col)
 			
 		elif direction == Vector2(1, 0):  # 从左往右
 			var row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(-SPAWN_MARGIN, y)
 			target_grid_pos = Vector2(grid_rect.position.x + grid_cell_size / 2, y)
+			pos_key = "left_" + str(row)
 			
 		elif direction == Vector2(-1, 0):  # 从右往左
 			var row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(viewport_size.x + SPAWN_MARGIN, y)
 			target_grid_pos = Vector2(grid_rect.position.x + grid_rect.size.x - grid_cell_size / 2, y)
+			pos_key = "right_" + str(row)
+		
+		# 检查这个位置是否已被使用
+		if used_positions.has(pos_key):
+			enemy.queue_free()  # 销毁重复的敌人
+			continue  # 跳过，重新随机
+		
+		# 标记位置为已使用
+		used_positions[pos_key] = true
 		
 		enemy.set_grid_aligned_position(spawn_pos)
 		enemy.set_direction(direction)

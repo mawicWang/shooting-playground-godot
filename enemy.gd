@@ -19,6 +19,8 @@ func _ready():
 	hitbox.area_entered.connect(_on_hitbox_area_entered)
 	# 设置统一朝向（正立朝上）
 	rotation = 0
+	
+	# 种子将在 set_grid_aligned_position 中设置
 
 func _physics_process(delta):
 	# 不使用move_and_slide，直接修改位置避免物理碰撞
@@ -32,6 +34,12 @@ func set_direction(dir: Vector2):
 func set_grid_aligned_position(pos: Vector2):
 	# 对齐到网格中心
 	global_position = pos
+	
+	# 设置位置后，使用位置生成唯一种子
+	var sprite = $Sprite2D
+	if sprite.material != null:
+		var unique_seed = pos.x * 10.0 + pos.y
+		sprite.material.set_shader_parameter("noise_seed", unique_seed)
 
 func _on_hitbox_body_entered(body: Node2D):
 	# 发出信号给管理器处理碰撞
