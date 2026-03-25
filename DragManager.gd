@@ -7,33 +7,31 @@ const ROT_RIGHT = PI / 2.0 # Rotate CW 90 degrees from UP
 const ROT_DOWN = PI         # Rotate 180 degrees from UP
 const ROT_LEFT = -PI / 2.0   # Rotate CCW 90 degrees from UP
 
-var _drag_preview_node: Control = null
-var _drag_texture_rect: TextureRect = null
-var _drag_source_node: Node = null # Reference to the node that initiated the drag (cell or tower_icon)
-var hovered_valid_cell: Node = null # Reference to the currently hovered valid cell
-var last_known_drag_rotation = ROT_UP # Stores the last calculated rotation
+var _drag_preview_node: Control = null # 拖拽预览的根节点（Control 类型，便于浮动显示）
+var _drag_texture_rect: TextureRect = null # 预览中的纹理显示节点
+var _drag_source_node: Node = null # 拖拽发起的节点引用（cell 或 tower_icon）
+var hovered_valid_cell: Node = null # 当前鼠标悬停的有效网格单元引用（用于辅助旋转计算）
+var last_known_drag_rotation = ROT_UP # 存储最后一次计算得到的旋转弧度（用于在 Drop 时应用）
 
 func _ready():
 	set_process(false) # Start with process disabled
 
 func _process(_delta):
 	if _drag_preview_node and _drag_source_node:
-		# Update position of the custom drag preview
-		_drag_preview_node.global_position = get_viewport().get_mouse_position() - Vector2(30, 30) # Offset to center
+		# 更新自定义拖拽预览的位置，使其跟随鼠标并居中
+		_drag_preview_node.global_position = get_viewport().get_mouse_position() - Vector2(30, 30)
 		
-		# Get rotation from the source node
-		var current_rotation = ROT_UP # Default if source is invalid
-		# Check if source_node is valid AND has the method
+		# 从发起拖拽的源节点（Icon 或 Cell）获取实时的旋转偏移量
+		var current_rotation = ROT_UP
 		if is_instance_valid(_drag_source_node) and _drag_source_node.has_method("get_current_drag_rotation"):
 			current_rotation = _drag_source_node.get_current_drag_rotation()
-			# print("DragManager: Getting rotation from ", _drag_source_node.name, ": ", rad_to_deg(current_rotation), " degrees") # Debug log
-		# else: current_rotation remains ROT_UP
 
-		# Apply rotation to the preview texture and store it
+		# 将旋转值应用到预览纹理，并缓存最后一次已知的旋转状态
 		if _drag_texture_rect:
-			_drag_texture_rect.rotation = current_rotation # Rotation in radians
-			last_known_drag_rotation = current_rotation # Cache the last known rotation
+			_drag_texture_rect.rotation = current_rotation # 弧度制
+			last_known_drag_rotation = current_rotation # 缓存，供 Drop 阶段使用
 
+## 开启拖拽流程，由源节点调用
 func start_drag(texture: Texture2D, source_node: Node):
 	# Clear any existing preview and reset state
 	end_drag() # Ensure any previous drag is ended cleanly
