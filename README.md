@@ -30,7 +30,7 @@
 
 本项目旨在作为 Godot 塔防游戏开发的一个模版。如果您对实现逻辑感兴趣，请参考：
 
-👉 **[开发者文档 (DEVELOPER.md)](./DEVELOPER.md)**
+👉 **[开发者文档 (DEVELOPER.md)](./doc/DEVELOPER.md)**
 
 涵盖了：
 - 系统架构与模块职责
