@@ -3,7 +3,7 @@ extends Control
 signal enemy_breached_grid()  # 敌人触碰边界cell信号
 
 const CELL_COLOR = Color("#F2EAE0")
-var cell_script = preload("res://cell.gd") # 提前加载脚本
+var cell_script = preload("res://grid/cell.gd") # 提前加载脚本
 
 func _ready():
 	# 获取 GridContainer

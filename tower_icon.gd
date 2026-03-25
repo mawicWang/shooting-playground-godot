@@ -1,7 +1,7 @@
 # tower_icon.gd
 extends TextureRect
 
-@export var tower_scene: PackedScene = preload("res://tower.tscn") # Your tower prefab
+@export var tower_scene: PackedScene = preload("res://entities/towers/tower.tscn") # Your tower prefab
 
 # Rotation constants are now defined in DragManager.gd
 

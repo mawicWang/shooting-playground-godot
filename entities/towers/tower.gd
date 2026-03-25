@@ -1,7 +1,7 @@
 extends Node2D
 
 @export var firing_rate: float = 1.0 # Bullets per second
-var bullet_scene = preload("res://bullet.tscn")
+var bullet_scene = preload("res://entities/bullets/bullet.tscn")
 @onready var fire_timer = $FireTimer
 @onready var area = $Area2D
 @onready var collision_shape = $Area2D/CollisionShape2D
