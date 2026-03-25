@@ -170,7 +170,7 @@ func rotate_clockwise():
 | 2.3 创建 ShootableComponent | 提取射击逻辑 | 射击功能正常 |
 | 2.4 创建 TowerBase | 抽象基类，组装组件 | 可实例化测试 |
 | 2.5 重构 SimpleTower，迁移现有 tower | 发射源类型 | 定时发射子弹， 所有功能等价 |
-
+| 2.6 创建 Stat Modifier 系统 | 实现基础值和修饰器，安全叠加模块和遗物 Buff | 属性计算不丢失精度且可插拔 |
 
 ---
 
@@ -244,7 +244,7 @@ func _on_signal_entered(bullet: BulletBase):
 | 3.4 重构 Bullet 碰撞 | 改为 Area2D 检测 | 可检测塔间传递 |
 | 3.5 实现信号链追踪 | 记录传递路径 | 用于遗物递归逻辑 |
 | 3.6 迁移现有 bullet | 替换旧 bullet | 功能等价 |
-
+| 3.7 引入 Object Pool 对象池 | 复用打中或越界的子弹实例 | 性能：海量子弹不再导致卡顿 |
 ---
 
 ## Phase 4: 组件与模块系统
