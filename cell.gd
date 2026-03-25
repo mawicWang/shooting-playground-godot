@@ -29,14 +29,35 @@ func _ready():
 	# Connect mouse_exited to clear hovered_valid_cell in DragManager
 	mouse_exited.connect(self._on_mouse_exited)
 	
-	# Set mouse_filter to PASS so click events can reach tower's Area2D
-	# MOUSE_FILTER_PASS = 1, allows events to pass through to children
-	mouse_filter = Control.MOUSE_FILTER_PASS
+	# Set mouse_filter to STOP so cell can receive _gui_input events
+	# Tower rotation will be handled by _gui_input above
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 func _on_mouse_exited():
 	# Only clear if this cell was the one being hovered
 	if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
 		DragManager.clear_hovered_valid_cell()
+
+# --- Click handling for tower rotation (bypass Area2D issues) ---
+
+var _click_start_time: int = 0
+var _is_click_valid: bool = false
+const CLICK_MAX_DURATION_MS: int = 300  # Max duration for a click (vs drag)
+
+func _gui_input(event):
+	# Detect left mouse button press to start tracking potential click
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_click_start_time = Time.get_ticks_msec()
+			_is_click_valid = true
+		else:
+			# Button released - check if it's a valid click (not a drag)
+			var click_duration = Time.get_ticks_msec() - _click_start_time
+			if _is_click_valid and click_duration < CLICK_MAX_DURATION_MS and is_occupied and is_instance_valid(tower_node):
+				# It's a click, trigger tower rotation
+				if tower_node.has_method("_rotate_90_degrees"):
+					tower_node._rotate_90_degrees()
+					get_viewport().set_input_as_handled()
 
 func _notification(what):
 	match what:
@@ -205,19 +226,31 @@ func _drop_data(_at_position, data):
 	tower_deployed.emit(tower)
 
 	# Apply the rotation determined (no correction needed here now)
-	if is_instance_valid(tower) and tower.has_method("_apply_rotation"):
-		tower._apply_rotation(final_rotation)
+	if is_instance_valid(tower) and tower.has_method("set_initial_direction"):
+		# Convert rotation radians to direction index (0=UP, 1=RIGHT, 2=DOWN, 3=LEFT)
+		var direction_index = _rotation_to_direction_index(final_rotation)
+		tower.set_initial_direction(direction_index)
 	elif is_instance_valid(tower) and tower is Node2D:
-		tower.rotation_degrees = rad_to_deg(final_rotation) # Node2D uses degrees
-	elif is_instance_valid(tower) and tower is Control:
-		# For Control nodes, rotation might need to be handled differently if they are UI elements
-		# Assuming for now towers are Node2D or have a Node2D child for rotation
-		pass 
+		tower.rotation = final_rotation # Keep as fallback 
 
 	_update_visuals() # Update cell color to occupied green
 
 func get_deployed_tower():
 	return tower_node
+
+# Helper function to convert rotation radians to direction index
+func _rotation_to_direction_index(rotation_rad: float) -> int:
+	# Normalize rotation to 0-2π range
+	var normalized = fmod(rotation_rad + TAU, TAU)
+	# Determine direction based on angle (allowing some tolerance)
+	if normalized < PI / 4.0 or normalized > 7.0 * PI / 4.0:
+		return 0  # UP
+	elif normalized < 3.0 * PI / 4.0:
+		return 1  # RIGHT
+	elif normalized < 5.0 * PI / 4.0:
+		return 2  # DOWN
+	else:
+		return 3  # LEFT
 
 
 func _setup_tower_visuals(tower):

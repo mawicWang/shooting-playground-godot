@@ -8,7 +8,8 @@ var bullet_scene = preload("res://bullet.tscn")
 @onready var sprite = $Sprite2D
 
 # Rotation state
-var current_rotation_index: int = 0  # 0=UP, 1=RIGHT, 2=DOWN, 3=LEFT
+enum Direction { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 }
+var current_rotation_index: int = Direction.UP  # 0=UP, 1=RIGHT, 2=DOWN, 3=LEFT
 var is_rotating: bool = false
 const ROTATION_ANGLES = [
 	0.0,                              # UP (0 degrees)
@@ -71,14 +72,34 @@ func _on_area_input_event(viewport, event, shape_idx):
 func _rotate_90_degrees():
 	is_rotating = true
 	current_rotation_index = (current_rotation_index + 1) % 4
-	var target_rotation = ROTATION_ANGLES[current_rotation_index]
 	
-	# Create smooth rotation tween
+	# Calculate target rotation in degrees
+	var start_rotation = rotation_degrees
+	var target_rotation = current_rotation_index * 90.0
+	
+	# Ensure clockwise rotation by going through 360 instead of backwards
+	# If target is 0 and start is 270, we want to go 270 -> 360, not 270 -> 0
+	if target_rotation < start_rotation:
+		target_rotation += 360.0
+	
+	# Create smooth rotation tween using custom method to ensure clockwise rotation
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "rotation", target_rotation, ROTATION_DURATION)
+	
+	# Use tween_method with custom interpolation to handle the 360 wrap properly
+	tween.tween_method(_set_rotation_clockwise, start_rotation, target_rotation, ROTATION_DURATION)
 	tween.tween_callback(_on_rotation_complete)
+
+# Custom setter for clockwise rotation interpolation
+func _set_rotation_clockwise(degrees: float):
+	# Normalize to 0-360 range for display
+	rotation_degrees = fmod(degrees, 360.0)
+
+# Set initial rotation based on placement direction (called by cell when tower is deployed)
+func set_initial_direction(direction_index: int):
+	current_rotation_index = direction_index % 4
+	rotation_degrees = current_rotation_index * 90.0
 
 func _on_rotation_complete():
 	is_rotating = false
