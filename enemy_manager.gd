@@ -1,12 +1,18 @@
 extends Node2D
 
 const ENEMY_SCENE = preload("res://enemy.tscn")
+const WARNING_SCENE = preload("res://enemy_warning.tscn")
 const ENEMY_COUNT = 8  # 生成的敌人数量
 const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
+const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
 
 var grid_rect: Rect2 = Rect2()
 var grid_cell_size: float = 80.0
 var active_enemies: Array = []
+var active_warnings: Array = []
+
+# 预生成的敌人信息
+var pending_enemies: Array = []
 
 func _ready():
 	pass
@@ -15,9 +21,11 @@ func set_grid_info(rect: Rect2, cell_size: float):
 	grid_rect = rect
 	grid_cell_size = cell_size
 
-func spawn_enemies():
-	# 清除现有敌人
-	clear_enemies()
+# 预生成敌人信息并显示警告（游戏开始前调用）
+func prepare_enemies():
+	# 清除之前的警告
+	clear_warnings()
+	pending_enemies.clear()
 	
 	if grid_rect.size == Vector2.ZERO:
 		push_error("Grid rect not set!")
@@ -40,7 +48,7 @@ func spawn_enemies():
 	# 追踪已使用的生成位置，避免重叠
 	var used_positions = {}
 	
-	# 随机选择要生成的行/列，不是所有都生成
+	# 随机选择要生成的行/列
 	var spawned_count = 0
 	var attempts = 0
 	var max_attempts = ENEMY_COUNT * 10
@@ -49,51 +57,82 @@ func spawn_enemies():
 		attempts += 1
 		
 		var direction = directions[randi() % directions.size()]
-		var enemy = ENEMY_SCENE.instantiate()
 		
 		var spawn_pos = Vector2.ZERO
-		var target_grid_pos = Vector2.ZERO
-		var pos_key = ""  # 用于检测重复位置的键
+		var warning_pos = Vector2.ZERO
+		var pos_key = ""
+		var col = 0
+		var row = 0
 		
 		if direction == Vector2(0, 1):  # 从上往下
-			# 随机选择一列
-			var col = randi() % cols
+			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, -SPAWN_MARGIN)
-			target_grid_pos = Vector2(x, grid_rect.position.y + grid_cell_size / 2)
+			warning_pos = Vector2(x, grid_rect.position.y - WARNING_DISTANCE)
 			pos_key = "top_" + str(col)
 			
 		elif direction == Vector2(0, -1):  # 从下往上
-			var col = randi() % cols
+			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, viewport_size.y + SPAWN_MARGIN)
-			target_grid_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y - grid_cell_size / 2)
+			warning_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + WARNING_DISTANCE)
 			pos_key = "bottom_" + str(col)
 			
 		elif direction == Vector2(1, 0):  # 从左往右
-			var row = randi() % rows
+			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(-SPAWN_MARGIN, y)
-			target_grid_pos = Vector2(grid_rect.position.x + grid_cell_size / 2, y)
+			warning_pos = Vector2(grid_rect.position.x - WARNING_DISTANCE, y)
 			pos_key = "left_" + str(row)
 			
 		elif direction == Vector2(-1, 0):  # 从右往左
-			var row = randi() % rows
+			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(viewport_size.x + SPAWN_MARGIN, y)
-			target_grid_pos = Vector2(grid_rect.position.x + grid_rect.size.x - grid_cell_size / 2, y)
+			warning_pos = Vector2(grid_rect.position.x + grid_rect.size.x + WARNING_DISTANCE, y)
 			pos_key = "right_" + str(row)
 		
 		# 检查这个位置是否已被使用
 		if used_positions.has(pos_key):
-			enemy.queue_free()  # 销毁重复的敌人
-			continue  # 跳过，重新随机
+			continue
 		
 		# 标记位置为已使用
 		used_positions[pos_key] = true
 		
-		enemy.set_grid_aligned_position(spawn_pos)
-		enemy.set_direction(direction)
+		# 保存敌人信息
+		var enemy_info = {
+			"spawn_pos": spawn_pos,
+			"warning_pos": warning_pos,
+			"direction": direction,
+			"pos_key": pos_key
+		}
+		pending_enemies.append(enemy_info)
+		
+		# 创建警告图标
+		var warning = WARNING_SCENE.instantiate()
+		warning.set_base_position(warning_pos)
+		warning.set_direction(direction)
+		get_tree().root.add_child(warning)
+		active_warnings.append(warning)
+		
+		spawned_count += 1
+		print("[ENEMY] Prepared enemy #", spawned_count, " at ", spawn_pos, " direction: ", direction)
+	
+	print("[ENEMY] Total enemies prepared: ", spawned_count)
+
+# 实际生成敌人（游戏开始时调用）
+func spawn_enemies():
+	# 清除警告
+	clear_warnings()
+	
+	# 清除现有敌人
+	clear_enemies()
+	
+	# 根据预存的信息生成敌人
+	for enemy_info in pending_enemies:
+		var enemy = ENEMY_SCENE.instantiate()
+		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
+		enemy.set_direction(enemy_info["direction"])
 		
 		# 连接碰撞信号
 		enemy.enemy_hit.connect(_on_enemy_hit)
@@ -101,14 +140,27 @@ func spawn_enemies():
 		# 添加到场景
 		get_tree().root.add_child(enemy)
 		active_enemies.append(enemy)
-		
-		spawned_count += 1
-		print("[ENEMY] Spawned enemy #", spawned_count, " at ", spawn_pos, " direction: ", direction)
 	
-	print("[ENEMY] Total enemies spawned: ", spawned_count)
+	print("[ENEMY] Spawned ", active_enemies.size(), " enemies")
+	
+	# 清空预存信息
+	pending_enemies.clear()
+
+func clear_warnings():
+	for warning in active_warnings:
+		if is_instance_valid(warning):
+			warning.queue_free()
+	active_warnings.clear()
+
+func clear_enemies():
+	for enemy in active_enemies:
+		if is_instance_valid(enemy):
+			enemy.queue_free()
+	active_enemies.clear()
+	print("[ENEMY] All enemies cleared")
 
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
-	# 检查是否是子弹（通过脚本路径或名称）
+	# 检查是否是子弹
 	var is_bullet = false
 	if body.get_script() != null and body.get_script().resource_path.ends_with("bullet.gd"):
 		is_bullet = true
@@ -118,21 +170,12 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	if is_bullet:
 		print("[ENEMY] Enemy hit by bullet!")
 		if is_instance_valid(body):
-			body.queue_free()  # 销毁子弹
+			body.queue_free()
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
-		enemy.destroy()  # 销毁敌人
+		enemy.destroy()
 		return
-	
-	# 注意：边界cell的碰撞现在由grid_manager处理
-	# 敌人触碰边界cell时会触发屏幕抖动并销毁敌人
-
-func clear_enemies():
-	for enemy in active_enemies:
-		if is_instance_valid(enemy):
-			enemy.queue_free()
-	active_enemies.clear()
-	print("[ENEMY] All enemies cleared")
 
 func _exit_tree():
+	clear_warnings()
 	clear_enemies()

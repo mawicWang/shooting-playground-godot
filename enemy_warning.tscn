@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://warningicon1234"]
+
+[ext_resource type="Texture2D" uid="uid://c24n0gk10aesr" path="res://assets/warn.png" id="1_warn_texture"]
+[ext_resource type="Script" path="res://enemy_warning.gd" id="2_warn_script"]
+
+[node name="EnemyWarning" type="Node2D"]
+script = ExtResource("2_warn_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_warn_texture")

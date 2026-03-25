@@ -28,6 +28,9 @@ func _ready():
 			var tower = cell.get_deployed_tower()
 			if is_instance_valid(tower):
 				_on_tower_deployed(tower)
+	
+	# 游戏开始前准备敌人（显示警告）
+	_prepare_enemy_warnings()
 
 func _on_window_resize():
 	var window_size = get_viewport_rect().size
@@ -120,7 +123,8 @@ func _remove_dead_zones():
 		dead_zone_manager.queue_free()
 		dead_zone_manager = null
 
-func _create_enemy_manager():
+func _prepare_enemy_warnings():
+	# 创建敌人管理器用于准备警告
 	if is_instance_valid(enemy_manager):
 		enemy_manager.queue_free()
 	enemy_manager = Node2D.new()
@@ -132,8 +136,24 @@ func _create_enemy_manager():
 	var grid_rect = grid_container.get_global_rect()
 	enemy_manager.set_grid_info(grid_rect, 80.0)
 	
-	# 生成敌人
-	enemy_manager.spawn_enemies()
+	# 准备敌人（显示警告，但不生成敌人）
+	enemy_manager.prepare_enemies()
+
+func _create_enemy_manager():
+	# 游戏开始时，使用已存在的管理器生成敌人
+	if is_instance_valid(enemy_manager):
+		# 清除警告并生成敌人
+		enemy_manager.spawn_enemies()
+	else:
+		# 如果没有管理器，创建一个新的并直接生成
+		enemy_manager = Node2D.new()
+		enemy_manager.name = "EnemyManager"
+		enemy_manager.set_script(load("res://enemy_manager.gd"))
+		add_child(enemy_manager)
+		
+		var grid_rect = grid_container.get_global_rect()
+		enemy_manager.set_grid_info(grid_rect, 80.0)
+		enemy_manager.spawn_enemies()
 
 func _remove_enemy_manager():
 	if is_instance_valid(enemy_manager):
