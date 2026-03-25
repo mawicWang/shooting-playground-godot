@@ -45,20 +45,19 @@ res://
 ├── core/                        # 核心抽象层
 │   ├── TowerBase.gd            # 炮塔抽象基类
 │   ├── BulletBase.gd           # 子弹抽象基类
-│   ├── Component.gd            # 组件基类
-│   └── Module.gd               # 模块基类（Resource）
+│   ├── TowerComponent.gd         # 炮塔组件基类
+│   └── TowerModule.gd               # 炮塔模块基类（Resource）
 │
 ├── entities/                    # 实体实现
 │   ├── towers/                 # 炮塔实例
-│   │   ├── TowerBaseScene.tscn # 基础炮塔场景
-│   │   ├── chassis/            # 底座类型
-│   │   │   ├── EmitterChassis.gd
-│   │   │   ├── RelayChassis.gd
-│   │   │   └── TerminalChassis.gd
+│   │   ├── SimpleTower.tscn    # 初始炮塔，等同于现在的Tower
+│   │   ├── DimpleTower.gd    
+│   │   ├── XXXXTower.tscn    # 以后的炮塔实现都放在这里，TowerBase
 │   │   └── TowerFactory.gd     # 炮塔工厂
 │   │
 │   ├── bullets/
-│   │   ├── BulletBaseScene.tscn
+│   │   ├── SimpleBullet.tscn # 初始子弹，等同于现在的Bullet
+│   │   ├── SimpleBullet.gd 
 │   │   └── BulletFactory.gd
 │   │
 │   ├── enemies/
@@ -66,8 +65,6 @@ res://
 │   │   └── enemy.gd
 │   │
 │   └── modules/                # 逻辑模块
-│       ├── computational/      # 计算类
-│       └── logical/            # 逻辑类
 │
 ├── components/                  # 可复用组件
 │   ├── Damageable.gd           # 受伤组件
@@ -126,61 +123,39 @@ res://
                     │   TowerBase      │  ← 抽象基类
                     │   (Node2D)       │
                     ├──────────────────┤
-                    │ - chassis_type   │
+                    │ - id             │
+                    │ - name           │
                     │ - muzzle_count   │
                     │ - slot_count     │
                     │ - modules[]      │
                     ├──────────────────┤
-                    │ + setup_chassis()│
                     │ + install_module()│
-                    │ + receive_signal()│
-                    │ + fire()         │
+                    │ + receive_bullet()│
+                    │ + fire_bullet()  │
                     └────────┬─────────┘
                              │ 继承
             ┌────────────────┼────────────────┐
             ▼                ▼                ▼
    ┌────────────────┐ ┌──────────────┐ ┌──────────────┐
-   │ EmitterTower   │ │ RelayTower   │ │ TerminalTower│
-   │                │ │              │ │              │
-   │ - auto_fire    │ │ - trigger_on │ │ - absorb     │
-   │   timer        │ │   hit        │ │ - charge     │
+   │ SimpleTower    │ │ xxxTower     │ │ xxxxTower    │
    └────────────────┘ └──────────────┘ └──────────────┘
 ```
 
 ### Component 组装模式
 
 ```gdscript
-# TowerBase.gd - 组合模式
-class_name TowerBase extends Node2D
+# SimpleTower.gd - 组合模式
+class_name SimpleTower extends BaseTower
 
-@export var chassis_data: ChassisData  # Resource 配置
-
-var components: Dictionary = {}
+var rotatable: TowerComponent = RotatableComponent.new(self)
+var shootable: ShootableComponent = ShootableComponent.new(self)
 
 func _ready():
-    # 动态添加组件
-    add_component("rotatable", RotatableComponent.new(self))
-    add_component("shootable", ShootableComponent.new(self, chassis_data.muzzles))
-    
-    # 根据底座类型添加特定组件
-    match chassis_data.type:
-        ChassisType.EMITTER:
-            add_component("emitter", EmitterComponent.new(self))
-        ChassisType.RELAY:
-            add_component("relay", RelayComponent.new(self))
-        ChassisType.TERMINAL:
-            add_component("terminal", TerminalComponent.new(self))
-
-func add_component(name: String, component: Component):
-    components[name] = component
-    add_child(component)
-
-func get_component(name: String) -> Component:
-    return components.get(name)
+    pass
 
 # 转发方法到组件
 func rotate_clockwise():
-    get_component("rotatable")?.rotate_90_clockwise()
+    rotatable.rotate_90_clockwise()
 ```
 
 ### 具体任务
@@ -191,28 +166,8 @@ func rotate_clockwise():
 | 2.2 创建 RotatableComponent | 提取 tower.gd 旋转逻辑 | 旋转功能正常 |
 | 2.3 创建 ShootableComponent | 提取射击逻辑 | 射击功能正常 |
 | 2.4 创建 TowerBase | 抽象基类，组装组件 | 可实例化测试 |
-| 2.5 创建 EmitterTower | 发射源类型 | 定时发射子弹 |
-| 2.6 创建 RelayTower | 中继器类型 | 被击中后转发 |
-| 2.7 创建 TowerFactory | 工厂模式创建炮塔 | 支持旧塔数据迁移 |
-| 2.8 迁移现有 tower | 用新架构替换旧 tower | 所有功能等价 |
+| 2.5 重构 SimpleTower，迁移现有 tower | 发射源类型 | 定时发射子弹， 所有功能等价 |
 
-### 兼容性策略
-
-```gdscript
-# TowerFactory.gd - 兼容旧数据
-static func create_from_legacy(legacy_tower: Node) -> TowerBase:
-    """从旧 tower 节点创建新架构炮塔"""
-    var new_tower = preload("res://entities/towers/TowerBaseScene.tscn").instantiate()
-    
-    # 复制基础属性
-    new_tower.rotation = legacy_tower.rotation
-    new_tower.position = legacy_tower.position
-    
-    # 默认创建 Emitter 类型（保持现有行为）
-    new_tower.setup_chassis(ChassisType.EMITTER, muzzle_count=1, slot_count=0)
-    
-    return new_tower
-```
 
 ---
 
@@ -425,13 +380,3 @@ git tag -a v1.0.0 -m "v1.0 发布"
 - `docs/API.md` - 核心类 API 文档
 - `docs/MIGRATION.md` - 迁移指南
 - `docs/CHANGELOG.md` - 变更日志
-
----
-
-## 下一步行动
-
-1. **Review** - 确认 Phase 1 目录结构和迁移方案
-2. **Setup** - 创建 Phase 1 分支 `git checkout -b phase1-restructure`
-3. **Start** - 执行 Phase 1 任务 1.1
-
-**准备好了吗？我们可以从 Phase 1 开始！**
