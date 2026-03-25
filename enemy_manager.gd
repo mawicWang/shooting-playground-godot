@@ -22,14 +22,15 @@ func set_grid_info(rect: Rect2, cell_size: float):
 	grid_cell_size = cell_size
 
 # 预生成敌人信息并显示警告（游戏开始前调用）
-func prepare_enemies():
+# 返回敌人数据数组，供 main.gd 存储
+func prepare_enemies() -> Array:
 	# 清除之前的警告
 	clear_warnings()
 	pending_enemies.clear()
 	
 	if grid_rect.size == Vector2.ZERO:
 		push_error("Grid rect not set!")
-		return
+		return []
 	
 	var viewport_size = get_viewport_rect().size
 	
@@ -119,6 +120,7 @@ func prepare_enemies():
 		print("[ENEMY] Prepared enemy #", spawned_count, " at ", spawn_pos, " direction: ", direction)
 	
 	print("[ENEMY] Total enemies prepared: ", spawned_count)
+	return pending_enemies.duplicate()
 
 # 实际生成敌人（游戏开始时调用）
 func spawn_enemies():
@@ -146,6 +148,29 @@ func spawn_enemies():
 	# 清空预存信息
 	pending_enemies.clear()
 
+# 使用外部数据生成敌人
+func spawn_enemies_from_data(enemy_data: Array):
+	# 清除警告
+	clear_warnings()
+	
+	# 清除现有敌人
+	clear_enemies()
+	
+	# 根据传入的数据生成敌人
+	for enemy_info in enemy_data:
+		var enemy = ENEMY_SCENE.instantiate()
+		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
+		enemy.set_direction(enemy_info["direction"])
+		
+		# 连接碰撞信号
+		enemy.enemy_hit.connect(_on_enemy_hit)
+		
+		# 添加到场景
+		get_tree().root.add_child(enemy)
+		active_enemies.append(enemy)
+	
+	print("[ENEMY] Spawned ", active_enemies.size(), " enemies from data")
+
 func clear_warnings():
 	for warning in active_warnings:
 		if is_instance_valid(warning):
@@ -158,6 +183,8 @@ func clear_enemies():
 			enemy.queue_free()
 	active_enemies.clear()
 	print("[ENEMY] All enemies cleared")
+
+signal all_enemies_defeated()  # 所有敌人被消灭信号
 
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	# 检查是否是子弹
@@ -174,6 +201,12 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()
+		
+		# 检查是否所有敌人都被消灭
+		if active_enemies.size() == 0:
+			print("[ENEMY] All enemies defeated!")
+			all_enemies_defeated.emit()
+		
 		return
 
 func _exit_tree():

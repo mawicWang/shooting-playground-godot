@@ -1,5 +1,7 @@
 extends Control
 
+signal enemy_breached_grid()  # 敌人触碰边界cell信号
+
 const CELL_COLOR = Color("#F2EAE0")
 var cell_script = preload("res://cell.gd") # 提前加载脚本
 
@@ -82,6 +84,8 @@ func _on_border_hitbox_area_entered(area: Area2D, cell: Control):
 	if parent != null and parent.get_script() != null:
 		if parent.get_script().resource_path.ends_with("enemy.gd"):
 			print("[BORDER] Enemy hit border cell: ", cell.get_meta("index"))
+			# 发出信号通知main
+			enemy_breached_grid.emit()
 			# 触发屏幕抖动
 			_trigger_screen_shake()
 			# 销毁敌人
