@@ -20,9 +20,12 @@
 *.ipa
 *.app
 *.dmg
-*.html
-*.js
-*.wasm
+# Web export files (except web directory)
+!web/*.html
+!web/*.js
+!web/*.wasm
+!web/*.pck
+!web/*.png
 
 # 排除自动生成的导出配置文件（可选）
 # 如果你的导出设置包含敏感密钥，请取消注释
