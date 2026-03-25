@@ -210,8 +210,43 @@ func _create_game_over_popup():
 	add_child(game_over_popup)
 
 func _on_game_over_popup_closed():
-	# 弹窗关闭后，重置游戏状态
-	_on_start_stop_button_pressed()
+	# 弹窗关闭后，完全重置游戏状态
+	print("[MAIN] Popup closed, resetting game state...")
+	
+	# 确保游戏停止
+	game_started = false
+	update_button_text()
+	
+	# 清理所有游戏对象
+	_stop_all_towers()
+	_clear_all_bullets()
+	_remove_dead_zones()
+	_remove_enemy_manager()
+	
+	# 清理敌人数据
+	pending_enemy_data.clear()
+	enemy_breached_grid = false
+	
+	# 重置游戏内容位置（防止屏幕抖动残留）
+	_reset_game_content_position()
+	
+	# 启用拖拽
+	_set_drag_enabled(true)
+	
+	# 重新准备新的警告（生成新的随机敌人位置）
+	call_deferred("_prepare_enemy_warnings")
+
+func _reset_game_content_position():
+	"""重置游戏内容位置，取消任何正在进行的抖动"""
+	# 停止所有正在进行的tween
+	var tree = get_tree()
+	if tree:
+		# 杀死所有tween
+		tree.create_tween().kill()
+	
+	# 重置位置
+	game_content.position = Vector2.ZERO
+	print("[MAIN] Game content position reset")
 
 func _clear_all_bullets():
 	var bullets_to_remove = []
@@ -243,14 +278,47 @@ func _on_tower_deployed(tower_instance):
 		else:
 			tower_instance.stop_firing()
 
+var is_screen_shaking: bool = false  # 屏幕是否正在抖动
+
 func _on_enemy_breached_grid():
 	"""敌人触碰grid边界"""
 	print("[MAIN] Enemy breached grid!")
 	enemy_breached_grid = true
+	
+	# 触发屏幕抖动
+	if not is_screen_shaking:
+		is_screen_shaking = true
+		var tween = _trigger_screen_shake()
+		if tween:
+			await tween.finished
+		is_screen_shaking = false
+
+func _trigger_screen_shake() -> Tween:
+	"""触发屏幕抖动"""
+	var game_content = $GameContent
+	var original_position = game_content.position
+	
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_IN_OUT)
+	
+	for i in range(8):
+		var offset = Vector2(randf_range(-5, 5), randf_range(-5, 5))
+		tween.tween_property(game_content, "position", original_position + offset, 0.05)
+	
+	tween.tween_property(game_content, "position", original_position, 0.05)
+	return tween
 
 func _on_all_enemies_defeated():
 	"""所有敌人被消灭，检查游戏结果"""
 	print("[MAIN] All enemies defeated! Breached: ", enemy_breached_grid)
+	
+	# 等待屏幕抖动完成
+	while is_screen_shaking:
+		await get_tree().process_frame
+	
+	if not game_started:
+		return
 	
 	if enemy_breached_grid:
 		# 有敌人触碰过grid - 失败

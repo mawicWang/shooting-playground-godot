@@ -9,6 +9,7 @@ var grid_cell_size = 80.0  # 网格单元大小，与grid一致
 
 # 自定义信号
 signal enemy_hit(body, enemy)
+signal enemy_destroyed(enemy)  # 敌人被销毁信号
 
 func _ready():
 	# 确保Hitbox监控开启
@@ -52,4 +53,5 @@ func _on_hitbox_area_entered(area_entered: Area2D):
 		emit_signal("enemy_hit", parent, self)
 
 func destroy():
+	emit_signal("enemy_destroyed", self)
 	queue_free()

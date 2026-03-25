@@ -24,9 +24,9 @@ void vertex() {
 
     // 3. 采样位移噪点
     // 使用更大的质数乘数来彻底打乱不同实例间的采样位置
-    vec2 noise_uv_x = vec2(fract(snapped_time * 0.584 + total_seed * 0.123), 
+    vec2 noise_uv_x = vec2(fract(snapped_time * 0.584 + total_seed * 0.123),
                            fract(snapped_time * 0.231 + total_seed * 0.456));
-    vec2 noise_uv_y = vec2(fract(snapped_time * 0.147 + 0.5 + total_seed * 0.789), 
+    vec2 noise_uv_y = vec2(fract(snapped_time * 0.147 + 0.5 + total_seed * 0.789),
                            fract(snapped_time * 0.752 + total_seed * 0.321));
 
     // 使用 textureLod 提高顶点着色器采样的稳定性
@@ -37,7 +37,7 @@ void vertex() {
     float offset_y = (noise_val_y - 0.5) * 2.0;
 
     // 4. 采样旋转噪点
-    vec2 rot_uv = vec2(fract(snapped_time * 0.357 + 0.3 + total_seed * 0.555), 
+    vec2 rot_uv = vec2(fract(snapped_time * 0.357 + 0.3 + total_seed * 0.555),
                        fract(snapped_time * 0.619 + 0.7 + total_seed * 0.111));
     float rot_noise = textureLod(shake_noise_tex, rot_uv, 0.0).r;
     float rot_radians = radians((rot_noise - 0.5) * 2.0 * rot_amplitude);

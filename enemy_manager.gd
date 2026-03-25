@@ -138,6 +138,7 @@ func spawn_enemies():
 		
 		# 连接碰撞信号
 		enemy.enemy_hit.connect(_on_enemy_hit)
+		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 		
 		# 添加到场景
 		get_tree().root.add_child(enemy)
@@ -164,6 +165,7 @@ func spawn_enemies_from_data(enemy_data: Array):
 		
 		# 连接碰撞信号
 		enemy.enemy_hit.connect(_on_enemy_hit)
+		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 		
 		# 添加到场景
 		get_tree().root.add_child(enemy)
@@ -208,6 +210,17 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 			all_enemies_defeated.emit()
 		
 		return
+
+func _on_enemy_destroyed(enemy: CharacterBody2D):
+	"""敌人被销毁时的处理"""
+	if enemy in active_enemies:
+		active_enemies.erase(enemy)
+		print("[ENEMY] Enemy destroyed, remaining: ", active_enemies.size())
+		
+		# 检查是否所有敌人都被消灭
+		if active_enemies.size() == 0:
+			print("[ENEMY] All enemies defeated!")
+			all_enemies_defeated.emit()
 
 func _exit_tree():
 	clear_warnings()

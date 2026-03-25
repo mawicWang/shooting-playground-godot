@@ -84,19 +84,17 @@ func _on_border_hitbox_area_entered(area: Area2D, cell: Control):
 	if parent != null and parent.get_script() != null:
 		if parent.get_script().resource_path.ends_with("enemy.gd"):
 			print("[BORDER] Enemy hit border cell: ", cell.get_meta("index"))
-			# 发出信号通知main
-			enemy_breached_grid.emit()
-			# 触发屏幕抖动
-			_trigger_screen_shake()
-			# 销毁敌人
+			# 立即销毁敌人
 			parent.destroy()
+			# 发出信号通知main（记录敌人触碰并触发抖动）
+			enemy_breached_grid.emit()
 
-func _trigger_screen_shake():
-	"""触发屏幕抖动效果 - 抖动游戏内容层"""
+func _trigger_screen_shake() -> Tween:
+	"""触发屏幕抖动效果 - 抖动游戏内容层，返回tween供外部等待"""
 	var game_content = get_node_or_null("/root/main/GameContent")
 	if game_content == null:
 		print("[SCREEN] Cannot find game content for shake")
-		return
+		return null
 	
 	# 保存原始位置
 	var original_position = game_content.position
@@ -121,3 +119,4 @@ func _trigger_screen_shake():
 	tween.tween_property(game_content, "position", original_position, shake_duration / shake_count)
 	
 	print("[SCREEN] Screen shake triggered! Intensity: ", shake_intensity)
+	return tween

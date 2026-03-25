@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://gameoverpopup"]
+[gd_scene load_steps=2 format=3 uid="uid://ce7i3thi5ht3x"]
 
 [ext_resource type="Script" path="res://game_over_popup.gd" id="1_popup_script"]
 
@@ -58,6 +58,8 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="OKButton" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(120, 50)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "确定"
