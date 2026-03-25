@@ -32,6 +32,15 @@ func _setup_area2d():
 	# Wait for sprite texture to be loaded, then set collision shape
 	# Use call_deferred to ensure sprite is ready
 	call_deferred("_init_collision_shape")
+	
+	# Configure Area2D collision layers for proper input detection
+	# Layer 1: Default objects, Mask 1: Detect default objects
+	area.collision_layer = 1
+	area.collision_mask = 1
+	
+	# Ensure Area2D can receive input events
+	area.monitoring = true
+	area.monitorable = true
 
 func _init_collision_shape():
 	if is_instance_valid(sprite) and sprite.texture:

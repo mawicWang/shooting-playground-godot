@@ -28,6 +28,10 @@ func _ready():
 	add_theme_stylebox_override("panel", style_box)
 	# Connect mouse_exited to clear hovered_valid_cell in DragManager
 	mouse_exited.connect(self._on_mouse_exited)
+	
+	# Set mouse_filter to PASS so click events can reach tower's Area2D
+	# MOUSE_FILTER_PASS = 1, allows events to pass through to children
+	mouse_filter = Control.MOUSE_FILTER_PASS
 
 func _on_mouse_exited():
 	# Only clear if this cell was the one being hovered
