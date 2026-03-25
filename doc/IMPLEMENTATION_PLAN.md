@@ -45,8 +45,8 @@ res://
 ├── core/                        # 核心抽象层
 │   ├── TowerBase.gd            # 炮塔抽象基类
 │   ├── BulletBase.gd           # 子弹抽象基类
-│   ├── TowerComponent.gd         # 炮塔组件基类
-│   └── TowerModule.gd               # 炮塔模块基类（Resource）
+│   ├── Component.gd            # 炮塔组件基类（继承 Node）
+│   └── Module.gd               # 炮塔模块基类（Resource）
 │
 ├── entities/                    # 实体实现
 │   ├── towers/                 # 炮塔实例
@@ -145,17 +145,20 @@ res://
 
 ```gdscript
 # SimpleTower.gd - 组合模式
-class_name SimpleTower extends BaseTower
+class_name SimpleTower extends TowerBase
 
-var rotatable: TowerComponent = RotatableComponent.new(self)
-var shootable: ShootableComponent = ShootableComponent.new(self)
+# 组件作为子节点挂载，享受生命周期
+@onready var rotatable: Component = $RotatableComponent
+@onready var shootable: Component = $ShootableComponent
 
 func _ready():
-    pass
+    # 基类可以统一管理这些组件
+    register_components([rotatable, shootable])
 
 # 转发方法到组件
 func rotate_clockwise():
-    rotatable.rotate_90_clockwise()
+    if rotatable:
+        rotatable.rotate_90_clockwise()
 ```
 
 ### 具体任务
@@ -205,7 +208,7 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 ### 碰撞检测重构
 
 ```gdscript
-# SignalReceiver.gd - 组件
+# SignalReceiver.gd - 组件（挂载在塔上）
 class_name SignalReceiver extends Component
 
 func _ready():
@@ -215,19 +218,20 @@ func _ready():
     area.collision_mask = 2   # 只检测信号
     
     area.area_entered.connect(_on_signal_entered)
+    add_child(area)
 
 func _on_signal_entered(bullet: BulletBase):
-    # 检查是否来自有效源
-    if bullet.data.source_tower == owner:
-        return  # 忽略自己发射的
+    # 检查是否来自有效源，忽略自身发射的
+    if bullet.data.source_tower == owner_tower:
+        return  
     
-    # 触发中继逻辑
-    if owner is RelayTower:
-        owner.retransmit(bullet.data)
+    # 根据拥有的组件触发不同的行为（如：如果塔有转发组件，则触发转发）
+    if owner_tower.has_component("SignalTransmitter"):
+        owner_tower.get_component("SignalTransmitter").retransmit(bullet.data)
     
-    # 触发终端逻辑
-    if owner is TerminalTower:
-        owner.absorb(bullet.data)
+    # 如果塔有终端吸收组件，则触发吸收
+    if owner_tower.has_component("TerminalAbsorber"):
+        owner_tower.get_component("TerminalAbsorber").absorb(bullet.data)
 ```
 
 ### 具体任务
@@ -319,7 +323,7 @@ class_name Relic extends Resource
 func on_bullet_transmit(bullet: BulletData, from: TowerBase, to: TowerBase):
     pass
 
-func on_terminal_absorb(terminal: TerminalTower, bullet: BulletData):
+func on_terminal_absorb(terminal: TowerBase, bullet: BulletData):
     pass
 
 func on_wave_start():
@@ -332,7 +336,7 @@ func on_wave_start():
 |------|------|----------|
 | 5.1 创建 Relic 基类 | 钩子系统 | 可监听全局事件 |
 | 5.2 创建 EventManager | 全局事件分发 | 遗物可注册监听 |
-| 5.3 实现"量子纠缠" | 终端共享能量 | 多终端同步效果 |
+| 5.3 实现"量子纠缠" | 终端组件共享能量 | 多个带有终端组件的塔同步效果 |
 | 5.4 实现"超导回路" | 速度不衰减+电击 | 子弹传递增强 |
 | 5.5 实现"递归逻辑" | 闭环增强 | 检测循环并增强 |
 | 5.6 实现"多线程" | 发射源双炮口 | 修改底座属性 |
