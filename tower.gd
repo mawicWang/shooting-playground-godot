@@ -55,8 +55,8 @@ func _is_drag_enabled() -> bool:
 
 func _on_area_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		# Only allow rotation when drag is disabled (i.e., game is running)
-		if not _is_drag_enabled() and not is_rotating:
+		# Allow rotation in any state (deployment mode or game running)
+		if not is_rotating:
 			_rotate_90_degrees()
 
 func _rotate_90_degrees():
