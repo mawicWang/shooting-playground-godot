@@ -66,49 +66,46 @@ func _process(_delta):
 func get_current_drag_rotation() -> float:
 	return drag_rotation_offset # Return directly, no correction needed
 
-# Calculate and update the drag_rotation_offset based on mouse movement relative to cell center
+# 核心旋转计算逻辑：根据鼠标相对于目标网格中心的偏移量决定朝向
 func _update_drag_rotation():
 	if not is_drag_active or not is_being_dragged_from:
 		return
 
 	var mouse_pos = get_global_mouse_position()
-	var target_center = get_global_center() # Default to self center
-	var current_source_node = DragManager._drag_source_node # Get the actual node that initiated the drag
+	var target_center = get_global_center() # 默认为自身中心
+	var current_source_node = DragManager._drag_source_node
 
-	# Use the hovered valid cell's center if available and it's the current drag source
+	# 逻辑：如果鼠标悬停在一个有效的放置格子上，则以该格子的中心作为计算原点。
+	# 这样拖拽时，鼠标移向格子的上方，炮塔就向上指，符合用户直觉。
 	if is_instance_valid(DragManager.hovered_valid_cell) and is_instance_valid(current_source_node) and current_source_node == self:
 		target_center = DragManager.hovered_valid_cell.get_global_center()
-		# print("Cell ", get_meta("index"), ": Using HOVERED cell center for rotation.") # Debug
 	elif is_instance_valid(current_source_node) and current_source_node.has_method("get_global_center"):
-		target_center = current_source_node.get_global_center() # Use the drag source's center if no valid hovered cell
-		# print("Cell ", get_meta("index"), ": Using DRAG SOURCE cell center for rotation.") # Debug
+		target_center = current_source_node.get_global_center()
 	else:
-		# Fallback to current cell's center if no valid source/hovered
 		target_center = get_global_center()
-		# print("Cell ", get_meta("index"), ": Falling back to OWN cell center for rotation.") # Debug
 
 	var offset = mouse_pos - target_center
 	
-	var angle = DragManager.ROT_UP # Default to UP when mouse is near center or no valid hover
+	var angle = DragManager.ROT_UP
 	var direction_string = "UP (Default)"
 
-	# Quadrant-based snapping logic (dividing by diagonals)
-	if offset.length() < 3: # If mouse is very close to center, keep default (UP)
+	# 四象限判定逻辑（通过斜对角线分割）
+	if offset.length() < 3: # 鼠标非常靠近中心，保持默认朝上
 		angle = DragManager.ROT_UP
 		direction_string = "UP (Near Center)"
-	elif abs(offset.x) > abs(offset.y): # Horizontal dominance
-		if offset.x > 0: # Mouse is to the right
-			angle = DragManager.ROT_RIGHT # Right
+	elif abs(offset.x) > abs(offset.y): # 水平方向偏移更大
+		if offset.x > 0: # 鼠标在右侧
+			angle = DragManager.ROT_RIGHT
 			direction_string = "RIGHT"
-		else: # Mouse is to the left
-			angle = DragManager.ROT_LEFT # Left
+		else: # 鼠标在左侧
+			angle = DragManager.ROT_LEFT
 			direction_string = "LEFT"
-	else: # Vertical dominance (or equal)
-		if offset.y > 0: # Mouse is downwards (screen Y increases downwards)
-			angle = DragManager.ROT_DOWN # Down
+	else: # 垂直方向偏移更大（或相等）
+		if offset.y > 0: # 鼠标在下方 (Godot 坐标系 Y 向下增加)
+			angle = DragManager.ROT_DOWN
 			direction_string = "DOWN"
-		else: # Mouse is upwards
-			angle = DragManager.ROT_UP # Up
+		else: # 鼠标在上方
+			angle = DragManager.ROT_UP
 			direction_string = "UP"
 	
 	drag_rotation_offset = angle
@@ -138,16 +135,21 @@ func _update_visuals():
 
 # --- Receiving Drag (Drop) ---
 
+# Godot 内置回调：判断是否允许放置
 func _can_drop_data(_at_position, data):
+	# 检查数据是否来自商店（新炮塔）或网格（移动中）
 	var can_drop_from_store = typeof(data) == TYPE_DICTIONARY and data.has("scene") and not data.get("is_moving", false)
 	var can_drop_from_grid = typeof(data) == TYPE_DICTIONARY and data.has("is_moving") and data.is_moving
 	
 	var is_valid_drop_target = false
 	if can_drop_from_store:
+		# 新炮塔只能放在空位
 		is_valid_drop_target = not is_occupied
 	elif can_drop_from_grid:
+		# 移动现有炮塔可以放回原位或新的空位
 		is_valid_drop_target = not is_occupied or data.get("source_cell") == self
 	
+	# 如果是有效位置，通知 DragManager 更新悬停状态，用于旋转计算
 	if is_valid_drop_target:
 		DragManager.set_hovered_valid_cell(self)
 	else:

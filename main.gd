@@ -46,15 +46,19 @@ func _ready():
 	# 创建游戏结束弹窗
 	_create_game_over_popup()
 
+# 响应式布局核心：窗口大小变化时重新计算
 func _on_window_resize():
 	var window_size = get_viewport_rect().size
+	# 设定内容最大宽度为 720px (MAX_WIDTH)
 	var target_width = min(window_size.x, MAX_WIDTH)
 	
-	# 计算水平边距
+	# 计算水平边距，确保内容居中
 	var margin_left = (window_size.x - target_width) / 2
 	var margin_right = margin_left
 	
-	# 调整内部 UI 元素的边距来模拟限宽效果
+	# 动态调整 GameContent 下各面板的 anchor 和 offset
+	# 这种方式可以在不使用复杂容器嵌套的情况下实现“限宽居中”效果
+
 	# 顶部面板
 	var panel = $GameContent/PanelContainer
 	panel.anchor_left = 0.0
