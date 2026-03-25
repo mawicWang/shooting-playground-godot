@@ -15,9 +15,9 @@ func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func show_victory():
-	title_label.text = "太夯啦！"
+	title_label.text = "夯爆了！"
 	title_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.2))
-	emoji_label.text = "🎉🏆🎊"
+	emoji_label.text = "WIN!"
 	message_label.text = "所有敌人都被你消灭了！"
 	visible = true
 	# 暂停游戏
@@ -26,7 +26,7 @@ func show_victory():
 func show_defeat():
 	title_label.text = "太拉了！"
 	title_label.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
-	emoji_label.text = "😂👎🗑️"
+	emoji_label.text = "FAIL!"
 	message_label.text = "敌人突破防线，游戏结束！"
 	visible = true
 	# 暂停游戏
