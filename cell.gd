@@ -236,6 +236,9 @@ func set_drag_enabled(enabled: bool):
 	drag_enabled = enabled
 	_update_visuals()
 
+func get_drag_enabled() -> bool:
+	return drag_enabled
+
 # --- Initiating Drag (Drag) ---
 
 func _get_drag_data(_at_position):

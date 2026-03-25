@@ -3,10 +3,76 @@ extends Node2D
 @export var firing_rate: float = 1.0 # Bullets per second
 var bullet_scene = preload("res://bullet.tscn")
 @onready var fire_timer = $FireTimer
+@onready var area = $Area2D
+@onready var collision_shape = $Area2D/CollisionShape2D
+@onready var sprite = $Sprite2D
+
+# Rotation state
+var current_rotation_index: int = 0  # 0=UP, 1=RIGHT, 2=DOWN, 3=LEFT
+var is_rotating: bool = false
+const ROTATION_ANGLES = [
+	0.0,                              # UP (0 degrees)
+	deg_to_rad(90),                   # RIGHT (90 degrees)
+	deg_to_rad(180),                  # DOWN (180 degrees)
+	deg_to_rad(270)                   # LEFT (270 degrees)
+]
+const ROTATION_DURATION: float = 0.15  # Duration of rotation animation in seconds
 
 func _ready():
 	fire_timer.wait_time = 1.0 / firing_rate
 	fire_timer.timeout.connect(Callable(self, "_on_fire_timer_timeout"))
+	
+	# Setup Area2D for click detection
+	_setup_area2d()
+	
+	# Connect Area2D input event
+	area.input_event.connect(_on_area_input_event)
+
+func _setup_area2d():
+	# Wait for sprite texture to be loaded, then set collision shape
+	# Use call_deferred to ensure sprite is ready
+	call_deferred("_init_collision_shape")
+
+func _init_collision_shape():
+	if is_instance_valid(sprite) and sprite.texture:
+		var tex_size = sprite.texture.get_size()
+		var rectangle = RectangleShape2D.new()
+		rectangle.size = tex_size * 0.8  # Use 80% of texture size for better feel
+		collision_shape.shape = rectangle
+		collision_shape.position = tex_size / 2
+
+func _is_drag_enabled() -> bool:
+	# Check if drag is enabled by looking at parent cell
+	var parent = get_parent()
+	if parent and parent.has_method("get_drag_enabled"):
+		return parent.get_drag_enabled()
+	# Default: check if game is started (drag disabled when game is running)
+	var main = get_node_or_null("/root/main")
+	if main and main.has_node("GameContent/CenterContainer/GridRoot/Grid"):
+		# If we can find the grid, assume drag state is managed there
+		pass
+	return false
+
+func _on_area_input_event(viewport, event, shape_idx):
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Only allow rotation when drag is disabled (i.e., game is running)
+		if not _is_drag_enabled() and not is_rotating:
+			_rotate_90_degrees()
+
+func _rotate_90_degrees():
+	is_rotating = true
+	current_rotation_index = (current_rotation_index + 1) % 4
+	var target_rotation = ROTATION_ANGLES[current_rotation_index]
+	
+	# Create smooth rotation tween
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "rotation", target_rotation, ROTATION_DURATION)
+	tween.tween_callback(_on_rotation_complete)
+
+func _on_rotation_complete():
+	is_rotating = false
 
 func start_firing():
 	if is_instance_valid(fire_timer):
