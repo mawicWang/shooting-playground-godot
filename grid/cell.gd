@@ -12,7 +12,7 @@ const COLOR_DISABLED = Color(0.5, 0.5, 0.5, 0.5) # 禁用状态的颜色
 var is_occupied = false
 var is_drag_active = false
 var is_being_dragged_from = false # 标记是否是当前拖拽的发源地
-var drag_rotation_offset = DragManager.ROT_UP # Default rotation to UP when not hovering over a valid cell
+var drag_rotation_offset = 0.0 # Default rotation to UP (DragManager.ROT_UP)
 var drag_enabled = true # 是否允许拖拽
 
 var style_box: StyleBoxFlat
@@ -35,7 +35,7 @@ func _ready():
 
 func _on_mouse_exited():
 	# Only clear if this cell was the one being hovered
-	if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
+	if is_instance_valid(DragManager.get_hovered_valid_cell()) and DragManager.get_hovered_valid_cell() == self:
 		DragManager.clear_hovered_valid_cell()
 
 # --- Click handling for tower rotation (bypass Area2D issues) ---
@@ -83,7 +83,7 @@ func _process(_delta):
 	# Update visuals continuously while dragging
 	if is_drag_active:
 		# Only update rotation if this cell is the current drag source, OR if it's the hovered target
-		if is_being_dragged_from or (is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self):
+		if is_being_dragged_from or (is_instance_valid(DragManager.get_hovered_valid_cell()) and DragManager.get_hovered_valid_cell() == self):
 			_update_drag_rotation() # Calculate and update rotation
 	_update_visuals() # Update background color based on state
 
@@ -98,12 +98,12 @@ func _update_drag_rotation():
 
 	var mouse_pos = get_global_mouse_position()
 	var target_center = get_global_center() # 默认为自身中心
-	var current_source_node = DragManager._drag_source_node
+	var current_source_node = DragManager.get_drag_source_node()
 
 	# 逻辑：如果鼠标悬停在一个有效的放置格子上，则以该格子的中心作为计算原点。
 	# 这样拖拽时，鼠标移向格子的上方，炮塔就向上指，符合用户直觉。
-	if is_instance_valid(DragManager.hovered_valid_cell) and is_instance_valid(current_source_node) and current_source_node == self:
-		target_center = DragManager.hovered_valid_cell.get_global_center()
+	if is_instance_valid(DragManager.get_hovered_valid_cell()) and is_instance_valid(current_source_node) and current_source_node == self:
+		target_center = DragManager.get_hovered_valid_cell().get_global_center()
 	elif is_instance_valid(current_source_node) and current_source_node.has_method("get_global_center"):
 		target_center = current_source_node.get_global_center()
 	else:
@@ -144,8 +144,8 @@ func _update_visuals():
 		return
 	
 	if is_drag_active:
-		# When dragging, always use DragManager.hovered_valid_cell's color if valid
-		if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
+		# When dragging, always use DragManager.get_hovered_valid_cell()'s color if valid
+		if is_instance_valid(DragManager.get_hovered_valid_cell()) and DragManager.get_hovered_valid_cell() == self:
 			# Mouse is over this cell and it's a valid drop target
 			if not is_occupied or is_being_dragged_from:
 				style_box.bg_color = COLOR_VALID
@@ -178,7 +178,7 @@ func _can_drop_data(_at_position, data):
 	if is_valid_drop_target:
 		DragManager.set_hovered_valid_cell(self)
 	else:
-		if is_instance_valid(DragManager.hovered_valid_cell) and DragManager.hovered_valid_cell == self:
+		if is_instance_valid(DragManager.get_hovered_valid_cell()) and DragManager.get_hovered_valid_cell() == self:
 			DragManager.clear_hovered_valid_cell()
 	
 	return is_valid_drop_target

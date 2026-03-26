@@ -32,6 +32,8 @@ func resume_game():
 		SignalBus.game_resumed.emit()
 
 # 拖拽状态管理
+var hovered_cell: Node = null
+
 func start_drag(source_node: Node):
 	is_drag_active = true
 	dragged_source = source_node
@@ -39,7 +41,14 @@ func start_drag(source_node: Node):
 func end_drag():
 	is_drag_active = false
 	dragged_source = null
+	hovered_cell = null
 	SignalBus.drag_ended.emit()
+
+func set_hovered_cell(cell: Node):
+	hovered_cell = cell
+
+func clear_hovered_cell():
+	hovered_cell = null
 
 # 便捷查询
 func is_running() -> bool:

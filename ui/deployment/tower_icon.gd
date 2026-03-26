@@ -16,7 +16,7 @@ func set_drag_enabled(enabled: bool):
 
 func _process(_delta):
 	# Only calculate rotation if this icon is the current drag source, and drag is active
-	if is_dragging_initiated and is_instance_valid(DragManager._drag_source_node) and DragManager._drag_source_node == self:
+	if is_dragging_initiated and is_instance_valid(DragManager.get_drag_source_node()) and DragManager.get_drag_source_node() == self:
 		_update_drag_rotation()
 
 # Calculate and update the current_drag_rotation based on mouse movement relative to icon center
@@ -24,8 +24,8 @@ func _update_drag_rotation():
 	var target_center = get_global_rect().position + size / 2 # Default to icon center
 	
 	# If a valid cell is hovered, use its center for rotation calculation
-	if is_instance_valid(DragManager.hovered_valid_cell):
-		target_center = DragManager.hovered_valid_cell.get_global_center()
+	if is_instance_valid(DragManager.get_hovered_valid_cell()):
+		target_center = DragManager.get_hovered_valid_cell().get_global_center()
 		# print("TowerIcon: Using HOVERED cell center for rotation.") # Debug
 	else:
 		# print("TowerIcon: Falling back to OWN icon center for rotation.") # Debug

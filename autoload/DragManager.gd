@@ -84,7 +84,17 @@ func get_current_drag_rotation() -> float:
 # NEW: Set the currently hovered valid cell
 func set_hovered_valid_cell(cell: Node):
 	hovered_valid_cell = cell
+	GameState.set_hovered_cell(cell)
 
 # NEW: Clear the currently hovered valid cell
 func clear_hovered_valid_cell():
 	hovered_valid_cell = null
+	GameState.clear_hovered_cell()
+
+# NEW: Get the currently hovered valid cell
+func get_hovered_valid_cell() -> Node:
+	return hovered_valid_cell
+
+# NEW: Get the drag source node
+func get_drag_source_node() -> Node:
+	return _drag_source_node
