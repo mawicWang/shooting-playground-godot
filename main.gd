@@ -171,7 +171,7 @@ func _prepare_enemy_warnings():
 		enemy_manager.queue_free()
 	enemy_manager = Node2D.new()
 	enemy_manager.name = "EnemyManager"
-	enemy_manager.set_script(load("res://enemy_manager.gd"))
+	enemy_manager.set_script(load("res://entities/enemies/enemy_manager.gd"))
 	add_child(enemy_manager)
 	
 	# 设置网格信息
@@ -188,7 +188,7 @@ func _create_enemy_manager():
 	
 	enemy_manager = Node2D.new()
 	enemy_manager.name = "EnemyManager"
-	enemy_manager.set_script(load("res://enemy_manager.gd"))
+	enemy_manager.set_script(load("res://entities/enemies/enemy_manager.gd"))
 	add_child(enemy_manager)
 	
 	var grid_rect = grid_container.get_global_rect()

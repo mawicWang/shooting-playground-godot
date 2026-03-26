@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://7h1xcqsxu8s7" path="res://entities/enemies/enemy.gd" id="1_enemy_script"]
 [ext_resource type="Texture2D" uid="uid://vfomcms8rij2" path="res://assets/enemy.svg" id="2_4gyqm"]
-[ext_resource type="Shader" uid="uid://b36eioxtkuqrm" path="res://enemy_shader.gdshader" id="3_enemy_shader"]
+[ext_resource type="Shader" uid="uid://b36eioxtkuqrm" path="res://entities/enemies/enemy_shader.gdshader" id="3_enemy_shader"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_qi2p4"]
 noise_type = 3

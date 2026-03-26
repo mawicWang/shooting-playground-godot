@@ -1,7 +1,7 @@
 extends Node2D
 
-const ENEMY_SCENE = preload("res://enemy.tscn")
-const WARNING_SCENE = preload("res://enemy_warning.tscn")
+const ENEMY_SCENE = preload("res://entities/enemies/enemy.tscn")
+const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
 const ENEMY_COUNT = 8  # 生成的敌人数量
 const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
 const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
