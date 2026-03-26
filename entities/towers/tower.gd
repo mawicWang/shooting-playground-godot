@@ -1,7 +1,8 @@
 extends Node2D
 
 @export var firing_rate: float = 1.0 # Bullets per second
-var bullet_scene = preload("res://entities/bullets/bullet.tscn")
+const BulletScene := preload("res://entities/bullets/bullet.tscn")
+var bullet_scene = BulletScene
 @onready var fire_timer = $FireTimer
 @onready var area = $Area2D
 @onready var collision_shape = $Area2D/CollisionShape2D
@@ -56,11 +57,6 @@ func _is_drag_enabled() -> bool:
 	var parent = get_parent()
 	if parent and parent.has_method("get_drag_enabled"):
 		return parent.get_drag_enabled()
-	# Default: check if game is started (drag disabled when game is running)
-	var main = get_node_or_null("/root/main")
-	if main and main.has_node("GameContent/CenterContainer/GridRoot/Grid"):
-		# If we can find the grid, assume drag state is managed there
-		pass
 	return false
 
 func _on_area_input_event(viewport, event, shape_idx):
@@ -115,7 +111,7 @@ func stop_firing():
 func _on_fire_timer_timeout():
 	var bullet = bullet_scene.instantiate()
 	# Add bullet to CanvasLayer so it renders above the grid
-	var canvas_layer = get_node_or_null("/root/main/CanvasLayer")
+	var canvas_layer = get_tree().get_first_node_in_group("bullet_layer")
 	if is_instance_valid(canvas_layer):
 		canvas_layer.add_child(bullet)
 	else:

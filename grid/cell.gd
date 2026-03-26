@@ -304,7 +304,7 @@ func _get_drag_data(_at_position):
 	var data = {
 		"is_moving": true,
 		"tower_instance": tower_node,
-		"scene": load("res://entities/towers/tower.tscn"), # Load scene for compatibility if needed
+		"scene": preload("res://entities/towers/tower.tscn"), # Load scene for compatibility if needed
 		"source_cell": self,
 		"rotation": drag_rotation_offset # This will be the initial rotation (UP), actual rotation is applied on drop.
 	}

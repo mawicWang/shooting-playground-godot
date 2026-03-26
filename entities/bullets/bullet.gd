@@ -20,11 +20,11 @@ func _physics_process(delta):
 	# 更新存活时间
 	lifetime += delta
 	
-	# 检查是否超过15秒
+	# 检查是否超过15秒（仅在调试模式下警告）
 	if lifetime > MAX_LIFETIME and not warned:
 		warned = true
-		push_error("[BULLET ERROR] Bullet has been alive for %.1f seconds without being destroyed! Position: %s" % [lifetime, global_position])
-		print("[BULLET ERROR] Bullet has been alive for %.1f seconds without being destroyed! Position: %s" % [lifetime, global_position])
+		if OS.is_debug_build():
+			push_warning("[BULLET] Bullet has been alive for %.1f seconds. Position: %s" % [lifetime, global_position])
 
 func _exit_tree():
 	print("[BULLET] Destroyed after %.2f seconds" % lifetime)

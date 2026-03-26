@@ -2,7 +2,10 @@ extends Control
 
 const MAX_WIDTH = 720.0
 
-var game_started = false
+# 预加载场景
+const TowerScene := preload("res://entities/towers/tower.tscn")
+const GameOverPopupScene := preload("res://ui/popups/game_over_popup.tscn")
+
 @onready var game_content = $GameContent
 @onready var start_stop_button = $GameContent/PanelContainer/StartStopButton
 @onready var grid_root = $GameContent/CenterContainer/GridRoot
@@ -11,13 +14,16 @@ var game_started = false
 
 var dead_zone_manager: Node = null
 var enemy_manager: Node = null
-var pending_enemy_data: Array = []  # 存储预生成的敌人数据
+var pending_enemy_data: Array = []
 var game_over_popup: Control = null
 
 # 游戏状态追踪
-var enemy_breached_grid: bool = false  # 是否有敌人触碰过grid
+var enemy_breached_grid: bool = false
 
 func _ready():
+	# 监听游戏状态变化
+	SignalBus.game_started.connect(_on_game_started)
+	SignalBus.game_stopped.connect(_on_game_stopped)
 	# 监听窗口大小变化
 	get_tree().root.size_changed.connect(_on_window_resize)
 	_on_window_resize()
@@ -83,15 +89,11 @@ func _on_window_resize():
 	print("Window: ", window_size, " Content width: ", target_width, " Margins: ", margin_left)
 
 func _on_start_stop_button_pressed():
-	game_started = not game_started
-	
-	# 重置敌人触碰状态
-	if game_started:
-		enemy_breached_grid = false
+	GameState.start_game() if not GameState.is_running() else GameState.stop_game()
 	
 	update_button_text()
 
-	if game_started:
+	if GameState.is_running():
 		_set_drag_enabled(false)
 		_create_dead_zones()
 		_create_enemy_manager()
@@ -139,7 +141,7 @@ func _create_dead_zones():
 		dead_zone_manager.queue_free()
 	dead_zone_manager = Node2D.new()
 	dead_zone_manager.name = "DeadZoneManager"
-	dead_zone_manager.set_script(load("res://core/dead_zone_manager.gd"))
+	dead_zone_manager.set_script(load(Paths.DEAD_ZONE_MANAGER_SCRIPT))
 	add_child(dead_zone_manager)
 
 func _remove_dead_zones():
@@ -171,7 +173,7 @@ func _prepare_enemy_warnings():
 		enemy_manager.queue_free()
 	enemy_manager = Node2D.new()
 	enemy_manager.name = "EnemyManager"
-	enemy_manager.set_script(load("res://entities/enemies/enemy_manager.gd"))
+	enemy_manager.set_script(load(Paths.ENEMY_MANAGER_SCRIPT))
 	add_child(enemy_manager)
 	
 	# 设置网格信息
@@ -188,7 +190,7 @@ func _create_enemy_manager():
 	
 	enemy_manager = Node2D.new()
 	enemy_manager.name = "EnemyManager"
-	enemy_manager.set_script(load("res://entities/enemies/enemy_manager.gd"))
+	enemy_manager.set_script(load(Paths.ENEMY_MANAGER_SCRIPT))
 	add_child(enemy_manager)
 	
 	var grid_rect = grid_container.get_global_rect()
@@ -209,7 +211,7 @@ func _remove_enemy_manager():
 func _create_game_over_popup():
 	if is_instance_valid(game_over_popup):
 		game_over_popup.queue_free()
-	game_over_popup = load("res://ui/popups/game_over_popup.tscn").instantiate()
+	game_over_popup = GameOverPopupScene.instantiate()
 	game_over_popup.popup_closed.connect(_on_game_over_popup_closed)
 	add_child(game_over_popup)
 
@@ -218,7 +220,7 @@ func _on_game_over_popup_closed():
 	print("[MAIN] Popup closed, resetting game state...")
 	
 	# 确保游戏停止
-	game_started = false
+	GameState.stop_game()
 	update_button_text()
 	
 	# 清理所有游戏对象
@@ -277,7 +279,7 @@ func _clear_all_bullets():
 
 func _on_tower_deployed(tower_instance):
 	if is_instance_valid(tower_instance) and tower_instance.has_method("start_firing") and tower_instance.has_method("stop_firing"):
-		if game_started:
+		if GameState.is_running():
 			tower_instance.start_firing()
 		else:
 			tower_instance.stop_firing()
@@ -321,7 +323,7 @@ func _on_all_enemies_defeated():
 	while is_screen_shaking:
 		await get_tree().process_frame
 	
-	if not game_started:
+	if not GameState.is_running():
 		return
 	
 	if enemy_breached_grid:
@@ -335,11 +337,11 @@ func _on_all_enemies_defeated():
 	_stop_all_towers()
 	_clear_all_bullets()
 	_remove_dead_zones()
-	game_started = false
+	GameState.stop_game()
 	update_button_text()
 
 func update_button_text():
-	if game_started:
+	if GameState.is_running():
 		start_stop_button.text = "停止"
 	else:
 		start_stop_button.text = "开始"
@@ -352,7 +354,7 @@ func update_button_text():
 	style_box.border_width_bottom = 2
 	style_box.border_color = Color.BLACK
 	
-	if game_started:
+	if GameState.is_running():
 		# Red background when game is running
 		style_box.bg_color = Color(0.9, 0.2, 0.2, 1.0)
 	else:
@@ -371,3 +373,9 @@ func update_button_text():
 	var pressed_style = style_box.duplicate()
 	pressed_style.bg_color = style_box.bg_color.darkened(0.1)
 	start_stop_button.add_theme_stylebox_override("pressed", pressed_style)
+
+func _on_game_started():
+	print("[MAIN] Game started via SignalBus")
+
+func _on_game_stopped():
+	print("[MAIN] Game stopped via SignalBus")
