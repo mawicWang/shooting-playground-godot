@@ -10,9 +10,5 @@ const ENEMY_SCENE := "res://entities/enemies/enemy.tscn"
 const ENEMY_WARNING_SCENE := "res://entities/enemies/enemy_warning.tscn"
 const GAME_OVER_POPUP_SCENE := "res://ui/popups/game_over_popup.tscn"
 
-# ========== Scripts ==========
-const DEAD_ZONE_MANAGER_SCRIPT := "res://core/dead_zone_manager.gd"
-const ENEMY_MANAGER_SCRIPT := "res://entities/enemies/enemy_manager.gd"
-
 # ========== Autoloads ==========
 const MAIN_PATH := "/root/main"

@@ -3,6 +3,11 @@ extends Node
 ## GameLoopManager.gd - 游戏循环管理
 ## 负责游戏状态转换和核心游戏逻辑
 
+const DeadZoneManager = preload("res://core/dead_zone_manager.gd")
+const EnemyManager = preload("res://entities/enemies/enemy_manager.gd")
+
+const CELL_SIZE = 80.0
+
 signal tower_deployed(tower: Node)
 signal all_enemies_defeated
 
@@ -39,7 +44,7 @@ func _on_game_stopped():
     _remove_dead_zones()
     _remove_enemy_manager()
     _set_drag_enabled(true)
-    _prepare_enemy_warnings()
+    prepare_enemy_warnings()
 
 func _set_drag_enabled(enabled: bool):
     for cell in _grid_container.get_children():
@@ -63,9 +68,8 @@ func _stop_all_towers():
 func _create_dead_zones():
     if is_instance_valid(_dead_zone_manager):
         _dead_zone_manager.queue_free()
-    _dead_zone_manager = Node2D.new()
+    _dead_zone_manager = DeadZoneManager.new()
     _dead_zone_manager.name = "DeadZoneManager"
-    _dead_zone_manager.set_script(load(Paths.DEAD_ZONE_MANAGER_SCRIPT))
     add_child(_dead_zone_manager)
 
 func _remove_dead_zones():
@@ -74,7 +78,7 @@ func _remove_dead_zones():
         _dead_zone_manager.queue_free()
         _dead_zone_manager = null
 
-func _prepare_enemy_warnings():
+func prepare_enemy_warnings():
     if not is_instance_valid(_grid_container):
         push_error("[GameLoopManager] Grid container not valid!")
         return
@@ -82,33 +86,30 @@ func _prepare_enemy_warnings():
     var grid_rect = _grid_container.get_global_rect()
     if grid_rect.size == Vector2.ZERO:
         # Grid 还没准备好，延迟重试
-        print("[GameLoopManager] Grid rect not ready, retrying...")
         await get_tree().create_timer(0.1).timeout
-        call_deferred("_prepare_enemy_warnings")
+        call_deferred("prepare_enemy_warnings")
         return
     
     if is_instance_valid(_enemy_manager):
         _enemy_manager.queue_free()
-    
-    _enemy_manager = Node2D.new()
+
+    _enemy_manager = EnemyManager.new()
     _enemy_manager.name = "EnemyManager"
-    _enemy_manager.set_script(load(Paths.ENEMY_MANAGER_SCRIPT))
     add_child(_enemy_manager)
-    
-    _enemy_manager.set_grid_info(grid_rect, 80.0)
+
+    _enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
     _pending_enemy_data = _enemy_manager.prepare_enemies()
 
 func _create_enemy_manager():
     if is_instance_valid(_enemy_manager):
         _enemy_manager.queue_free()
-    
-    _enemy_manager = Node2D.new()
+
+    _enemy_manager = EnemyManager.new()
     _enemy_manager.name = "EnemyManager"
-    _enemy_manager.set_script(load(Paths.ENEMY_MANAGER_SCRIPT))
     add_child(_enemy_manager)
-    
+
     var grid_rect = _grid_container.get_global_rect()
-    _enemy_manager.set_grid_info(grid_rect, 80.0)
+    _enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
     _enemy_manager.spawn_enemies_from_data(_pending_enemy_data)
     
     _enemy_manager.all_enemies_defeated.connect(_on_all_enemies_defeated)

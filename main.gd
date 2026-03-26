@@ -63,7 +63,7 @@ func _setup_ui():
 	_create_game_over_popup()
 
 func _prepare_game():
-	_game_loop._prepare_enemy_warnings()
+	_game_loop.prepare_enemy_warnings()
 
 func _on_start_stop_pressed():
 	if GameState.is_running():
@@ -93,19 +93,20 @@ func _on_enemy_breached():
 		_effect_manager.trigger_screen_shake()
 
 func _on_all_enemies_defeated():
-	# 等待屏幕抖动完成
-	while _effect_manager.is_shaking():
-		await get_tree().process_frame
-	
+	# 等待屏幕抖动完成（若正在抖动，await 已有 tween）
+	var shake_tween = _effect_manager.trigger_screen_shake() if _effect_manager.is_shaking() else null
+	if shake_tween != null:
+		await shake_tween.finished
+
 	if not GameState.is_running():
 		return
-	
+
 	# 显示结果
 	if _game_loop.has_enemy_breached():
 		_game_over_popup.show_defeat()
 	else:
 		_game_over_popup.show_victory()
-	
+
 	_game_loop.stop_game()
 	_update_button_style()
 
@@ -116,9 +117,8 @@ func _create_game_over_popup():
 
 func _on_popup_closed():
 	_game_loop.reset_breach_status()
-	_game_loop.stop_game()
+	_game_loop.stop_game()  # _on_game_stopped() 内部已调用 prepare_enemy_warnings()
 	_effect_manager.reset_position()
-	_game_loop._prepare_enemy_warnings()
 	_update_button_style()
 
 func _update_button_style():

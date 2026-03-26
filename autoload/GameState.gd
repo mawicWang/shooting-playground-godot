@@ -1,14 +1,13 @@
 extends Node
 
 ## GameState.gd - 全局游戏状态管理
-## 替代 DragManager 的全局功能，集中管理游戏状态
+## 集中管理游戏阶段状态（DEPLOYMENT / RUNNING / PAUSED / GAME_OVER）
+## 拖拽状态由 DragManager 单独负责，不在此重复
 
 enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
 
 var current_state: State = State.DEPLOYMENT
 var current_wave: int = 0
-var is_drag_active: bool = false
-var dragged_source: Node = null
 
 # 运行状态切换
 func start_game():
@@ -31,25 +30,6 @@ func resume_game():
 		current_state = State.RUNNING
 		SignalBus.game_resumed.emit()
 
-# 拖拽状态管理
-var hovered_cell: Node = null
-
-func start_drag(source_node: Node):
-	is_drag_active = true
-	dragged_source = source_node
-
-func end_drag():
-	is_drag_active = false
-	dragged_source = null
-	hovered_cell = null
-	SignalBus.drag_ended.emit()
-
-func set_hovered_cell(cell: Node):
-	hovered_cell = cell
-
-func clear_hovered_cell():
-	hovered_cell = null
-
 # 便捷查询
 func is_running() -> bool:
 	return current_state == State.RUNNING
@@ -58,4 +38,4 @@ func is_deployment() -> bool:
 	return current_state == State.DEPLOYMENT
 
 func can_drag() -> bool:
-	return current_state == State.DEPLOYMENT and not is_drag_active
+	return current_state == State.DEPLOYMENT

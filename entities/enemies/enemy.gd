@@ -12,6 +12,7 @@ signal enemy_hit(body, enemy)
 signal enemy_destroyed(enemy)  # 敌人被销毁信号
 
 func _ready():
+	add_to_group("enemies")
 	# 确保Hitbox监控开启
 	hitbox.monitoring = true
 	hitbox.monitorable = true

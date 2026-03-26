@@ -25,7 +25,7 @@ signal bullet_fired(bullet: Node, source_tower: Node)
 signal bullet_hit(bullet: Node, target: Node)
 signal enemy_spawned(enemy: Node)
 signal enemy_destroyed(enemy: Node)
-signal enemy_reached_grid(enemy: Node)
+signal enemy_reached_grid
 
 # ==================== 遗物系统事件 (预留) ====================
 signal relic_acquired(relic: Resource)

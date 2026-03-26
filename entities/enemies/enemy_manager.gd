@@ -117,9 +117,7 @@ func prepare_enemies() -> Array:
 		active_warnings.append(warning)
 		
 		spawned_count += 1
-		print("[ENEMY] Prepared enemy #", spawned_count, " at ", spawn_pos, " direction: ", direction)
-	
-	print("[ENEMY] Total enemies prepared: ", spawned_count)
+
 	return pending_enemies.duplicate()
 
 # 实际生成敌人（游戏开始时调用）
@@ -143,8 +141,6 @@ func spawn_enemies():
 		# 添加到场景
 		get_tree().root.add_child(enemy)
 		active_enemies.append(enemy)
-	
-	print("[ENEMY] Spawned ", active_enemies.size(), " enemies")
 	
 	# 清空预存信息
 	pending_enemies.clear()
@@ -171,7 +167,6 @@ func spawn_enemies_from_data(enemy_data: Array):
 		get_tree().root.add_child(enemy)
 		active_enemies.append(enemy)
 	
-	print("[ENEMY] Spawned ", active_enemies.size(), " enemies from data")
 
 func clear_warnings():
 	for warning in active_warnings:
@@ -184,42 +179,24 @@ func clear_enemies():
 		if is_instance_valid(enemy):
 			enemy.queue_free()
 	active_enemies.clear()
-	print("[ENEMY] All enemies cleared")
 
 signal all_enemies_defeated()  # 所有敌人被消灭信号
 
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
-	# 检查是否是子弹
-	var is_bullet = false
-	if body.get_script() != null and body.get_script().resource_path.ends_with("bullet.gd"):
-		is_bullet = true
-	elif body.name.to_lower().begins_with("bullet"):
-		is_bullet = true
-	
-	if is_bullet:
-		print("[ENEMY] Enemy hit by bullet!")
+	if body.is_in_group("bullets"):
 		if is_instance_valid(body):
 			body.queue_free()
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()
-		
-		# 检查是否所有敌人都被消灭
 		if active_enemies.size() == 0:
-			print("[ENEMY] All enemies defeated!")
 			all_enemies_defeated.emit()
-		
 		return
 
 func _on_enemy_destroyed(enemy: CharacterBody2D):
-	"""敌人被销毁时的处理"""
 	if enemy in active_enemies:
 		active_enemies.erase(enemy)
-		print("[ENEMY] Enemy destroyed, remaining: ", active_enemies.size())
-		
-		# 检查是否所有敌人都被消灭
 		if active_enemies.size() == 0:
-			print("[ENEMY] All enemies defeated!")
 			all_enemies_defeated.emit()
 
 func _exit_tree():

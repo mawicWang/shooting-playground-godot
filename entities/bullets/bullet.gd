@@ -8,6 +8,7 @@ var lifetime: float = 0.0
 var warned: bool = false  # 是否已经打印过警告
 
 func _ready():
+	add_to_group("bullets")
 	# 启用Hitbox监控以便敌人检测
 	$Hitbox.monitoring = true
 	$Hitbox.monitorable = true
@@ -26,8 +27,6 @@ func _physics_process(delta):
 		if OS.is_debug_build():
 			push_warning("[BULLET] Bullet has been alive for %.1f seconds. Position: %s" % [lifetime, global_position])
 
-func _exit_tree():
-	print("[BULLET] Destroyed after %.2f seconds" % lifetime)
 
 func set_direction(dir: Vector2):
 	direction = dir.normalized()

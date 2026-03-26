@@ -14,41 +14,36 @@ func _create_zones():
 		if is_instance_valid(zone):
 			zone.queue_free()
 	zones.clear()
-	
+
 	var viewport_size = get_viewport_rect().size
 	var viewport_center = viewport_size / 2
-	
+
 	var margin = 50.0  # 边距大小（始终为正数）
-	var extend = 100.0  # 向外延伸的距离，正数在外头，负数在里头
-	
+	var extend = 100.0  # 向外延伸的距离
+
 	# 上（在屏幕上方外面）
-	_create_zone("Top", 
-		Vector2(viewport_center.x, -extend + margin/2), 
+	_create_zone("Top",
+		Vector2(viewport_center.x, -extend + margin/2),
 		Vector2(viewport_size.x + extend * 2, margin))
-	
+
 	# 下（在屏幕下方外面）
-	_create_zone("Bottom", 
-		Vector2(viewport_center.x, viewport_size.y + extend - margin/2), 
+	_create_zone("Bottom",
+		Vector2(viewport_center.x, viewport_size.y + extend - margin/2),
 		Vector2(viewport_size.x + extend * 2, margin))
-	
+
 	# 左（在屏幕左方外面）
-	_create_zone("Left", 
-		Vector2(-extend + margin/2, viewport_center.y), 
+	_create_zone("Left",
+		Vector2(-extend + margin/2, viewport_center.y),
 		Vector2(margin, viewport_size.y + extend * 2))
-	
+
 	# 右（在屏幕右方外面）
-	_create_zone("Right", 
-		Vector2(viewport_size.x + extend - margin/2, viewport_center.y), 
+	_create_zone("Right",
+		Vector2(viewport_size.x + extend - margin/2, viewport_center.y),
 		Vector2(margin, viewport_size.y + extend * 2))
-	
-	print("Dead zones created. Viewport size: ", viewport_size)
 
 func _create_zone(name: String, position: Vector2, size: Vector2):
-	# 确保大小为正数
 	var final_size = Vector2(abs(size.x), abs(size.y))
-	
-	print("Creating dead zone '", name, "' at ", position, " size: ", final_size)
-	
+
 	var area = Area2D.new()
 	area.name = "DeadZone" + name						
 	area.position = position
@@ -113,9 +108,7 @@ func _create_debug_visual(size: Vector2, name: String) -> Node2D:
 	return visual
 
 func _on_body_entered(body: Node2D):
-	# 检查是否是子弹
-	if body.get_script() != null and body.get_script().resource_path.ends_with("bullet.gd"):
-		print("[DEADZONE] Bullet destroyed: ", body.name)
+	if body.is_in_group("bullets"):
 		body.queue_free()
 
 func _on_viewport_size_changed():
