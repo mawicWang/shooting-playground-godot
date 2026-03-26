@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid/grid_manager.gd" id="1_f9bqe"]
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://c4r887bchyyov" path="res://tower_icon.gd" id="3_h2yge"]
-[ext_resource type="Script" uid="uid://byp6qolbgukvm" path="res://removal_zone.gd" id="4_removal_zone_script"]
+[ext_resource type="Script" uid="uid://c4r887bchyyov" path="res://ui/deployment/tower_icon.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://byp6qolbgukvm" path="res://grid/removal_zone.gd" id="4_removal_zone_script"]
 [ext_resource type="Script" uid="uid://ciexd3qgugumt" path="res://main.gd" id="5_main_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lquwl"]
