@@ -139,7 +139,7 @@ func _create_dead_zones():
 		dead_zone_manager.queue_free()
 	dead_zone_manager = Node2D.new()
 	dead_zone_manager.name = "DeadZoneManager"
-	dead_zone_manager.set_script(load("res://dead_zone_manager.gd"))
+	dead_zone_manager.set_script(load("res://core/dead_zone_manager.gd"))
 	add_child(dead_zone_manager)
 
 func _remove_dead_zones():
@@ -209,7 +209,7 @@ func _remove_enemy_manager():
 func _create_game_over_popup():
 	if is_instance_valid(game_over_popup):
 		game_over_popup.queue_free()
-	game_over_popup = load("res://game_over_popup.tscn").instantiate()
+	game_over_popup = load("res://ui/popups/game_over_popup.tscn").instantiate()
 	game_over_popup.popup_closed.connect(_on_game_over_popup_closed)
 	add_child(game_over_popup)
 
