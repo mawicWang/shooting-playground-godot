@@ -81,7 +81,10 @@ func _prepare_enemy_warnings():
     
     var grid_rect = _grid_container.get_global_rect()
     if grid_rect.size == Vector2.ZERO:
-        push_error("[GameLoopManager] Grid rect size is zero!")
+        # Grid 还没准备好，延迟重试
+        print("[GameLoopManager] Grid rect not ready, retrying...")
+        await get_tree().create_timer(0.1).timeout
+        call_deferred("_prepare_enemy_warnings")
         return
     
     if is_instance_valid(_enemy_manager):

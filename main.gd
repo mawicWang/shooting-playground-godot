@@ -45,7 +45,11 @@ func _setup_signals():
 	SignalBus.game_stopped.connect(_on_game_stopped)
 	SignalBus.enemy_reached_grid.connect(_on_enemy_breached)
 	
-	# 连接 cell 信号到 SignalBus
+	# 连接 grid_root 的敌人触碰信号到 SignalBus
+	if grid_root.has_signal("enemy_breached_grid"):
+		grid_root.enemy_breached_grid.connect(func(): SignalBus.enemy_reached_grid.emit())
+	
+	# 连接 cell 信号
 	for cell in grid_container.get_children():
 		if cell.has_signal("tower_deployed"):
 			cell.tower_deployed.connect(_on_tower_deployed)
