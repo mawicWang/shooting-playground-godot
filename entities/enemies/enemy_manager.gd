@@ -111,7 +111,7 @@ func prepare_enemies() -> Array:
 		
 		# 创建警告图标
 		var warning = WARNING_SCENE.instantiate()
-		warning.set_base_position(warning_pos)
+		warning.set_grid_aligned_position(warning_pos)
 		warning.set_direction(direction)
 		get_tree().root.add_child(warning)
 		active_warnings.append(warning)
