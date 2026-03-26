@@ -49,3 +49,13 @@ Thumbs.db
 # 各种日志
 # ----------------------
 *.log
+
+# 防止 Godot 自动保存产生的根目录残留文件
+# ----------------------
+/bullet.tscn
+/enemy.tscn
+/enemy_warning.tscn
+/tower.tscn
+/enemy_shader.gdshader
+/enemy_shader.gdshader.uid
+/removal_zone.gd
