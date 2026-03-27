@@ -52,7 +52,7 @@ func _init_collision_shape():
 
 func _on_area_input_event(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if not is_rotating:
+		if not is_rotating and GameState.is_deployment():
 			_rotate_90_degrees()
 
 func _rotate_90_degrees():

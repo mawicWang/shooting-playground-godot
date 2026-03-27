@@ -107,7 +107,7 @@ func _gui_input(event):
 		else:
 			# Button released - check if it's a valid click (not a drag)
 			var click_duration = Time.get_ticks_msec() - _click_start_time
-			if _is_click_valid and click_duration < CLICK_MAX_DURATION_MS and is_occupied and is_instance_valid(tower_node):
+			if _is_click_valid and click_duration < CLICK_MAX_DURATION_MS and GameState.is_deployment() and is_occupied and is_instance_valid(tower_node):
 				# It's a click, trigger tower rotation
 				if tower_node.has_method("_rotate_90_degrees"):
 					tower_node._rotate_90_degrees()
