@@ -1,0 +1,52 @@
+#!/bin/sh
+
+echo "🚀 [Pre-push] 正在运行构建检查..."
+
+# 获取项目根目录
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+cd "$PROJECT_ROOT"
+
+# 运行构建脚本
+if [ -f "./build_web.sh" ]; then
+    ./build_web.sh
+else
+    echo "❌ [Pre-push] 未找到 build_web.sh 脚本"
+    exit 1
+fi
+
+# 获取构建结果
+BUILD_STATUS=$?
+
+if [ $BUILD_STATUS -ne 0 ]; then
+    echo "❌ [Pre-push] 构建失败！已拦截 Push。"
+    echo "💡 [Pre-push] 提示：如果不需要构建，请使用 --no-verify 跳过"
+    exit 1
+fi
+
+echo "✅ [Pre-push] 构建通过！"
+echo "📁 [Pre-push] 输出目录: web/"
+
+# 检查是否有未提交的构建文件
+if [ -n "$(git status --porcelain web/)" ]; then
+    echo "⚠️  [Pre-push] 检测到 web/ 目录有未提交的更改"
+    echo "💡 [Pre-push] 建议先提交构建文件: git add web/ && git commit -m 'build: 更新 Web 构建'"
+    
+    # 询问是否继续（非交互式环境自动继续）
+    if [ -t 1 ]; then
+        printf "是否继续 Push? (y/N): "
+        read -r response
+        case "$response" in
+            [yY][eE][sS]|[yY])
+                echo "✅ [Pre-push] 继续 Push..."
+                exit 0
+                ;;
+            *)
+                echo "❌ [Pre-push] 已取消 Push"
+                exit 1
+                ;;
+        esac
+    fi
+fi
+
+echo "✅ [Pre-push] 准备推送到远端..."
+exit 0

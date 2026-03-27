@@ -9,15 +9,15 @@
 ### 核心原则
 1. **渐进式重构** - 每一步都保持现有功能完整
 2. **先重构，后功能** - 架构先行，功能后置
-3. **可回滚** - 每个阶段都能随时回退到稳定版本
-4. **测试驱动** - 关键重构节点需验证所有现有功能
+3. **可回滚** - 每个阶段完成后打 git tag
+4. **先跑通，再优化** - 新功能先验证逻辑正确性，再追求性能
 
 ### 阶段划分
 
 ```
-Phase 1: 项目结构重构 (基础架构)
-Phase 2: Tower 架构重构 (可扩展底座系统)
-Phase 3: Bullet 架构重构 (信号数据包系统)
+Phase 1: 项目结构重构 (基础架构)          ✅ 已完成
+Phase 2: Tower 架构重构 (可扩展底座系统)  ✅ 已完成
+Phase 3: Bullet 架构重构 (信号数据包系统)  🔜 下一步
 Phase 4: 组件与模块系统 (Modules)
 Phase 5: 遗物系统 (Relics)
 Phase 6: Roguelike 循环与 UI
@@ -25,159 +25,129 @@ Phase 6: Roguelike 循环与 UI
 
 ---
 
-## Phase 1: 项目结构重构
+## Phase 1: 项目结构重构 ✅
 
 ### 目标
 建立清晰的分层架构，为后续组件化开发奠定基础。
 
-### 目录结构调整
+### 目录结构
 
 ```
 res://
-├── main.tscn                    # 主场景（入口）
-├── main.gd                      # 主控制器（精简）
-│
-├── autoload/                    # 自动加载单例
-│   ├── GameState.gd            # 游戏状态管理（替代 DragManager 全局功能）
-│   ├── SignalBus.gd            # 全局信号总线
-│   └── EventManager.gd         # 事件系统（遗物触发等）
-│
-├── core/                        # 核心抽象层
-│   ├── TowerBase.gd            # 炮塔抽象基类
-│   ├── BulletBase.gd           # 子弹抽象基类
-│   ├── Component.gd            # 炮塔组件基类（继承 Node）
-│   └── Module.gd               # 炮塔模块基类（Resource）
-│
-├── entities/                    # 实体实现
-│   ├── towers/                 # 炮塔实例
-│   │   ├── SimpleTower.tscn    # 初始炮塔，等同于现在的Tower
-│   │   ├── DimpleTower.gd    
-│   │   ├── XXXXTower.tscn    # 以后的炮塔实现都放在这里，TowerBase
-│   │   └── TowerFactory.gd     # 炮塔工厂
-│   │
+├── main.tscn / main.gd              # 主场景入口（协调者，< 200 行）
+├── autoload/                        # 自动加载单例
+│   ├── SignalBus.gd                # 全局信号总线
+│   ├── GameState.gd               # 游戏阶段状态（DEPLOYMENT/RUNNING...）
+│   ├── DragManager.gd             # 拖拽预览与旋转计算
+│   └── Paths.gd                   # 资源路径常量
+├── core/                            # 管理器层
+│   ├── GameLoopManager.gd
+│   ├── LayoutManager.gd
+│   ├── EffectManager.gd
+│   └── dead_zone_manager.gd
+├── entities/                        # 实体实现
+│   ├── towers/
 │   ├── bullets/
-│   │   ├── SimpleBullet.tscn # 初始子弹，等同于现在的Bullet
-│   │   ├── SimpleBullet.gd 
-│   │   └── BulletFactory.gd
-│   │
 │   ├── enemies/
-│   │   ├── enemy.tscn
-│   │   └── enemy.gd
-│   │
-│   └── modules/                # 逻辑模块
-│
-├── components/                  # 可复用组件
-│   ├── Damageable.gd           # 受伤组件
-│   ├── Rotatable.gd            # 旋转组件（提取自 tower）
-│   ├── Shootable.gd            # 射击组件
-│   ├── SignalReceiver.gd       # 信号接收
-│   └── SignalTransmitter.gd    # 信号发射
-│
-├── grid/                        # 网格系统
-│   ├── cell.tscn
-│   ├── cell.gd
-│   ├── GridManager.gd          # 重命名自 grid_manager.gd
-│   └── GridUtils.gd
-│
-├── ui/                          # UI 系统
-│   ├── hud/
-│   ├── shop/
-│   ├── deployment/
-│   └── popups/
-│
-├── relics/                      # 遗物系统
-│   ├── RelicBase.gd
-│   └── implementations/
-│
-└── resources/                   # 数据资源
-    ├── tower_data/
-    ├── module_data/
-    └── relic_data/
+│   └── modules/                    # 预留
+├── grid/                            # 网格系统
+├── ui/                              # UI 系统
+├── relics/                          # 预留
+└── resources/                       # 预留
 ```
 
-### 具体任务
+### 任务完成情况
 
-| 任务 | 描述 | 验收标准 |
-|------|------|----------|
-| 1.1 创建目录结构 | 按上述结构创建空目录和 .gitkeep | 目录完整 |
-| 1.2 迁移现有文件 | 将现有脚本移动到对应目录，更新引用 | 无报错运行 |
-| 1.3 创建 SignalBus | 全局信号总线，替代直接节点引用 | 信号正常传递 |
-| 1.4 创建 GameState | 管理游戏状态（开始/停止/拖拽状态） | 状态同步正确 |
-| 1.5 重构 main.gd | 精简为协调者角色 | 功能不变，代码 < 200 行 |
+| 任务 | 状态 | 备注 |
+|------|------|------|
+| 1.1 目录结构 | ✅ | 按计划建立，modules/relics/resources 为空目录 |
+| 1.2 迁移现有文件 | ✅ | 所有文件已在正确位置 |
+| 1.3 创建 SignalBus | ✅ | 全局信号总线，signal 签名已修正 |
+| 1.4 创建 GameState | ✅ | 仅管理游戏阶段，冗余拖拽状态已移除 |
+| 1.5 重构 main.gd | ✅ | 149 行，职责清晰 |
+| 代码质量预备 | ✅ | group 检测、tween 修复、节点创建方式、忙等待等 critical/high 问题已解决 |
 
-### 风险点
-- **DragManager 迁移** - 需要小心处理全局拖拽状态
-- **节点路径引用** - 需要批量更新 `get_node()` 路径
+> EventManager 推迟到 Phase 5 创建，届时遗物系统需要它。
 
 ---
 
-## Phase 2: Tower 架构重构
+## Phase 2: Tower 架构重构 ✅
 
 ### 目标
-实现底座+组件的组装式架构，支持 Emitter/Relay/Terminal 三种类型。
+引入 TowerData 数据驱动架构和 Stat Modifier 系统。代码层面保持单一 Tower 类，不做类型继承。
 
-### 类图设计
+### 设计原则
+- **一个 Tower 类，任意多种塔**：不同塔的行为差异由 TowerData Resource 配置，新增塔 = 新建 `.tres` 文件
+- **属性按需添加**：TowerData 字段只在实际用到时才加，不预留空接口
+- **Stat Modifier 先行**：数值修改基础设施必须在模块系统之前建立
 
-```
-                    ┌──────────────────┐
-                    │   TowerBase      │  ← 抽象基类
-                    │   (Node2D)       │
-                    ├──────────────────┤
-                    │ - id             │
-                    │ - name           │
-                    │ - muzzle_count   │
-                    │ - slot_count     │
-                    │ - modules[]      │
-                    ├──────────────────┤
-                    │ + install_module()│
-                    │ + receive_bullet()│
-                    │ + fire_bullet()  │
-                    └────────┬─────────┘
-                             │ 继承
-            ┌────────────────┼────────────────┐
-            ▼                ▼                ▼
-   ┌────────────────┐ ┌──────────────┐ ┌──────────────┐
-   │ SimpleTower    │ │ xxxTower     │ │ xxxxTower    │
-   └────────────────┘ └──────────────┘ └──────────────┘
-```
-
-### Component 组装模式
+### TowerData Resource（当前最小集）
 
 ```gdscript
-# SimpleTower.gd - 组合模式
-class_name SimpleTower extends TowerBase
+class_name TowerData extends Resource
 
-# 组件作为子节点挂载，享受生命周期
-@onready var rotatable: Component = $RotatableComponent
-@onready var shootable: Component = $ShootableComponent
+@export var tower_name: String = ""
+@export var sprite: Texture2D       # 格子上的外观
+@export var icon: Texture2D         # 商店图标
+@export var firing_rate: float = 1.0
+```
 
-func _ready():
-    # 基类可以统一管理这些组件
-    register_components([rotatable, shootable])
+后续随着需求增加字段（如 bullet_speed、damage 等），不预留。
 
-# 转发方法到组件
-func rotate_clockwise():
-    if rotatable:
-        rotatable.rotate_90_clockwise()
+### Stat Modifier 系统
+
+所有可被模块/遗物修改的数值统一用此机制管理，安装模块时加 modifier，卸载时按 source 移除，数值自动回退。
+
+```gdscript
+# StatModifier.gd - RefCounted 值对象
+class_name StatModifier extends RefCounted
+enum Type { ADDITIVE, MULTIPLICATIVE }
+var value: float;  var type: Type;  var source: Object
+
+# StatAttribute.gd - 单个数值的完整生命周期
+class_name StatAttribute extends RefCounted
+var base_value: float
+var _modifiers: Array[StatModifier] = []
+
+func get_value() -> float:
+    var total = base_value
+    var mult = 1.0
+    for m in _modifiers:
+        if m.type == StatModifier.Type.ADDITIVE: total += m.value
+        else: mult *= m.value
+    return total * mult
+
+func add_modifier(mod: StatModifier): _modifiers.append(mod)
+func remove_modifiers_from(source: Object):
+    _modifiers = _modifiers.filter(func(m): return m.source != source)
 ```
 
 ### 具体任务
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 2.1 创建 Component 基类 | 所有组件继承 Node，持有 tower 引用 | 组件可访问父塔 |
-| 2.2 创建 RotatableComponent | 提取 tower.gd 旋转逻辑 | 旋转功能正常 |
-| 2.3 创建 ShootableComponent | 提取射击逻辑 | 射击功能正常 |
-| 2.4 创建 TowerBase | 抽象基类，组装组件 | 可实例化测试 |
-| 2.5 重构 SimpleTower，迁移现有 tower | 发射源类型 | 定时发射子弹， 所有功能等价 |
-| 2.6 创建 Stat Modifier 系统 | 实现基础值和修饰器，安全叠加模块和遗物 Buff | 属性计算不丢失精度且可插拔 |
+| 2.1 创建 TowerData | 4 字段极简 Resource | ✅ `resources/TowerData.gd` |
+| 2.2 创建 StatModifier | value + type + source 值对象 | ✅ `resources/StatModifier.gd` |
+| 2.3 创建 StatAttribute | base + modifiers，get_value() | ✅ `resources/StatAttribute.gd` |
+| 2.4 重构 tower.gd | 加 `@export var data: TowerData`；firing_rate 改为 StatAttribute；FireTimer 由 stat 驱动 | ✅ 功能等价 |
+| 2.5 创建 simple_emitter.tres | 初始塔数据文件（firing_rate=1.0）| ✅ `resources/simple_emitter.tres` |
+| 2.6 更新 tower_icon.gd | `PackedScene` → `TowerData`；texture 从 data.icon 读取 | ✅ |
+| 2.7 更新 cell._drop_data | 收到 tower_data 后 instantiate 通用 tower.tscn，赋值 data | ✅ |
 
 ---
 
 ## Phase 3: Bullet 架构重构
 
 ### 目标
-实现信号数据包系统，支持携带能量、属性等数据。
+实现信号数据包系统，子弹携带能量、属性、传递链等数据。
+
+### 前置决策：子弹物理类型
+
+> ⚠️ 需要在 Phase 3 开始前确认：BulletBase 用 **CharacterBody2D**（保持现状）还是改为 **Area2D**？
+> - `CharacterBody2D`：可以用 move_and_slide，但 SignalReceiver 需用 `body_entered`
+> - `Area2D`：需手动更新 position，但碰撞检测更灵活
+>
+> **建议保持 CharacterBody2D**，SignalReceiver 改用 `body_entered` 而不是 `area_entered`。
 
 ### 数据结构
 
@@ -187,75 +157,48 @@ class_name BulletData extends Resource
 
 enum ElementType { NEUTRAL, FIRE, ICE, ELECTRIC }
 
-var energy: float = 1.0           # 能量/伤害值
-var speed: float = 300.0          # 飞行速度
+var energy: float = 1.0
+var speed: float = 300.0
 var element: ElementType = ElementType.NEUTRAL
-var source_tower: TowerBase       # 发射源
-var bounce_count: int = 0         # 弹跳次数
-var piercing: bool = false        # 是否穿透
-
-# 信号传递链
-var transmission_chain: Array[TowerBase] = []
+var source_tower: TowerBase       # 原始发射者（用于 Module 逻辑）
+var last_sender: TowerBase        # 上一个转发者（用于避免立即反弹）
+var transmission_chain: Array[TowerBase] = []  # 完整路径（用于遗物闭环检测）
+var bounce_count: int = 0
+var piercing: bool = false
 
 func duplicate_with_mods(mods: Dictionary) -> BulletData:
-    """创建带有修改的数据副本"""
     var copy = self.duplicate()
     for key in mods:
         copy.set(key, mods[key])
     return copy
 ```
 
-### 碰撞检测重构
-
-```gdscript
-# SignalReceiver.gd - 组件（挂载在塔上）
-class_name SignalReceiver extends Component
-
-func _ready():
-    # 设置 Area2D 碰撞层
-    var area = Area2D.new()
-    area.collision_layer = 2  # 信号层
-    area.collision_mask = 2   # 只检测信号
-    
-    area.area_entered.connect(_on_signal_entered)
-    add_child(area)
-
-func _on_signal_entered(bullet: BulletBase):
-    # 检查是否来自有效源，忽略自身发射的
-    if bullet.data.source_tower == owner_tower:
-        return  
-    
-    # 根据拥有的组件触发不同的行为（如：如果塔有转发组件，则触发转发）
-    if owner_tower.has_component("SignalTransmitter"):
-        owner_tower.get_component("SignalTransmitter").retransmit(bullet.data)
-    
-    # 如果塔有终端吸收组件，则触发吸收
-    if owner_tower.has_component("TerminalAbsorber"):
-        owner_tower.get_component("TerminalAbsorber").absorb(bullet.data)
-```
+> 注意 `last_sender` 与 `source_tower` 的区别：
+> - `source_tower`：原始 Emitter，模块可用来避免自我增益
+> - `last_sender`：上一个塔，用于 Relay 避免立即反弹给来源，但不阻断闭环
 
 ### 具体任务
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 3.1 创建 BulletData Resource | 信号数据结构 | 可序列化存储 |
-| 3.2 创建 BulletBase | 子弹抽象基类 | 支持 data 驱动 |
-| 3.3 创建 BulletFactory | 工厂创建子弹 | 支持属性修改 |
-| 3.4 重构 Bullet 碰撞 | 改为 Area2D 检测 | 可检测塔间传递 |
-| 3.5 实现信号链追踪 | 记录传递路径 | 用于遗物递归逻辑 |
-| 3.6 迁移现有 bullet | 替换旧 bullet | 功能等价 |
-| 3.7 引入 Object Pool 对象池 | 复用打中或越界的子弹实例 | 性能：海量子弹不再导致卡顿 |
+| 3.1 创建 BulletData Resource | 含 source/last_sender/chain 字段 | 可序列化，字段清晰 |
+| 3.2 创建 BulletBase | CharacterBody2D，持有 BulletData | data 驱动移动速度 |
+| 3.3 迁移现有 bullet | SimpleBullet 继承 BulletBase | 功能等价，group "bullets" 保留 |
+| 3.4 创建 BulletFactory | 通过工厂创建/复用子弹 | 支持属性初始化 |
+| 3.5 实现信号链追踪 | 每次塔转发时 append 到 chain | 遗物可读取 chain 检测闭环 |
+| 3.6 引入对象池 | 复用 queue_free 的子弹实例 | 百颗以上子弹无明显卡顿 |
+
 ---
 
 ## Phase 4: 组件与模块系统
 
 ### 目标
-实现可插拔的模块系统，支持运行时安装/卸载。
+实现可插拔的模块系统，支持运行时安装/卸载，不产生数值残留。
 
-### Module Resource 设计
+### 关键设计：Module 状态隔离
 
 ```gdscript
-# Module.gd - Resource
+# Module.gd - Resource 基类
 class_name Module extends Resource
 
 enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
@@ -266,8 +209,9 @@ enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
 @export var icon: Texture2D
 
 # 虚拟方法，子类重写
+# 注意：Module 实例通过 TowerBase.install_module() 中的 duplicate() 隔离
+# 每个 Tower 持有独立副本，此处可安全存储每塔状态（如计数器）
 func apply_effect(tower: TowerBase, bullet_data: BulletData) -> BulletData:
-    """修改子弹数据并返回"""
     return bullet_data
 
 func on_install(tower: TowerBase):
@@ -282,11 +226,22 @@ func on_uninstall(tower: TowerBase):
 ```gdscript
 # MultiplierModule.gd
 class_name MultiplierModule extends Module
-
 @export var multiplier: float = 1.2
 
 func apply_effect(_tower: TowerBase, bullet_data: BulletData) -> BulletData:
     bullet_data.energy *= multiplier
+    return bullet_data
+
+# DividerModule.gd - 需要实例状态，duplicate() 保证安全
+class_name DividerModule extends Module
+@export var trigger_every: int = 3
+var _hit_count: int = 0  # 每个 Tower 的副本独立维护此状态
+
+func apply_effect(tower: TowerBase, bullet_data: BulletData) -> BulletData:
+    _hit_count += 1
+    if _hit_count >= trigger_every:
+        _hit_count = 0
+        bullet_data.energy *= 5.0  # 积蓄后爆发
     return bullet_data
 ```
 
@@ -294,20 +249,19 @@ func apply_effect(_tower: TowerBase, bullet_data: BulletData) -> BulletData:
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
- 4.1 创建 Module 基类 | Resource 基类 | 可定义模块数据 |
-| 4.2 实现插槽系统 | TowerBase 支持 slots[] | 可安装/卸载模块 |
-| 4.3 创建乘法器模块 | MultiplierModule | 能量倍增效果 |
-| 4.4 创建加速器模块 | AcceleratorModule | 速度提升 |
-| 4.5 创建分频器模块 | DividerModule | 计数触发 |
-| 4.6 创建过滤器模块 | FilterModule | 属性筛选 |
-| 4.7 模块安装 UI | 拖拽安装模块 | 与现有拖拽兼容 |
+| 4.1 创建 Module 基类 | Resource，含 apply/install/uninstall 钩子 | 可定义模块数据 |
+| 4.2 创建乘法器模块 | MultiplierModule | 能量倍增，数值正确 |
+| 4.3 创建加速器模块 | AcceleratorModule | bullet_data.speed 提升 |
+| 4.4 创建分频器模块 | DividerModule（需实例状态）| 计数正确，卸载后重置 |
+| 4.5 创建过滤器模块 | FilterModule | 按 element 类型筛选子弹 |
+| 4.6 模块安装 UI | 拖拽模块到炮塔插槽 | 与现有拖拽系统兼容 |
 
 ---
 
 ## Phase 5: 遗物系统
 
 ### 目标
-实现全局机制修改器，增强策略深度。
+实现全局机制修改器，侧重修改规则而非纯数值加成。
 
 ### 遗物基类
 
@@ -319,7 +273,7 @@ class_name Relic extends Resource
 @export var description: String
 @export var rarity: int  # 1-4
 
-# 钩子方法，遗物系统调用
+# 钩子方法，由 EventManager 在对应事件时调用
 func on_bullet_transmit(bullet: BulletData, from: TowerBase, to: TowerBase):
     pass
 
@@ -330,34 +284,44 @@ func on_wave_start():
     pass
 ```
 
+### 递归遗物的闭环检测
+
+```gdscript
+# RecursiveRelic.gd - "递归逻辑"遗物
+func on_bullet_transmit(bullet: BulletData, _from: TowerBase, to: TowerBase):
+    # 检测 to 是否已在传递链中（闭环）
+    if to in bullet.transmission_chain:
+        bullet.energy *= 1.1  # 每完成一圈增幅 10%
+```
+
 ### 具体任务
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 5.1 创建 Relic 基类 | 钩子系统 | 可监听全局事件 |
-| 5.2 创建 EventManager | 全局事件分发 | 遗物可注册监听 |
-| 5.3 实现"量子纠缠" | 终端组件共享能量 | 多个带有终端组件的塔同步效果 |
-| 5.4 实现"超导回路" | 速度不衰减+电击 | 子弹传递增强 |
-| 5.5 实现"递归逻辑" | 闭环增强 | 检测循环并增强 |
-| 5.6 实现"多线程" | 发射源双炮口 | 修改底座属性 |
+| 5.1 创建 Relic 基类 | Resource + 钩子接口 | 可被 EventManager 调用 |
+| 5.2 创建 EventManager | Autoload，分发 on_bullet_transmit 等事件 | 遗物可注册/注销 |
+| 5.3 实现"量子纠缠" | Terminal 共享能量进度 | 多个 Terminal 同步效果 |
+| 5.4 实现"超导回路" | 转发不衰减 + 电击周围敌人 | 电击范围可见，不影响帧率 |
+| 5.5 实现"递归逻辑" | 读取 transmission_chain 检测闭环 | 闭环检测准确，增幅堆叠正确 |
+| 5.6 实现"多线程" | 所有 Emitter 额外增加后方炮口 | 动态修改 muzzle_count 生效 |
 
 ---
 
 ## Phase 6: Roguelike 循环与 UI
 
 ### 目标
-完成游戏循环，实现局外成长和局内构建。
+完成完整游戏循环，实现局内构建与局外成长。
 
 ### 具体任务
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 6.1 情报预警 UI | 显示敌人波次信息 | 方向/类型提示 |
-| 6.2 炮塔商店系统 | 购买底座和模块 | 货币系统 |
-| 6.3 战后奖励选择 | 三选一奖励 | 可领取遗物/模块 |
-| 6.4 局外成长系统 | Meta-progression | 解锁新模块 |
-| 6.5 视觉流向预览 | 部署时显示弹道 | 半透明预览线 |
-| 6.6 移动端优化 | 触摸交互优化 | 点击/手势区分 |
+| 6.1 情报预警 UI | 显示敌人波次方向/类型 | 动画预警清晰 |
+| 6.2 炮塔商店系统 | 购买底座和模块，货币系统 | 资源增减正确 |
+| 6.3 战后奖励三选一 | 从遗物/模块/底座中随机组合 | 选择后正确加入库存 |
+| 6.4 局外成长系统 | 跨局解锁新模块/遗物池 | 存档读写正确 |
+| 6.5 逻辑流向预览 | 部署时显示子弹预期弹道 | 半透明虚线，不遮挡操作 |
+| 6.6 移动端优化 | 触摸拖拽、模块安装手势 | iOS/Android 无误触 |
 
 ---
 
@@ -366,21 +330,24 @@ func on_wave_start():
 ### 版本管理
 
 ```bash
-# 每个 Phase 完成后打 tag
-git tag -a v0.9-phase1 -m "Phase 1 完成: 项目结构重构"
-git tag -a v0.9-phase2 -m "Phase 2 完成: Tower 架构重构"
-# ...
-git tag -a v1.0.0 -m "v1.0 发布"
+git tag -a v0.2-phase1 -m "Phase 1 完成: 项目结构重构 + 代码质量修复"
+git tag -a v0.3-phase2 -m "Phase 2 完成: Tower 架构重构"
+git tag -a v0.4-phase3 -m "Phase 3 完成: Bullet 数据包系统"
+git tag -a v0.5-phase4 -m "Phase 4 完成: 模块系统"
+git tag -a v0.8-phase5 -m "Phase 5 完成: 遗物系统"
+git tag -a v1.0.0     -m "v1.0 发布: 完整 Roguelike 循环"
 ```
 
 ### 测试策略
 
-1. **每个任务完成后** - 运行现有游戏，验证功能未损坏
-2. **每个 Phase 完成后** - 完整测试所有现有功能
-3. **添加新功能后** - 单元测试 + 集成测试
+1. **每个任务完成后** - 运行游戏，验证现有功能未损坏
+2. **每个 Phase 完成后** - 完整回归测试 + 打 tag
+3. **Phase 2 特别验证** - 重构后 tower 行为与改动前 100% 等价；StatAttribute 数值增删可安全回退
+4. **Phase 3 特别验证** - 对象池内存占用与裸 instantiate 对比
 
 ### 文档维护
 
-- `docs/API.md` - 核心类 API 文档
-- `docs/MIGRATION.md` - 迁移指南
-- `docs/CHANGELOG.md` - 变更日志
+- `doc/DESIGN_V1.0.md` - 核心设计方案
+- `doc/IMPLEMENTATION_PLAN.md` - 本文件，阶段进度
+- `doc/DEVELOPER.md` - 架构与实现细节
+- `CLAUDE.md` - Claude Code 上下文指引

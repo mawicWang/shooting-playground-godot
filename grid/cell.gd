@@ -163,7 +163,7 @@ func _update_visuals():
 # Godot 内置回调：判断是否允许放置
 func _can_drop_data(_at_position, data):
 	# 检查数据是否来自商店（新炮塔）或网格（移动中）
-	var can_drop_from_store = typeof(data) == TYPE_DICTIONARY and data.has("scene") and not data.get("is_moving", false)
+	var can_drop_from_store = typeof(data) == TYPE_DICTIONARY and data.has("tower_data") and not data.get("is_moving", false)
 	var can_drop_from_grid = typeof(data) == TYPE_DICTIONARY and data.has("is_moving") and data.is_moving
 	
 	var is_valid_drop_target = false
@@ -207,10 +207,11 @@ func _drop_data(_at_position, data):
 			source_cell_instance.remove_child(tower)
 			source_cell_instance.remove_tower_reference() # Remove reference from old cell
 	else:
-		# Dragging a new tower from the store
-		var tower_scene = data["scene"]
+		# Dragging a new tower from the store (TowerData-driven)
+		var td: TowerData = data["tower_data"]
+		var tower_scene = preload("res://entities/towers/tower.tscn")
 		tower = tower_scene.instantiate()
-		# Get rotation from DragManager, as it tracks the source (tower_icon) rotation
+		tower.data = td
 		final_rotation = DragManager.get_current_drag_rotation()
 
 	# Add the tower to this cell
@@ -304,9 +305,9 @@ func _get_drag_data(_at_position):
 	var data = {
 		"is_moving": true,
 		"tower_instance": tower_node,
-		"scene": preload("res://entities/towers/tower.tscn"), # Load scene for compatibility if needed
+		"tower_data": tower_node.data if tower_node.get("data") != null else null,
 		"source_cell": self,
-		"rotation": drag_rotation_offset # This will be the initial rotation (UP), actual rotation is applied on drop.
+		"rotation": drag_rotation_offset
 	}
 	
 	# Temporarily hide the original tower node to simulate it being picked up
