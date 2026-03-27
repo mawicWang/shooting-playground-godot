@@ -47,8 +47,8 @@ func _create_zone(name: String, position: Vector2, size: Vector2):
 	var area = Area2D.new()
 	area.name = "DeadZone" + name						
 	area.position = position
-	area.collision_layer = 8  # 墙壁/障碍物层（第4层）
-	area.collision_mask = 4   # 只检测子弹层（第3层）
+	area.collision_layer = Layers.DEAD_ZONE
+	area.collision_mask = Layers.BULLET  # 检测子弹 Hitbox（Area2D，第3层）
 	area.monitoring = true    # 必须开启才能检测进入的物体
 	area.monitorable = true   # 必须开启才能被检测
 	
@@ -65,9 +65,9 @@ func _create_zone(name: String, position: Vector2, size: Vector2):
 	area.add_child(collision_shape)
 	add_child(area)
 	
-	# 连接信号
-	area.body_entered.connect(_on_body_entered)
-	
+	# 连接信号：子弹 Hitbox 是 Area2D，需用 area_entered 而非 body_entered
+	area.area_entered.connect(_on_area_entered)
+
 	zones.append(area)
 
 func _create_debug_visual(size: Vector2, name: String) -> Node2D:
@@ -107,9 +107,10 @@ func _create_debug_visual(size: Vector2, name: String) -> Node2D:
 	
 	return visual
 
-func _on_body_entered(body: Node2D):
-	if body.is_in_group("bullets"):
-		BulletPool.release(body)
+func _on_area_entered(area: Area2D):
+	var bullet = area.get_parent()
+	if is_instance_valid(bullet) and bullet.is_in_group("bullets"):
+		BulletPool.release(bullet)
 
 func _on_viewport_size_changed():
 	_create_zones()

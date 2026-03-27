@@ -56,8 +56,8 @@ func _add_border_hitbox(cell: Control):
 	"""为边界cell添加Area2D hitbox，用于检测敌人碰撞"""
 	var hitbox = Area2D.new()
 	hitbox.name = "BorderHitbox"
-	hitbox.collision_layer = 16  # 第5层：边界cell
-	hitbox.collision_mask = 2    # 检测敌人层（第2层）
+	hitbox.collision_layer = Layers.GRID_BORDER
+	hitbox.collision_mask = Layers.ENEMY
 	hitbox.monitoring = true
 	hitbox.monitorable = true
 	

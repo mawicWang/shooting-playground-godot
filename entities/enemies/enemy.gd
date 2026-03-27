@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-const SPEED = 50.0
+const SPEED = 30.0
 const MAX_HEALTH := 3.0
 
 var direction = Vector2.ZERO

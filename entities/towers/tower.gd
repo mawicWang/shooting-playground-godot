@@ -3,13 +3,26 @@ extends Node2D
 @export var data: TowerData
 
 @onready var fire_timer: Timer = $FireTimer
-@onready var area: Area2D = $Area2D
-@onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
+@onready var _click_area: Area2D = $Area2D
+@onready var _click_shape: CollisionShape2D = $Area2D/CollisionShape2D
 @onready var sprite: Sprite2D = $Sprite2D
 
 var firing_rate_stat: StatAttribute
 var modules: Array = []   # Array[Module]，每个是 duplicate() 后的独立副本
 var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
+
+## 弹药系统：-1 = 无限，≥0 = 有限弹药
+var ammo: int = 0
+var _ammo_label: Label = null
+
+## 默认子弹击中效果（复用，避免每发子弹都 new）
+var _default_hit_effect: BulletHitEffect = null
+
+## 被击中效果列表（Array[TowerOnHitEffect]）
+var on_hit_effects: Array = []
+
+## 炮塔实体 Hitbox（供子弹碰撞检测）
+var _tower_body: Area2D = null
 
 signal module_installed(module: Resource)
 signal module_uninstalled(index: int)
@@ -21,34 +34,68 @@ var is_rotating: bool = false
 const ROTATION_DURATION: float = 0.15
 
 func _ready():
+	add_to_group("towers")
+	_default_hit_effect = AmmoReplenishEffect.new()
+	_create_ammo_label()
+	_ammo_label.rotation = -rotation  # 同步初始方向
 	_apply_data()
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
-	_setup_area2d()
-	area.input_event.connect(_on_area_input_event)
+	_setup_click_area()
+	_setup_tower_body()
 
 func _apply_data():
 	if data:
 		firing_rate_stat = StatAttribute.new(data.firing_rate)
 		if data.sprite:
 			sprite.texture = data.sprite
+		ammo = data.initial_ammo
 	else:
 		firing_rate_stat = StatAttribute.new(1.0)
+		ammo = 3
 	fire_timer.wait_time = 1.0 / firing_rate_stat.get_value()
+	_update_ammo_label()
 
-func _setup_area2d():
-	call_deferred("_init_collision_shape")
-	area.collision_layer = 1
-	area.collision_mask = 1
-	area.monitoring = true
-	area.monitorable = true
+# ── 碰撞区域设置 ──────────────────────────────────────────────
 
-func _init_collision_shape():
+## 鼠标点击旋转用 Area2D（独立于子弹碰撞层）
+func _setup_click_area():
+	_click_area.collision_layer = Layers.TOWER_CLICK
+	_click_area.collision_mask = 0
+	_click_area.monitoring = false
+	_click_area.monitorable = false
+	_click_area.input_event.connect(_on_area_input_event)
+	call_deferred("_init_click_shape")
+
+func _init_click_shape():
 	if is_instance_valid(sprite) and sprite.texture:
 		var tex_size = sprite.texture.get_size()
-		var rectangle = RectangleShape2D.new()
-		rectangle.size = tex_size * 0.8
-		collision_shape.shape = rectangle
-		collision_shape.position = tex_size / 2
+		var rect = RectangleShape2D.new()
+		rect.size = tex_size * 0.8
+		_click_shape.shape = rect
+		_click_shape.position = Vector2.ZERO  # 居中对齐 Sprite2D
+
+## 子弹碰撞检测用 Area2D（独立层，monitorable）
+func _setup_tower_body():
+	_tower_body = Area2D.new()
+	_tower_body.name = "TowerBody"
+	_tower_body.collision_layer = Layers.TOWER_BODY
+	_tower_body.collision_mask = 0
+	_tower_body.monitoring = false
+	_tower_body.monitorable = true
+	add_child(_tower_body)
+	call_deferred("_init_tower_body_shape")
+
+func _init_tower_body_shape():
+	if is_instance_valid(sprite) and sprite.texture:
+		var tex_size = sprite.texture.get_size()
+		var rect = RectangleShape2D.new()
+		rect.size = tex_size * 0.8
+		var shape_node = CollisionShape2D.new()
+		shape_node.shape = rect
+		shape_node.position = Vector2.ZERO  # 居中对齐 Sprite2D
+		_tower_body.add_child(shape_node)
+
+# ── 鼠标旋转 ─────────────────────────────────────────────────
 
 func _on_area_input_event(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -73,23 +120,30 @@ func _rotate_90_degrees():
 
 func _set_rotation_clockwise(degrees: float):
 	rotation_degrees = fmod(degrees, 360.0)
+	if is_instance_valid(_ammo_label):
+		_ammo_label.rotation = -rotation
 
 func set_initial_direction(direction_index: int):
 	current_rotation_index = direction_index % 4
 	rotation_degrees = current_rotation_index * 90.0
+	if is_instance_valid(_ammo_label):
+		_ammo_label.rotation = -rotation
 
 func _on_rotation_complete():
 	is_rotating = false
 
+# ── 开火控制 ─────────────────────────────────────────────────
+
 func start_firing():
 	if is_instance_valid(fire_timer):
-		# Refresh wait_time in case stat was modified
 		fire_timer.wait_time = 1.0 / firing_rate_stat.get_value()
 		fire_timer.start()
 
 func stop_firing():
 	if is_instance_valid(fire_timer):
 		fire_timer.stop()
+
+# ── 模组系统 ─────────────────────────────────────────────────
 
 func install_module(mod: Module) -> bool:
 	if modules.size() >= max_slots:
@@ -117,9 +171,61 @@ func _apply_modules(bullet_data: BulletData) -> BulletData:
 		bd = mod.apply_effect(self, bd)
 	return bd
 
+# ── 弹药系统 ─────────────────────────────────────────────────
+
+func has_ammo() -> bool:
+	return ammo == -1 or ammo > 0
+
+func consume_ammo() -> void:
+	if ammo == -1:
+		return
+	ammo = max(0, ammo - 1)
+	_update_ammo_label()
+
+func add_ammo(amount: int) -> void:
+	if ammo == -1:
+		return
+	ammo += amount
+	_update_ammo_label()
+
+func _create_ammo_label() -> void:
+	_ammo_label = Label.new()
+	_ammo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_ammo_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_ammo_label.z_index = 2
+	_ammo_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ammo_label.add_theme_font_size_override("font_size", 70)
+	_ammo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
+	_ammo_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_ammo_label.add_theme_constant_override("outline_size", 4)
+	_ammo_label.size = Vector2(80, 60)
+	_ammo_label.position = Vector2(-40, -30)
+	_ammo_label.pivot_offset = Vector2(40, 30)  # 绕中心旋转
+	add_child(_ammo_label)
+
+func _update_ammo_label() -> void:
+	if not is_instance_valid(_ammo_label):
+		return
+	_ammo_label.text = "∞" if ammo == -1 else str(ammo)
+
+# ── 被击中处理 ───────────────────────────────────────────────
+
+## 被子弹击中时调用（由 bullet.gd 负责调用）。
+func on_bullet_hit(bullet_data: BulletData) -> void:
+	for effect in on_hit_effects:
+		effect.apply(self, bullet_data)
+
+# ── 开火逻辑 ─────────────────────────────────────────────────
+
 func _on_fire_timer_timeout():
+	if not has_ammo():
+		return
+
+	consume_ammo()
+
 	var bd := BulletData.new()
 	bd.transmission_chain = [self]
+	bd.hit_effects = [_default_hit_effect]
 	bd = _apply_modules(bd)
 
 	var parent := get_tree().get_first_node_in_group("bullet_layer")

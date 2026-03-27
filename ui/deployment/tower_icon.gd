@@ -27,6 +27,34 @@ func _ready():
 		label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1.0))
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(label)
+		_add_ammo_badge()
+
+func _add_ammo_badge() -> void:
+	if not tower_data:
+		return
+	var ammo_text: String
+	if tower_data.initial_ammo == -1:
+		ammo_text = "∞"
+	else:
+		ammo_text = str(tower_data.initial_ammo)
+	var badge := Label.new()
+	badge.text = ammo_text
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.anchor_left = 0.0
+	badge.anchor_right = 1.0
+	badge.anchor_top = 0.0
+	badge.anchor_bottom = 1.0
+	badge.offset_top = 0
+	badge.offset_bottom = 0
+	badge.offset_left = 0
+	badge.offset_right = 0
+	badge.add_theme_font_size_override("font_size", 45)
+	badge.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
+	badge.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	badge.add_theme_constant_override("outline_size", 4)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(badge)
 
 func set_drag_enabled(enabled: bool):
 	drag_enabled = enabled
