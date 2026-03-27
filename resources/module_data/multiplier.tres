@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MultiplierModule" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://entities/modules/multiplier_module.gd" id="1_multiplier"]
+
+[resource]
+script = ExtResource("1_multiplier")
+module_name = "乘法器"
+category = 0
+description = "子弹能量 ×1.5"
+multiplier = 1.5

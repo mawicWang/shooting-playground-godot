@@ -8,6 +8,11 @@ extends Node2D
 @onready var sprite: Sprite2D = $Sprite2D
 
 var firing_rate_stat: StatAttribute
+var modules: Array = []   # Array[Module]，每个是 duplicate() 后的独立副本
+var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
+
+signal module_installed(module: Resource)
+signal module_uninstalled(index: int)
 
 # Rotation state
 enum Direction { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 }
@@ -86,9 +91,36 @@ func stop_firing():
 	if is_instance_valid(fire_timer):
 		fire_timer.stop()
 
+func install_module(mod: Module) -> bool:
+	if modules.size() >= max_slots:
+		return false
+	var instance: Module = mod.duplicate()
+	modules.append(instance)
+	instance.on_install(self)
+	module_installed.emit(instance)
+	return true
+
+func uninstall_module(index: int) -> void:
+	if index < 0 or index >= modules.size():
+		return
+	var mod: Module = modules[index]
+	mod.on_uninstall(self)
+	modules.remove_at(index)
+	module_uninstalled.emit(index)
+
+func get_module_count() -> int:
+	return modules.size()
+
+func _apply_modules(bullet_data: BulletData) -> BulletData:
+	var bd := bullet_data
+	for mod in modules:
+		bd = mod.apply_effect(self, bd)
+	return bd
+
 func _on_fire_timer_timeout():
 	var bd := BulletData.new()
 	bd.transmission_chain = [self]
+	bd = _apply_modules(bd)
 
 	var parent := get_tree().get_first_node_in_group("bullet_layer")
 	if not is_instance_valid(parent):

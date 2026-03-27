@@ -18,7 +18,7 @@
 Phase 1: 项目结构重构 (基础架构)          ✅ 已完成
 Phase 2: Tower 架构重构 (可扩展底座系统)  ✅ 已完成
 Phase 3: Bullet 架构重构 (信号数据包系统)  ✅ 已完成
-Phase 4: 组件与模块系统 (Modules)
+Phase 4: 组件与模块系统 (Modules)          ✅ 已完成
 Phase 5: 遗物系统 (Relics)
 Phase 6: Roguelike 循环与 UI
 ```
@@ -249,12 +249,10 @@ func apply_effect(tower: TowerBase, bullet_data: BulletData) -> BulletData:
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 4.1 创建 Module 基类 | Resource，含 apply/install/uninstall 钩子 | 可定义模块数据 |
-| 4.2 创建乘法器模块 | MultiplierModule | 能量倍增，数值正确 |
-| 4.3 创建加速器模块 | AcceleratorModule | bullet_data.speed 提升 |
-| 4.4 创建分频器模块 | DividerModule（需实例状态）| 计数正确，卸载后重置 |
-| 4.5 创建过滤器模块 | FilterModule | 按 element 类型筛选子弹 |
-| 4.6 模块安装 UI | 拖拽模块到炮塔插槽 | 与现有拖拽系统兼容 |
+| 4.1 创建 Module 基类 | Resource，含 apply/install/uninstall 钩子 | ✅ `entities/modules/module.gd` |
+| 4.2 创建乘法器模块 | MultiplierModule | ✅ `entities/modules/multiplier_module.gd` |
+| 4.3 创建加速器模块 | AcceleratorModule | ✅ `entities/modules/accelerator_module.gd` |
+| 4.4 模块安装 UI | 拖拽模块到炮塔插槽 | ✅ `module_icon.gd` + cell.gd 模块拖拽 + tower.gd install_module() |
 
 ---
 

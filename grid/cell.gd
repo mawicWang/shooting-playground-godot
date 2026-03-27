@@ -18,6 +18,16 @@ var drag_enabled = true # 是否允许拖拽
 var style_box: StyleBoxFlat
 var tower_node: Node = null
 
+# --- 模块槽位绘制（直接绘制到 Cell Canvas，避免 PanelContainer 子节点布局冲突）---
+const SLOT_COUNT: int = 4
+const SLOT_W: float = 14.0
+const SLOT_H: float = 14.0
+const SLOT_GAP: float = 3.0
+const SLOT_MARGIN_BOTTOM: float = 4.0
+
+var _empty_slot_style: StyleBoxFlat
+var _slot_filled_styles: Array = []  # 随模块安装/卸载重建
+
 func _ready():
 	add_to_group("grid_cells")
 	style_box = StyleBoxFlat.new()
@@ -26,12 +36,47 @@ func _ready():
 	style_box.border_color = Color.BLACK
 	style_box.anti_aliasing = true
 	add_theme_stylebox_override("panel", style_box)
-	# Connect mouse_exited to clear hovered_valid_cell in DragManager
 	mouse_exited.connect(self._on_mouse_exited)
-	
-	# Set mouse_filter to STOP so cell can receive _gui_input events
-	# Tower rotation will be handled by _gui_input above
 	mouse_filter = Control.MOUSE_FILTER_STOP
+
+	_empty_slot_style = StyleBoxFlat.new()
+	_empty_slot_style.bg_color = Color(0.22, 0.22, 0.22, 0.88)
+	_empty_slot_style.set_corner_radius_all(3)
+	_empty_slot_style.set_border_width_all(1)
+	_empty_slot_style.border_color = Color(0.5, 0.5, 0.5, 0.6)
+
+# 返回 SLOT_COUNT 个槽位的局部坐标矩形（依赖 size，需在 layout 完成后调用）
+func _get_slot_rects() -> Array:
+	var rects: Array = []
+	var total_w = SLOT_COUNT * SLOT_W + (SLOT_COUNT - 1) * SLOT_GAP
+	var start_x = (size.x - total_w) * 0.5
+	var y = size.y - SLOT_H - SLOT_MARGIN_BOTTOM
+	for i in range(SLOT_COUNT):
+		rects.append(Rect2(start_x + i * (SLOT_W + SLOT_GAP), y, SLOT_W, SLOT_H))
+	return rects
+
+func _draw() -> void:
+	if not is_occupied:
+		return
+	var rects = _get_slot_rects()
+	for i in range(SLOT_COUNT):
+		if i < _slot_filled_styles.size():
+			draw_style_box(_slot_filled_styles[i], rects[i])
+		else:
+			draw_style_box(_empty_slot_style, rects[i])
+
+func _refresh_slot_dots() -> void:
+	_slot_filled_styles.clear()
+	if is_instance_valid(tower_node) and "modules" in tower_node:
+		for mod in tower_node.modules:
+			var color: Color = mod.slot_color if "slot_color" in mod else Color(0.5, 0.8, 0.5)
+			var s := StyleBoxFlat.new()
+			s.bg_color = color
+			s.set_corner_radius_all(3)
+			s.set_border_width_all(1)
+			s.border_color = color.lightened(0.4)
+			_slot_filled_styles.append(s)
+	queue_redraw()
 
 func _on_mouse_exited():
 	# Only clear if this cell was the one being hovered
@@ -45,9 +90,18 @@ var _is_click_valid: bool = false
 const CLICK_MAX_DURATION_MS: int = 300  # Max duration for a click (vs drag)
 
 func _gui_input(event):
-	# Detect left mouse button press to start tracking potential click
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
+			# 优先检测是否点击了已填充的槽位 → 卸载模块
+			if is_occupied and is_instance_valid(tower_node) and tower_node.has_method("uninstall_module"):
+				var rects = _get_slot_rects()
+				for i in range(_slot_filled_styles.size()):
+					if rects[i].has_point(event.position):
+						_is_click_valid = false
+						tower_node.uninstall_module(i)
+						_refresh_slot_dots()
+						get_viewport().set_input_as_handled()
+						return
 			_click_start_time = Time.get_ticks_msec()
 			_is_click_valid = true
 		else:
@@ -162,10 +216,20 @@ func _update_visuals():
 
 # Godot 内置回调：判断是否允许放置
 func _can_drop_data(_at_position, data):
+	if typeof(data) != TYPE_DICTIONARY:
+		return false
+
+	# 模块拖拽：只能安装到已有炮塔的格子，且槽位未满
+	if data.has("module_data"):
+		if not is_occupied or not is_instance_valid(tower_node):
+			return false
+		var tower_max: int = tower_node.max_slots if "max_slots" in tower_node else 4
+		return tower_node.get_module_count() < tower_max
+
 	# 检查数据是否来自商店（新炮塔）或网格（移动中）
-	var can_drop_from_store = typeof(data) == TYPE_DICTIONARY and data.has("tower_data") and not data.get("is_moving", false)
-	var can_drop_from_grid = typeof(data) == TYPE_DICTIONARY and data.has("is_moving") and data.is_moving
-	
+	var can_drop_from_store = data.has("tower_data") and not data.get("is_moving", false)
+	var can_drop_from_grid = data.has("is_moving") and data.is_moving
+
 	var is_valid_drop_target = false
 	if can_drop_from_store:
 		# 新炮塔只能放在空位
@@ -173,20 +237,25 @@ func _can_drop_data(_at_position, data):
 	elif can_drop_from_grid:
 		# 移动现有炮塔可以放回原位或新的空位
 		is_valid_drop_target = not is_occupied or data.get("source_cell") == self
-	
+
 	# 如果是有效位置，通知 DragManager 更新悬停状态，用于旋转计算
 	if is_valid_drop_target:
 		DragManager.set_hovered_valid_cell(self)
 	else:
 		if is_instance_valid(DragManager.get_hovered_valid_cell()) and DragManager.get_hovered_valid_cell() == self:
 			DragManager.clear_hovered_valid_cell()
-	
+
 	return is_valid_drop_target
 
 signal tower_deployed(tower_instance)
 
 func _drop_data(_at_position, data):
-	# print("Drop data received on cell ", get_meta("index"), ": ", data) # Debug log
+	# 模块安装
+	if data.has("module_data"):
+		if is_instance_valid(tower_node) and tower_node.has_method("install_module"):
+			if tower_node.install_module(data.module_data):
+				_refresh_slot_dots()
+		return
 
 	var tower
 	var source_cell_instance = data.get("source_cell", null) # The original cell that initiated the drag
@@ -235,6 +304,7 @@ func _drop_data(_at_position, data):
 		tower.rotation = final_rotation # Keep as fallback 
 
 	_update_visuals() # Update cell color to occupied green
+	_refresh_slot_dots()
 
 func get_deployed_tower():
 	return tower_node
@@ -325,6 +395,7 @@ func remove_tower_reference():
 	is_being_dragged_from = false # Reset if it was being dragged from
 	drag_rotation_offset = DragManager.ROT_UP    # Reset rotation to default (UP)
 	_update_visuals() # Update visuals to normal/empty state
+	_refresh_slot_dots()
 
 # Helper to get the global center of the control
 func get_global_center():

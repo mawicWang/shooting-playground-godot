@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AcceleratorModule" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://entities/modules/accelerator_module.gd" id="1_accelerator"]
+
+[resource]
+script = ExtResource("1_accelerator")
+module_name = "加速器"
+category = 0
+description = "子弹速度 +150"
+speed_bonus = 150.0
