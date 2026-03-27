@@ -2,7 +2,6 @@ extends Node2D
 
 @export var data: TowerData
 
-const BulletScene := preload("res://entities/bullets/bullet.tscn")
 @onready var fire_timer: Timer = $FireTimer
 @onready var area: Area2D = $Area2D
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
@@ -88,12 +87,11 @@ func stop_firing():
 		fire_timer.stop()
 
 func _on_fire_timer_timeout():
-	var bullet = BulletScene.instantiate()
-	var canvas_layer = get_tree().get_first_node_in_group("bullet_layer")
-	if is_instance_valid(canvas_layer):
-		canvas_layer.add_child(bullet)
-	else:
-		get_tree().root.add_child(bullet)
-	bullet.global_position = global_position
-	var forward_vector = Vector2(0, -1).rotated(rotation)
-	bullet.set_direction(forward_vector)
+	var bd := BulletData.new()
+	bd.transmission_chain = [self]
+
+	var parent := get_tree().get_first_node_in_group("bullet_layer")
+	if not is_instance_valid(parent):
+		parent = get_tree().root
+	var forward_vector := Vector2(0, -1).rotated(rotation)
+	BulletPool.spawn(parent, global_position, forward_vector, bd)

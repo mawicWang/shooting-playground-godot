@@ -109,7 +109,7 @@ func _create_debug_visual(size: Vector2, name: String) -> Node2D:
 
 func _on_body_entered(body: Node2D):
 	if body.is_in_group("bullets"):
-		body.queue_free()
+		BulletPool.release(body)
 
 func _on_viewport_size_changed():
 	_create_zones()

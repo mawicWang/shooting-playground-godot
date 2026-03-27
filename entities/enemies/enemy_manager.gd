@@ -185,7 +185,7 @@ signal all_enemies_defeated()  # 所有敌人被消灭信号
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	if body.is_in_group("bullets"):
 		if is_instance_valid(body):
-			body.queue_free()
+			BulletPool.release(body)
 		if enemy in active_enemies:
 			active_enemies.erase(enemy)
 		enemy.destroy()

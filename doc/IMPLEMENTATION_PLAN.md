@@ -17,7 +17,7 @@
 ```
 Phase 1: 项目结构重构 (基础架构)          ✅ 已完成
 Phase 2: Tower 架构重构 (可扩展底座系统)  ✅ 已完成
-Phase 3: Bullet 架构重构 (信号数据包系统)  🔜 下一步
+Phase 3: Bullet 架构重构 (信号数据包系统)  ✅ 已完成
 Phase 4: 组件与模块系统 (Modules)
 Phase 5: 遗物系统 (Relics)
 Phase 6: Roguelike 循环与 UI
@@ -181,12 +181,12 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 3.1 创建 BulletData Resource | 含 source/last_sender/chain 字段 | 可序列化，字段清晰 |
-| 3.2 创建 BulletBase | CharacterBody2D，持有 BulletData | data 驱动移动速度 |
-| 3.3 迁移现有 bullet | SimpleBullet 继承 BulletBase | 功能等价，group "bullets" 保留 |
-| 3.4 创建 BulletFactory | 通过工厂创建/复用子弹 | 支持属性初始化 |
-| 3.5 实现信号链追踪 | 每次塔转发时 append 到 chain | 遗物可读取 chain 检测闭环 |
-| 3.6 引入对象池 | 复用 queue_free 的子弹实例 | 百颗以上子弹无明显卡顿 |
+| 3.1 创建 BulletData Resource | 含 source/last_sender/chain 字段 | ✅ `resources/BulletData.gd` |
+| 3.2 创建 BulletBase | CharacterBody2D，持有 BulletData | ✅ bullet.gd 直接持有 data，speed 由 data 驱动 |
+| 3.3 迁移现有 bullet | 功能等价，group "bullets" 保留 | ✅ 重构完成，新增 reset() |
+| 3.4 创建 BulletFactory | 通过工厂创建/复用子弹 | ✅ `autoload/BulletPool.gd` (Pool+Factory 合一) |
+| 3.5 实现信号链追踪 | 每次塔转发时 append 到 chain | ✅ tower 发射时设置 source_tower/last_sender/chain |
+| 3.6 引入对象池 | 复用 queue_free 的子弹实例 | ✅ BulletPool.spawn/release，dead zone 和 enemy 均已接入 |
 
 ---
 

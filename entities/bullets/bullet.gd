@@ -1,33 +1,34 @@
 extends CharacterBody2D
 
-const SPEED = 200
-const MAX_LIFETIME = 15.0  # 最大存活时间15秒
+const MAX_LIFETIME = 15.0
 
-var direction = Vector2.RIGHT
-var lifetime: float = 0.0
-var warned: bool = false  # 是否已经打印过警告
+var data: BulletData = null
+var direction: Vector2 = Vector2.RIGHT
+var _lifetime: float = 0.0
+var _warned: bool = false
 
 func _ready():
 	add_to_group("bullets")
-	# 启用Hitbox监控以便敌人检测
 	$Hitbox.monitoring = true
 	$Hitbox.monitorable = true
-	# 注意：碰撞检测由敌人处理，子弹只负责移动
 
 func _physics_process(delta):
-	velocity = direction * SPEED
+	var speed := data.speed if data else 200.0
+	velocity = direction * speed
 	move_and_slide()
-	
-	# 更新存活时间
-	lifetime += delta
-	
-	# 检查是否超过15秒（仅在调试模式下警告）
-	if lifetime > MAX_LIFETIME and not warned:
-		warned = true
+
+	_lifetime += delta
+	if _lifetime > MAX_LIFETIME and not _warned:
+		_warned = true
 		if OS.is_debug_build():
-			push_warning("[BULLET] Bullet has been alive for %.1f seconds. Position: %s" % [lifetime, global_position])
+			push_warning("[BULLET] Bullet alive %.1fs at %s" % [_lifetime, global_position])
 
+## 从对象池取出时重置运行时状态
+func reset() -> void:
+	_lifetime = 0.0
+	_warned = false
+	velocity = Vector2.ZERO
 
-func set_direction(dir: Vector2):
+func set_direction(dir: Vector2) -> void:
 	direction = dir.normalized()
 	rotation = direction.angle()

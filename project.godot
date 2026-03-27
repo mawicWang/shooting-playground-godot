@@ -21,6 +21,7 @@ SignalBus="*res://autoload/SignalBus.gd"
 GameState="*res://autoload/GameState.gd"
 DragManager="*res://autoload/DragManager.gd"
 Paths="*res://core/Paths.gd"
+BulletPool="*res://autoload/BulletPool.gd"
 
 [display]
 
