@@ -32,3 +32,6 @@ signal enemy_reached_grid
 signal relic_acquired(relic: Resource)
 signal wave_started(wave_number: int)
 signal wave_completed(wave_number: int)
+
+# ==================== 经济系统事件 ====================
+signal coins_changed(new_total: int)

@@ -2,7 +2,7 @@ extends Node2D
 
 const ENEMY_SCENE = preload("res://entities/enemies/enemy.tscn")
 const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
-const ENEMY_COUNT = 3  # 生成的敌人数量
+var enemy_count: int = 1  # 当前波次的敌人数量（由外部设置）
 const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
 const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
 
@@ -52,9 +52,9 @@ func prepare_enemies() -> Array:
 	# 随机选择要生成的行/列
 	var spawned_count = 0
 	var attempts = 0
-	var max_attempts = ENEMY_COUNT * 10
-	
-	while spawned_count < ENEMY_COUNT and attempts < max_attempts:
+	var max_attempts = enemy_count * 10
+
+	while spawned_count < enemy_count and attempts < max_attempts:
 		attempts += 1
 		
 		var direction = directions[randi() % directions.size()]
@@ -195,6 +195,7 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 func _on_enemy_destroyed(enemy: CharacterBody2D):
 	if enemy in active_enemies:
 		active_enemies.erase(enemy)
+		GameState.add_coins(1)  # 每击杀一个敌人获得 1 金币（×难度系数，当前固定为1）
 		if active_enemies.size() == 0:
 			all_enemies_defeated.emit()
 

@@ -82,6 +82,6 @@ func _on_border_hitbox_area_entered(area: Area2D, _cell: Control):
 	"""当敌人触碰边界cell时触发"""
 	var parent = area.get_parent()
 	if is_instance_valid(parent) and parent.is_in_group("enemies"):
+		enemy_breached_grid.emit()  # 先通知突破，再销毁（避免最后一个敌人突破时误判为胜利）
 		parent.destroy()
-		enemy_breached_grid.emit()
 

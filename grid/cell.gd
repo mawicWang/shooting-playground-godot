@@ -309,6 +309,22 @@ func _drop_data(_at_position, data):
 func get_deployed_tower():
 	return tower_node
 
+## 程序化放置炮塔（绕过拖拽系统，供初始化使用）
+func place_tower_data(td: TowerData, direction_index: int = 0) -> void:
+	if is_occupied:
+		return
+	var tower_scene = preload("res://entities/towers/tower.tscn")
+	var tower = tower_scene.instantiate()
+	tower.data = td
+	add_child(tower)
+	_setup_tower_visuals(tower)
+	is_occupied = true
+	tower_node = tower
+	tower.set_initial_direction(direction_index)
+	tower_deployed.emit(tower)
+	_update_visuals()
+	_refresh_slot_dots()
+
 # Helper function to convert rotation radians to direction index
 func _rotation_to_direction_index(rotation_rad: float) -> int:
 	# Normalize rotation to 0-2π range

@@ -9,6 +9,17 @@ enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
 var current_state: State = State.DEPLOYMENT
 var current_wave: int = 0
 
+# 金币
+var coins: int = 0
+
+func add_coins(amount: int) -> void:
+	coins += amount
+	SignalBus.coins_changed.emit(coins)
+
+func reset_coins() -> void:
+	coins = 0
+	SignalBus.coins_changed.emit(coins)
+
 # 运行状态切换
 func start_game():
 	if current_state == State.DEPLOYMENT:
