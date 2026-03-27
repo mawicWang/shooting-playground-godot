@@ -52,7 +52,9 @@ func set_grid_aligned_position(pos: Vector2):
 	var sprite = $Sprite2D
 	if sprite.material != null:
 		var unique_seed = pos.x * 10.0 + pos.y
-		sprite.material.set_shader_parameter("noise_seed", unique_seed)
+		sprite.set_instance_shader_parameter("noise_seed", unique_seed)
+		# 随机时间偏移，让每个敌人在不同时刻触发抖动帧
+		sprite.set_instance_shader_parameter("time_offset", randf_range(0.0, 2.0))
 
 func take_damage(amount: float) -> void:
 	if _is_dying:

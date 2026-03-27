@@ -11,12 +11,15 @@ uniform float rot_amplitude : hint_range(0.0, 45.0) = 30.0;
 // 这样每个 Sprite 实例可以拥有独立的种子，而不需要 Unique Material
 instance uniform float noise_seed : hint_range(0.0, 1000.0) = 0.0;
 
+// --- 时间偏移：让不同敌人在不同时刻触发抖动帧，避免同步 ---
+instance uniform float time_offset : hint_range(0.0, 10.0) = 0.0;
+
 // --- 噪点贴图 ---
 uniform sampler2D shake_noise_tex : hint_default_black;
 
 void vertex() {
-    // 1. 获取离散时间
-    float snapped_time = floor(TIME * shake_fps);
+    // 1. 获取离散时间（加入 time_offset 让每个敌人错峰跳动）
+    float snapped_time = floor(TIME * shake_fps + time_offset);
 
     // 2. 引入实例 ID 和种子，产生极大的随机偏移
     // 加入 INSTANCE_ID 是为了双重保险，即便忘记在脚本里设 seed，它们也会不同
