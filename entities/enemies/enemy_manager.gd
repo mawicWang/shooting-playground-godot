@@ -2,7 +2,7 @@ extends Node2D
 
 const ENEMY_SCENE = preload("res://entities/enemies/enemy.tscn")
 const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
-const ENEMY_COUNT = 8  # 生成的敌人数量
+const ENEMY_COUNT = 3  # 生成的敌人数量
 const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
 const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
 
@@ -184,14 +184,13 @@ signal all_enemies_defeated()  # 所有敌人被消灭信号
 
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	if body.is_in_group("bullets"):
+		var damage := 1.0
+		if is_instance_valid(body) and body.data != null:
+			damage = body.data.energy
 		if is_instance_valid(body):
 			BulletPool.release(body)
-		if enemy in active_enemies:
-			active_enemies.erase(enemy)
-		enemy.destroy()
-		if active_enemies.size() == 0:
-			all_enemies_defeated.emit()
-		return
+		if is_instance_valid(enemy):
+			enemy.take_damage(damage)
 
 func _on_enemy_destroyed(enemy: CharacterBody2D):
 	if enemy in active_enemies:

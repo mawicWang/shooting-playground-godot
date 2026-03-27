@@ -60,6 +60,9 @@ DEPLOYMENT → [Start button] → RUNNING → [all enemies defeated OR enemy bre
 - Wave complete: `EnemyManager.all_enemies_defeated` → `main.gd` → check breach flag → victory/defeat popup
 - Popup closed: `game_over_popup.popup_closed` → `main.gd` → reset state, re-enable drag, prepare next wave warnings
 
+## Version
+版本号显示在 `main.tscn` 的 `VersionLabel` 节点上。更新版本时直接修改该节点的 `text` 属性。
+
 ## Resource Paths
 All scene/script paths are centralized in `autoload/Paths.gd`. Use these constants instead of hardcoded strings.
 

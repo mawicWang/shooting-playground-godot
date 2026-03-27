@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=11 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid/grid_manager.gd" id="1_f9bqe"]
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://ciexd3qgugumt" path="res://main.gd" id="5_main_script"]
 [ext_resource type="Texture2D" uid="uid://b1awtwjdwm2jh" path="res://assets/bullet.svg" id="6_bullet_tex"]
 [ext_resource type="Script" uid="uid://csjd44671a5vd" path="res://ui/deployment/module_icon.gd" id="7_module_icon"]
+[ext_resource type="Script" uid="uid://blb3psp1bnrac" path="res://ui/deployment/relic_icon.gd" id="8_relic_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lquwl"]
 content_margin_top = 20.0
@@ -117,6 +118,15 @@ layout_mode = 2
 texture = ExtResource("2_0xm2m")
 expand_mode = 1
 
+[node name="DoubleShotRelic" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
+modulate = Color(0.8, 0.4, 1, 1)
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("6_bullet_tex")
+expand_mode = 1
+script = ExtResource("8_relic_icon")
+relic_res_path = "res://resources/relic_data/double_shot.tres"
+
 [node name="CenterContainer" type="CenterContainer" parent="GameContent"]
 layout_mode = 1
 anchors_preset = 8
@@ -151,4 +161,4 @@ offset_top = 10.0
 offset_right = 100.0
 offset_bottom = 33.0
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-text = "v0.5.0"
+text = "v0.5.1"

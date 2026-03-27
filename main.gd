@@ -22,7 +22,6 @@ func _ready():
 	_setup_managers()
 	_setup_signals()
 	_setup_ui()
-	
 	# 延迟准备敌人警告
 	call_deferred("_prepare_game")
 

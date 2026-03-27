@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DoubleShotRelic" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://relics/double_shot_relic.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+relic_name = "双发"
+description = "每次炮塔发射时额外生成一颗子弹"
+rarity = 1

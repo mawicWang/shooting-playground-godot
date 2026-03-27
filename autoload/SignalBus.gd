@@ -24,6 +24,7 @@ signal grid_initialized(grid_root: Node)
 signal bullet_fired(bullet: Node, source_tower: Node)
 signal bullet_hit(bullet: Node, target: Node)
 signal enemy_spawned(enemy: Node)
+signal enemy_damaged(enemy: Node, damage: float, remaining_health: float, max_health: float)
 signal enemy_destroyed(enemy: Node)
 signal enemy_reached_grid
 

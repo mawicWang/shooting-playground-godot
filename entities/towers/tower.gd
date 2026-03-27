@@ -127,3 +127,4 @@ func _on_fire_timer_timeout():
 		parent = get_tree().root
 	var forward_vector := Vector2(0, -1).rotated(rotation)
 	BulletPool.spawn(parent, global_position, forward_vector, bd)
+	EventManager.notify_bullet_fired(bd, self)

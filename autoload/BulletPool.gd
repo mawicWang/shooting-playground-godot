@@ -18,7 +18,8 @@ func spawn(parent: Node, pos: Vector2, direction: Vector2, bullet_data: BulletDa
 		bullet = BulletScene.instantiate()
 		parent.add_child(bullet)
 
-	bullet.data = bullet_data
+	# 每颗子弹持有独立副本，防止外部对 bullet_data 的后续修改影响飞行中的子弹
+	bullet.data = bullet_data.duplicate_with_mods({})
 	bullet.visible = true
 	bullet.set_process_mode(Node.PROCESS_MODE_INHERIT)
 	bullet.global_position = pos

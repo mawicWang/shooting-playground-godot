@@ -19,7 +19,7 @@ Phase 1: 项目结构重构 (基础架构)          ✅ 已完成
 Phase 2: Tower 架构重构 (可扩展底座系统)  ✅ 已完成
 Phase 3: Bullet 架构重构 (信号数据包系统)  ✅ 已完成
 Phase 4: 组件与模块系统 (Modules)          ✅ 已完成
-Phase 5: 遗物系统 (Relics)
+Phase 5: 遗物系统 (Relics)          ✅ 已完成
 Phase 6: Roguelike 循环与 UI
 ```
 
@@ -275,33 +275,17 @@ class_name Relic extends Resource
 func on_bullet_transmit(bullet: BulletData, from: TowerBase, to: TowerBase):
     pass
 
-func on_terminal_absorb(terminal: TowerBase, bullet: BulletData):
-    pass
-
 func on_wave_start():
     pass
-```
-
-### 递归遗物的闭环检测
-
-```gdscript
-# RecursiveRelic.gd - "递归逻辑"遗物
-func on_bullet_transmit(bullet: BulletData, _from: TowerBase, to: TowerBase):
-    # 检测 to 是否已在传递链中（闭环）
-    if to in bullet.transmission_chain:
-        bullet.energy *= 1.1  # 每完成一圈增幅 10%
 ```
 
 ### 具体任务
 
 | 任务 | 描述 | 验收标准 |
 |------|------|----------|
-| 5.1 创建 Relic 基类 | Resource + 钩子接口 | 可被 EventManager 调用 |
-| 5.2 创建 EventManager | Autoload，分发 on_bullet_transmit 等事件 | 遗物可注册/注销 |
-| 5.3 实现"量子纠缠" | Terminal 共享能量进度 | 多个 Terminal 同步效果 |
-| 5.4 实现"超导回路" | 转发不衰减 + 电击周围敌人 | 电击范围可见，不影响帧率 |
-| 5.5 实现"递归逻辑" | 读取 transmission_chain 检测闭环 | 闭环检测准确，增幅堆叠正确 |
-| 5.6 实现"多线程" | 所有 Emitter 额外增加后方炮口 | 动态修改 muzzle_count 生效 |
+| 5.1 创建 Relic 基类 | Resource + 钩子接口 | ✅ `relics/relic.gd` |
+| 5.2 创建 EventManager | Autoload，分发 on_bullet_fired 等事件 | ✅ `autoload/EventManager.gd`，遗物可注册/注销 |
+| 5.3 实现"双发" | 所有炮塔每次发射两个子弹 | ✅ `relics/double_shot_relic.gd`，main.gd 默认注册 |
 
 ---
 
