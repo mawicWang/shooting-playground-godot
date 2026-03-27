@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TowerData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://ch3f0r75qtmfc" path="res://resources/TowerData.gd" id="1_towerdata"]
+[ext_resource type="Texture2D" uid="uid://d23ppk48ttann" path="res://assets/tower1110.svg" id="2_sprite"]
+
+[resource]
+script = ExtResource("1_towerdata")
+tower_name = "三向炮"
+sprite = ExtResource("2_sprite")
+icon = ExtResource("2_sprite")
+firing_rate = 1.0
+barrel_directions = PackedVector2Array(0, -1, 1, 0, 0, 1)

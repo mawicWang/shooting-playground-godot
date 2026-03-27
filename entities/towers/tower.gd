@@ -125,6 +125,14 @@ func _on_fire_timer_timeout():
 	var parent := get_tree().get_first_node_in_group("bullet_layer")
 	if not is_instance_valid(parent):
 		parent = get_tree().root
-	var forward_vector := Vector2(0, -1).rotated(rotation)
-	BulletPool.spawn(parent, global_position, forward_vector, bd)
+
+	var directions: PackedVector2Array
+	if data and data.barrel_directions.size() > 0:
+		directions = data.barrel_directions
+	else:
+		directions = PackedVector2Array([Vector2(0, -1)])
+
+	for local_dir in directions:
+		BulletPool.spawn(parent, global_position, local_dir.rotated(rotation), bd)
+
 	EventManager.notify_bullet_fired(bd, self)

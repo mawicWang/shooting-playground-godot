@@ -10,6 +10,23 @@ var drag_enabled = true
 func _ready():
 	if tower_data and tower_data.icon:
 		texture = tower_data.icon
+	if tower_data and tower_data.tower_name:
+		tooltip_text = tower_data.tower_name
+		custom_minimum_size.y = 100
+		stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
+		var label := Label.new()
+		label.text = tower_data.tower_name
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.anchor_left = 0.0
+		label.anchor_right = 1.0
+		label.anchor_top = 1.0
+		label.anchor_bottom = 1.0
+		label.offset_top = -18
+		label.offset_bottom = 0
+		label.add_theme_font_size_override("font_size", 13)
+		label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1.0))
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(label)
 
 func set_drag_enabled(enabled: bool):
 	drag_enabled = enabled

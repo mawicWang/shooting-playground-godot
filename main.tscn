@@ -1,13 +1,17 @@
-[gd_scene load_steps=10 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=15 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid/grid_manager.gd" id="1_f9bqe"]
-[ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1000.svg" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://c5rcc3mhuafwj" path="res://ui/deployment/tower_icon.gd" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://ci7h76efbtkeq" path="res://grid/removal_zone.gd" id="4_removal_zone_script"]
 [ext_resource type="Script" uid="uid://ciexd3qgugumt" path="res://main.gd" id="5_main_script"]
 [ext_resource type="Texture2D" uid="uid://b1awtwjdwm2jh" path="res://assets/bullet.svg" id="6_bullet_tex"]
 [ext_resource type="Script" uid="uid://csjd44671a5vd" path="res://ui/deployment/module_icon.gd" id="7_module_icon"]
 [ext_resource type="Script" uid="uid://blb3psp1bnrac" path="res://ui/deployment/relic_icon.gd" id="8_relic_icon"]
+[ext_resource type="Resource" path="res://resources/tower1010.tres" id="9_tower1010"]
+[ext_resource type="Resource" path="res://resources/tower1100.tres" id="10_tower1100"]
+[ext_resource type="Resource" path="res://resources/tower1110.tres" id="11_tower1110"]
+[ext_resource type="Resource" path="res://resources/tower1111.tres" id="12_tower1111"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lquwl"]
 content_margin_top = 20.0
@@ -77,7 +81,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -170.0
+offset_top = -200.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_removal_zone_style")
@@ -98,11 +102,33 @@ texture = ExtResource("2_0xm2m")
 expand_mode = 1
 script = ExtResource("3_h2yge")
 
-[node name="TextureRect4" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+[node name="Tower1010Icon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
-texture = ExtResource("2_0xm2m")
 expand_mode = 1
+script = ExtResource("3_h2yge")
+tower_data = ExtResource("9_tower1010")
+
+[node name="Tower1100Icon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+script = ExtResource("3_h2yge")
+tower_data = ExtResource("10_tower1100")
+
+[node name="Tower1110Icon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+script = ExtResource("3_h2yge")
+tower_data = ExtResource("11_tower1110")
+
+[node name="Tower1111Icon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+expand_mode = 1
+script = ExtResource("3_h2yge")
+tower_data = ExtResource("12_tower1111")
 
 [node name="ModuleRow" type="HBoxContainer" parent="GameContent/RemovalZonePanel/VBoxContainer"]
 layout_mode = 2
@@ -177,4 +203,4 @@ offset_top = 10.0
 offset_right = 100.0
 offset_bottom = 33.0
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-text = "v0.5.4"
+text = "v0.5.5"
