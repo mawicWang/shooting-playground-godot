@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=10 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid/grid_manager.gd" id="1_f9bqe"]
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1.svg" id="2_0xm2m"]
@@ -77,24 +77,38 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -82.0
+offset_top = -170.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_removal_zone_style")
 script = ExtResource("4_removal_zone_script")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GameContent/RemovalZonePanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="GameContent/RemovalZonePanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TowerRow" type="HBoxContainer" parent="GameContent/RemovalZonePanel/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 25
 
-[node name="TextureRect" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 texture = ExtResource("2_0xm2m")
 expand_mode = 1
 script = ExtResource("3_h2yge")
 
-[node name="MultiplierIcon" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
+[node name="TextureRect4" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+texture = ExtResource("2_0xm2m")
+expand_mode = 1
+
+[node name="ModuleRow" type="HBoxContainer" parent="GameContent/RemovalZonePanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="MultiplierIcon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/ModuleRow"]
 modulate = Color(1, 0.6, 0.1, 1)
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
@@ -103,7 +117,7 @@ expand_mode = 1
 script = ExtResource("7_module_icon")
 module_res_path = "res://resources/module_data/multiplier.tres"
 
-[node name="AcceleratorIcon" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
+[node name="AcceleratorIcon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/ModuleRow"]
 modulate = Color(0.1, 0.9, 1, 1)
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
@@ -112,18 +126,20 @@ expand_mode = 1
 script = ExtResource("7_module_icon")
 module_res_path = "res://resources/module_data/accelerator.tres"
 
-[node name="TextureRect4" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-texture = ExtResource("2_0xm2m")
-expand_mode = 1
+[node name="RelicPanel" type="VBoxContainer" parent="GameContent"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 110.0
+grow_horizontal = 0
 
-[node name="DoubleShotRelic" type="TextureRect" parent="GameContent/RemovalZonePanel/HBoxContainer"]
-modulate = Color(0.8, 0.4, 1, 1)
+[node name="DoubleShotRelic" type="Panel" parent="GameContent/RelicPanel"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
-texture = ExtResource("6_bullet_tex")
-expand_mode = 1
 script = ExtResource("8_relic_icon")
 relic_res_path = "res://resources/relic_data/double_shot.tres"
 
