@@ -8,6 +8,18 @@ extends TextureRect
 
 var drag_enabled: bool = true
 
+## 实体追踪：由 main.gd 在添加奖励时赋值
+var entity_id: int = -1
+var is_deployed: bool = false
+
+func mark_deployed() -> void:
+	is_deployed = true
+	set_drag_enabled(false)
+
+func mark_returned() -> void:
+	is_deployed = false
+	set_drag_enabled(true)
+
 func _ready() -> void:
 	if module_res_path != "" and not module_data:
 		module_data = load(module_res_path) as Module
@@ -30,4 +42,4 @@ func _get_drag_data(_at_position) -> Variant:
 	preview.modulate.a = 0.7
 	set_drag_preview(preview)
 
-	return {"module_data": module_data}
+	return {"module_data": module_data, "entity_id": entity_id, "source_icon": self}

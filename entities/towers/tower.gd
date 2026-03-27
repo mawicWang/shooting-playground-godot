@@ -2,6 +2,10 @@ extends Node2D
 
 @export var data: TowerData
 
+## 实体标识：与储备区图标绑定，拖拽来回保持不变
+var entity_id: int = -1
+var source_icon: Node = null  # 指向储备区中对应的 tower_icon 节点
+
 @onready var fire_timer: Timer = $FireTimer
 @onready var _click_area: Area2D = $Area2D
 @onready var _click_shape: CollisionShape2D = $Area2D/CollisionShape2D

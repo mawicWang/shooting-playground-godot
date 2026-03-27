@@ -125,8 +125,27 @@ func _do_place_initial_tower():
 	if cells.size() < 13:
 		return
 	var center_cell = cells[12]  # 5×5 网格正中心（行2列2）
-	if is_instance_valid(center_cell) and not center_cell.is_occupied:
-		center_cell.place_tower_data(SimpleEmitterData, 0)  # 朝上
+	if not (is_instance_valid(center_cell) and not center_cell.is_occupied):
+		return
+
+	# 在储备区创建对应图标
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(80, 80)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.set_script(preload("res://ui/deployment/tower_icon.gd"))
+	icon.tower_data = SimpleEmitterData
+	icon.entity_id = GameState.generate_entity_id()
+	_reward_row.add_child(icon)
+
+	# 直接部署到格子
+	center_cell.place_tower_data(SimpleEmitterData, 0)
+
+	# 将格子上的炮塔与储备图标互相绑定，并置灰图标
+	var tower = center_cell.get_deployed_tower()
+	if is_instance_valid(tower):
+		tower.entity_id = icon.entity_id
+		tower.source_icon = icon
+		icon.mark_deployed(tower)
 
 # ── 按钮事件 ──────────────────────────────────────────────────
 
@@ -172,12 +191,14 @@ func _on_reward_chosen(reward: Resource):
 	_update_button_style()
 
 func _add_reward_to_hand(reward: Resource) -> void:
+	var eid := GameState.generate_entity_id()
 	if reward is TowerData:
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(80, 80)
 		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		icon.set_script(preload("res://ui/deployment/tower_icon.gd"))
 		icon.tower_data = reward
+		icon.entity_id = eid
 		_reward_row.add_child(icon)
 	elif reward is Module:
 		var icon := TextureRect.new()
@@ -186,6 +207,7 @@ func _add_reward_to_hand(reward: Resource) -> void:
 		icon.texture = preload("res://assets/bullet.svg")
 		icon.set_script(preload("res://ui/deployment/module_icon.gd"))
 		icon.module_data = reward
+		icon.entity_id = eid
 		match reward.module_name:
 			"加速器": icon.modulate = Color(0.1, 0.9, 1.0)
 			"乘法器": icon.modulate = Color(1.0, 0.6, 0.1)

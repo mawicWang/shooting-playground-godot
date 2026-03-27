@@ -11,12 +11,15 @@ var _pool: Array = []
 ## 从池中取出（或新建）一颗子弹，添加到 parent，初始化状态后返回
 func spawn(parent: Node, pos: Vector2, direction: Vector2, bullet_data: BulletData) -> Node:
 	var bullet: Node
-	if _pool.size() > 0:
-		bullet = _pool.pop_back()
-		parent.add_child(bullet)
-	else:
+	# 跳过池中已被外部 free 的失效实例
+	while _pool.size() > 0:
+		var candidate = _pool.pop_back()
+		if is_instance_valid(candidate):
+			bullet = candidate
+			break
+	if bullet == null:
 		bullet = BulletScene.instantiate()
-		parent.add_child(bullet)
+	parent.add_child(bullet)
 
 	# 每颗子弹持有独立副本，防止外部对 bullet_data 的后续修改影响飞行中的子弹
 	bullet.data = bullet_data.duplicate_with_mods({})

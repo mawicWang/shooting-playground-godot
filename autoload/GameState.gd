@@ -9,6 +9,14 @@ enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
 var current_state: State = State.DEPLOYMENT
 var current_wave: int = 0
 
+# 实体 ID 计数器（全局唯一，跨部署/回收循环保持不变）
+var _next_entity_id: int = 1
+
+func generate_entity_id() -> int:
+	var id = _next_entity_id
+	_next_entity_id += 1
+	return id
+
 # 金币
 var coins: int = 0
 

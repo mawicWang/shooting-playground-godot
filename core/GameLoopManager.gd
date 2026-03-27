@@ -41,6 +41,7 @@ func _on_game_started():
 
 func _on_game_stopped():
     _stop_all_towers()
+    _reset_all_tower_ammo()
     _clear_all_bullets()
     _remove_dead_zones()
     _remove_enemy_manager()
@@ -65,6 +66,15 @@ func _stop_all_towers():
             var tower = cell.get_deployed_tower()
             if is_instance_valid(tower) and tower.has_method("stop_firing"):
                 tower.stop_firing()
+
+func _reset_all_tower_ammo():
+    for cell in _grid_container.get_children():
+        if cell.has_method("get_deployed_tower"):
+            var tower = cell.get_deployed_tower()
+            if is_instance_valid(tower) and tower.get("data") and tower.data:
+                tower.ammo = tower.data.initial_ammo
+                if tower.has_method("_update_ammo_label"):
+                    tower._update_ammo_label()
 
 func _create_dead_zones():
     if is_instance_valid(_dead_zone_manager):

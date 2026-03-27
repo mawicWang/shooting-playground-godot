@@ -7,6 +7,20 @@ var current_drag_rotation = DragManager.ROT_UP
 var is_dragging_initiated = false
 var drag_enabled = true
 
+## 实体追踪：由 main.gd 在添加奖励时赋值
+var entity_id: int = -1
+var deployed_tower_node: Node = null  # 部署到战场上的炮塔实例
+
+## 标记为已部署（图标灰化不可拖）
+func mark_deployed(tower_node: Node) -> void:
+	deployed_tower_node = tower_node
+	set_drag_enabled(false)
+
+## 标记为已回收（图标恢复可拖）
+func mark_returned() -> void:
+	deployed_tower_node = null
+	set_drag_enabled(true)
+
 func _ready():
 	if tower_data and tower_data.icon:
 		texture = tower_data.icon
@@ -94,7 +108,7 @@ func _get_drag_data(_at_position):
 	_update_drag_rotation()
 	DragManager.start_drag(texture, self)
 
-	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation}
+	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation, "entity_id": entity_id, "source_icon": self}
 
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:

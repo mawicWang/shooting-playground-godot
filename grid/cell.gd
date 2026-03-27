@@ -98,8 +98,13 @@ func _gui_input(event):
 				for i in range(_slot_filled_styles.size()):
 					if rects[i].has_point(event.position):
 						_is_click_valid = false
+						# 卸载前先读取 source_icon，uninstall 会移除模块实例
+						var mod = tower_node.modules[i]
+						var src_icon = mod.get_meta("source_icon", null) if mod.has_meta("source_icon") else null
 						tower_node.uninstall_module(i)
 						_refresh_slot_dots()
+						if is_instance_valid(src_icon) and src_icon.has_method("mark_returned"):
+							src_icon.mark_returned()
 						get_viewport().set_input_as_handled()
 						return
 			_click_start_time = Time.get_ticks_msec()
@@ -254,6 +259,12 @@ func _drop_data(_at_position, data):
 	if data.has("module_data"):
 		if is_instance_valid(tower_node) and tower_node.has_method("install_module"):
 			if tower_node.install_module(data.module_data):
+				# 将 source_icon 写入已安装的模块实例（duplicate 后的副本）
+				var installed = tower_node.modules.back()
+				var src_icon = data.get("source_icon", null)
+				if is_instance_valid(src_icon):
+					installed.set_meta("source_icon", src_icon)
+					src_icon.mark_deployed()
 				_refresh_slot_dots()
 		return
 
@@ -281,6 +292,11 @@ func _drop_data(_at_position, data):
 		var tower_scene = preload("res://entities/towers/tower.tscn")
 		tower = tower_scene.instantiate()
 		tower.data = td
+		# 绑定实体 ID 和储备区图标引用
+		tower.entity_id = data.get("entity_id", -1)
+		tower.source_icon = data.get("source_icon", null)
+		if is_instance_valid(tower.source_icon):
+			tower.source_icon.mark_deployed(tower)
 		final_rotation = DragManager.get_current_drag_rotation()
 
 	# Add the tower to this cell
@@ -393,7 +409,9 @@ func _get_drag_data(_at_position):
 		"tower_instance": tower_node,
 		"tower_data": tower_node.data if tower_node.get("data") != null else null,
 		"source_cell": self,
-		"rotation": drag_rotation_offset
+		"rotation": drag_rotation_offset,
+		"entity_id": tower_node.entity_id if "entity_id" in tower_node else -1,
+		"source_icon": tower_node.source_icon if "source_icon" in tower_node else null
 	}
 	
 	# Temporarily hide the original tower node to simulate it being picked up

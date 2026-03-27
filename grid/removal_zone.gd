@@ -23,19 +23,22 @@ func _drop_data(_at_position, data):
 	if data.has("tower_instance") and data.has("source_cell"):
 		var tower = data.tower_instance
 		var source_cell = data.get("source_cell", null)
-		
-		# From grid, remove tower reference and node
+		var source_icon = data.get("source_icon", null)
+
+		# 从格子中移除炮塔节点和引用
 		if is_instance_valid(source_cell) and source_cell.has_method("remove_tower_reference"):
 			source_cell.remove_tower_reference()
-			# Ensure the tower is removed from its original parent if it's still there
 			if is_instance_valid(tower) and tower.get_parent() == source_cell:
 				source_cell.remove_child(tower)
 
-		# Destroy the tower node
 		if is_instance_valid(tower):
 			tower.queue_free()
-			print("Tower removed/sold by dropping into the removal zone!")
-		DragManager.end_drag() # Notify DragManager that drag has ended
+
+		# 有储备图标 → 回收到储备区；无图标 → 永久删除（如初始炮塔）
+		if is_instance_valid(source_icon) and source_icon.has_method("mark_returned"):
+			source_icon.mark_returned()
+
+		DragManager.end_drag()
 	else:
 		printerr("Drop data invalid for removal zone.")
-		DragManager.end_drag() # Even if invalid, drag operation has ended
+		DragManager.end_drag()
