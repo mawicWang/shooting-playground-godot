@@ -33,7 +33,7 @@ window/size/height=800
 
 [gui]
 
-theme/custom="res://default_theme.tres"
+theme/custom="res://resources/default_theme.tres"
 
 [rendering]
 
