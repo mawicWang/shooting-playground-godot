@@ -42,7 +42,7 @@ func get_current_drag_rotation() -> float:
 	return current_drag_rotation
 
 func _get_drag_data(_at_position):
-	if not drag_enabled:
+	if not drag_enabled or not GameState.can_drag():
 		return null
 
 	is_dragging_initiated = true

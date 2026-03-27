@@ -21,7 +21,7 @@ func set_drag_enabled(enabled: bool) -> void:
 	modulate.a = 1.0 if enabled else 0.5
 
 func _get_drag_data(_at_position) -> Variant:
-	if not drag_enabled or not module_data:
+	if not drag_enabled or not module_data or not GameState.can_drag():
 		return null
 
 	var preview := TextureRect.new()

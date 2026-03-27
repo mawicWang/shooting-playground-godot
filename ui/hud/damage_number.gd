@@ -8,14 +8,14 @@ var _label: Label
 func _ready() -> void:
 	_label = Label.new()
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 14)
+	_label.add_theme_font_size_override("font_size", 22)
 	_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.3))
 	_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
 	_label.add_theme_constant_override("outline_size", 3)
-	_label.offset_left = -20.0
-	_label.offset_right = 20.0
-	_label.offset_top = -12.0
-	_label.offset_bottom = 12.0
+	_label.offset_left = -30.0
+	_label.offset_right = 30.0
+	_label.offset_top = -16.0
+	_label.offset_bottom = 16.0
 	add_child(_label)
 
 func show_damage(world_pos: Vector2, amount: float) -> void:
