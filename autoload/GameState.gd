@@ -27,6 +27,21 @@ func is_tower_reserve_full() -> bool:
 func reset_reserve_count() -> void:
 	tower_reserve_count = 0
 
+# 玩家生命值
+const MAX_LIVES: int = 3
+var player_lives: int = MAX_LIVES
+
+## 扣除一条生命，返回 true 表示生命归零（Game Over）
+func lose_life() -> bool:
+	player_lives -= 1
+	player_lives = max(player_lives, 0)
+	SignalBus.lives_changed.emit(player_lives)
+	return player_lives <= 0
+
+func reset_lives() -> void:
+	player_lives = MAX_LIVES
+	SignalBus.lives_changed.emit(player_lives)
+
 # 金币
 var coins: int = 0
 

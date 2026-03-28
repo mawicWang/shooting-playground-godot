@@ -26,6 +26,7 @@ var _game_loop: GameLoopManager
 var _effect_manager: EffectManager
 var _game_over_popup: Control
 var _reward_popup: Control
+var _lives_label: Label
 var _coin_label: Label
 var _debug_stop_button: Button
 
@@ -63,6 +64,7 @@ func _setup_signals():
 	SignalBus.game_stopped.connect(_on_game_stopped)
 	SignalBus.enemy_reached_grid.connect(_on_enemy_breached)
 	SignalBus.coins_changed.connect(_on_coins_changed)
+	SignalBus.lives_changed.connect(_on_lives_changed)
 
 	if grid_root.has_signal("enemy_breached_grid"):
 		grid_root.enemy_breached_grid.connect(func(): SignalBus.enemy_reached_grid.emit())
@@ -93,6 +95,22 @@ func _setup_ui():
 	# ── 暂存区（左侧，初始隐藏）──
 	_create_staging_panel()
 
+	# ── 生命值显示 ──
+	_lives_label = Label.new()
+	_lives_label.text = _build_lives_text(GameState.MAX_LIVES)
+	_lives_label.layout_mode = 1
+	_lives_label.anchor_left = 0.0
+	_lives_label.anchor_right = 0.0
+	_lives_label.anchor_top = 0.0
+	_lives_label.anchor_bottom = 0.0
+	_lives_label.offset_left = 10.0
+	_lives_label.offset_top = 48.0
+	_lives_label.offset_right = 180.0
+	_lives_label.offset_bottom = 36.0
+	_lives_label.add_theme_color_override("font_color", Color(0.95, 0.3, 0.3))
+	_lives_label.add_theme_font_size_override("font_size", 24)
+	add_child(_lives_label)
+
 	# ── 金币显示 ──
 	_coin_label = Label.new()
 	_coin_label.text = "金币: 0"
@@ -102,9 +120,9 @@ func _setup_ui():
 	_coin_label.anchor_top = 0.0
 	_coin_label.anchor_bottom = 0.0
 	_coin_label.offset_left = 10.0
-	_coin_label.offset_top = 35.0
+	_coin_label.offset_top = 84.0
 	_coin_label.offset_right = 180.0
-	_coin_label.offset_bottom = 65.0
+	_coin_label.offset_bottom = 72.0
 	_coin_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 	_coin_label.add_theme_font_size_override("font_size", 24)
 	add_child(_coin_label)
@@ -291,6 +309,7 @@ func _on_staging_tower_to_reserve(tower_data: Resource, eid: int, old_icon: Node
 func _on_popup_closed():
 	_game_loop.reset_wave()
 	GameState.reset_coins()
+	GameState.reset_lives()
 	_clear_all_towers_from_grid()
 	_clear_reward_items()
 	_effect_manager.reset_position()
@@ -335,17 +354,22 @@ func _on_game_started():
 	_update_button_style()
 
 func _on_game_stopped():
-	_effect_manager.reset_position()
+	if not _effect_manager.is_shaking():
+		_effect_manager.reset_position()
 	_update_button_style()
 
-# ── 敌人突破 → 立即 Game Over ────────────────────────────────
+# ── 敌人突破 → 扣生命，归零才 Game Over ─────────────────────
 
 func _on_enemy_breached():
 	if not GameState.is_running():
 		return
-	_effect_manager.trigger_screen_shake()
-	_game_loop.stop_game()
-	_game_over_popup.show_defeat()
+	var game_over := GameState.lose_life()
+	var tween = _effect_manager.trigger_screen_shake()
+	if game_over:
+		if is_instance_valid(tween):
+			await tween.finished
+		_game_loop.stop_game()
+		_game_over_popup.show_defeat()
 
 # ── 波次完成 → 奖励选择 ──────────────────────────────────────
 
@@ -360,6 +384,15 @@ func _on_all_enemies_defeated():
 func _on_coins_changed(total: int):
 	if is_instance_valid(_coin_label):
 		_coin_label.text = "金币: " + str(total)
+
+# ── 生命值显示 ────────────────────────────────────────────────
+
+func _on_lives_changed(remaining: int):
+	if is_instance_valid(_lives_label):
+		_lives_label.text = _build_lives_text(remaining)
+
+func _build_lives_text(lives: int) -> String:
+	return "生命: " + "♥ ".repeat(lives).strip_edges()
 
 # ── 弹窗创建 ──────────────────────────────────────────────────
 

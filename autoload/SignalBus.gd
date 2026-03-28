@@ -35,3 +35,4 @@ signal wave_completed(wave_number: int)
 
 # ==================== 经济系统事件 ====================
 signal coins_changed(new_total: int)
+signal lives_changed(remaining: int)

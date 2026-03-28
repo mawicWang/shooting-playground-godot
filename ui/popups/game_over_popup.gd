@@ -27,7 +27,7 @@ func show_defeat():
 	title_label.text = "太拉了！"
 	title_label.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
 	emoji_label.text = "FAIL!"
-	message_label.text = "敌人突破防线，游戏结束！"
+	message_label.text = "生命值耗尽，防线彻底崩溃！"
 	visible = true
 	# 暂停游戏
 	get_tree().paused = true
