@@ -46,6 +46,10 @@ obj/
 .netlify/
 web/.netlify/
 
+# Wrangler (Cloudflare CLI) 本地缓存
+# ----------------------
+.wrangler/
+
 # 通用系统文件
 # ----------------------
 .DS_Store
