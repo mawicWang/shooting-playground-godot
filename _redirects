@@ -1,0 +1,2 @@
+# Proxy WASM requests to R2 to avoid CORS
+/index.wasm https://pub-5da216c5c1864a1ba66ebc98a09e46ff.r2.dev/index.wasm 200
