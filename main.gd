@@ -66,9 +66,6 @@ func _setup_signals():
 	SignalBus.coins_changed.connect(_on_coins_changed)
 	SignalBus.lives_changed.connect(_on_lives_changed)
 
-	if grid_root.has_signal("enemy_breached_grid"):
-		grid_root.enemy_breached_grid.connect(func(): SignalBus.enemy_reached_grid.emit())
-
 func _setup_ui():
 	start_stop_button.pressed.connect(_on_start_stop_pressed)
 
@@ -307,6 +304,7 @@ func _on_staging_tower_to_reserve(tower_data: Resource, eid: int, old_icon: Node
 # ── 失败弹窗关闭 → 完整重置 ──────────────────────────────────
 
 func _on_popup_closed():
+	GameState.reset_to_deployment()
 	_game_loop.reset_wave()
 	GameState.reset_coins()
 	GameState.reset_lives()
@@ -354,7 +352,8 @@ func _on_game_started():
 	_update_button_style()
 
 func _on_game_stopped():
-	if not _effect_manager.is_shaking():
+	# GAME_OVER 路径：shake 即将由 _on_enemy_breached 启动，不提前 reset
+	if not GameState.is_game_over() and not _effect_manager.is_shaking():
 		_effect_manager.reset_position()
 	_update_button_style()
 
@@ -364,11 +363,11 @@ func _on_enemy_breached():
 	if not GameState.is_running():
 		return
 	var game_over := GameState.lose_life()
-	var tween = _effect_manager.trigger_screen_shake()
+	_effect_manager.trigger_screen_shake()
 	if game_over:
-		if is_instance_valid(tween):
-			await tween.finished
-		_game_loop.stop_game()
+		# lose_life() 已将状态切换为 GAME_OVER 并同步发出 game_stopped（触发清理）
+		# 此后任何事件处理器检查 is_running() 都返回 false，不会再误触发
+		await _effect_manager.shake_finished
 		_game_over_popup.show_defeat()
 
 # ── 波次完成 → 奖励选择 ──────────────────────────────────────
@@ -377,6 +376,9 @@ func _on_all_enemies_defeated():
 	if not GameState.is_running():
 		return
 	_game_loop.stop_game()
+	# 若正在抖动（说明有敌人刚突破），等抖完再弹奖励，避免 popup 盖住 shake
+	if _effect_manager.is_shaking():
+		await _effect_manager.shake_finished
 	_reward_popup.show_rewards()
 
 # ── 金币显示 ──────────────────────────────────────────────────

@@ -1,7 +1,5 @@
 extends Control
 
-signal enemy_breached_grid()  # 敌人触碰边界cell信号
-
 const CELL_COLOR = Color("#F2EAE0")
 var cell_script = preload("res://grid/cell.gd") # 提前加载脚本
 
@@ -82,6 +80,8 @@ func _on_border_hitbox_area_entered(area: Area2D, _cell: Control):
 	"""当敌人触碰边界cell时触发"""
 	var parent = area.get_parent()
 	if is_instance_valid(parent) and parent.is_in_group("enemies"):
-		enemy_breached_grid.emit()  # 先通知突破，再销毁（避免最后一个敌人突破时误判为胜利）
+		# 先通知突破（main.gd 会立即 stop_game），再销毁
+		# 这样 destroy() 触发的 all_enemies_defeated 时游戏已停止，不会误弹胜利弹窗
+		SignalBus.enemy_reached_grid.emit()
 		parent.destroy()
 

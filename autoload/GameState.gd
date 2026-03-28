@@ -31,12 +31,23 @@ func reset_reserve_count() -> void:
 const MAX_LIVES: int = 3
 var player_lives: int = MAX_LIVES
 
-## 扣除一条生命，返回 true 表示生命归零（Game Over）
+## 扣除一条生命。
+## 归零时立即切换到 GAME_OVER 状态并同步发出 game_stopped（触发各系统清理），
+## 返回 true 表示生命归零。这样所有事件处理器只需检查 is_running() 即可，
+## 无需额外标志或手动调 stop_game()。
 func lose_life() -> bool:
 	player_lives -= 1
 	player_lives = max(player_lives, 0)
 	SignalBus.lives_changed.emit(player_lives)
-	return player_lives <= 0
+	if player_lives <= 0:
+		current_state = State.GAME_OVER
+		SignalBus.game_stopped.emit()
+		return true
+	return false
+
+## 游戏结束弹窗关闭后调用，将 GAME_OVER 重置回 DEPLOYMENT
+func reset_to_deployment() -> void:
+	current_state = State.DEPLOYMENT
 
 func reset_lives() -> void:
 	player_lives = MAX_LIVES
@@ -80,6 +91,9 @@ func is_running() -> bool:
 
 func is_deployment() -> bool:
 	return current_state == State.DEPLOYMENT
+
+func is_game_over() -> bool:
+	return current_state == State.GAME_OVER
 
 func can_drag() -> bool:
 	return current_state == State.DEPLOYMENT
