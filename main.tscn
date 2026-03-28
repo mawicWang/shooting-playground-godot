@@ -81,7 +81,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -200.0
+offset_top = -220.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_removal_zone_style")
@@ -93,7 +93,16 @@ theme_override_constants/separation = 8
 
 [node name="TowerRow" type="HBoxContainer" parent="GameContent/RemovalZonePanel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 8
+
+[node name="TowerLabel" type="Label" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
+custom_minimum_size = Vector2(18, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "炮
+塔"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/TowerRow"]
 custom_minimum_size = Vector2(80, 80)
@@ -132,7 +141,16 @@ tower_data = ExtResource("12_tower1111")
 
 [node name="ModuleRow" type="HBoxContainer" parent="GameContent/RemovalZonePanel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 8
+
+[node name="ModuleLabel" type="Label" parent="GameContent/RemovalZonePanel/VBoxContainer/ModuleRow"]
+custom_minimum_size = Vector2(18, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "模
+块"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="MultiplierIcon" type="TextureRect" parent="GameContent/RemovalZonePanel/VBoxContainer/ModuleRow"]
 modulate = Color(1, 0.6, 0.1, 1)
@@ -195,12 +213,3 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 5
-
-[node name="VersionLabel" type="Label" parent="."]
-layout_mode = 1
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 100.0
-offset_bottom = 33.0
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-text = "v0.6.6"

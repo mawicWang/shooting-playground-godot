@@ -1,10 +1,13 @@
-[gd_resource type="Resource" script_class="MultiplierModule" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="MultiplierModule" load_steps=3 format=3 uid="uid://crrdwu0sdwbeh"]
 
-[ext_resource type="Script" path="res://entities/modules/multiplier_module.gd" id="1_multiplier"]
+[ext_resource type="Script" uid="uid://b31wfto3i1s3t" path="res://entities/modules/multiplier_module.gd" id="1_multiplier"]
+[ext_resource type="Texture2D" uid="uid://ccayef0ln1nof" path="res://assets/module_multiply.svg" id="2_icon"]
 
 [resource]
 script = ExtResource("1_multiplier")
+multiplier = 1.5
 module_name = "乘法器"
 category = 0
 description = "子弹能量 ×1.5"
-multiplier = 1.5
+icon = ExtResource("2_icon")
+slot_color = Color(0.5, 0.5, 0.5, 1)

@@ -9,6 +9,7 @@ const LayoutManager := preload("res://core/LayoutManager.gd")
 const GameLoopManager := preload("res://core/GameLoopManager.gd")
 const EffectManager := preload("res://core/EffectManager.gd")
 const SimpleEmitterData := preload("res://resources/simple_emitter.tres")
+const AcceleratorData := preload("res://resources/module_data/accelerator.tres")
 const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
 const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
 const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
@@ -74,20 +75,52 @@ func _setup_ui():
 	_module_row.visible = false
 
 	# ── 炮塔储备行（最多 5 格，可接受暂存 drop）──
+	var tower_wrapper := HBoxContainer.new()
+	tower_wrapper.name = "TowerWrapper"
+	tower_wrapper.custom_minimum_size = Vector2(0, 80)
+	tower_wrapper.add_theme_constant_override("separation", 8)
+	var tower_label := Label.new()
+	tower_label.text = "炮\n塔"
+	tower_label.custom_minimum_size = Vector2(18, 100)
+	tower_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tower_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tower_label.add_theme_font_size_override("font_size", 14)
+	tower_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	tower_wrapper.add_child(tower_label)
 	_tower_reserve = HBoxContainer.new()
 	_tower_reserve.name = "TowerReserve"
 	_tower_reserve.set_script(TowerReserveBarScript)
 	_tower_reserve.add_theme_constant_override("separation", 8)
 	_tower_reserve.staging_tower_received.connect(_on_staging_tower_to_reserve)
-	_deployment_vbox.add_child(_tower_reserve)
-	_deployment_vbox.move_child(_tower_reserve, 0)
+	tower_wrapper.add_child(_tower_reserve)
+	_deployment_vbox.add_child(tower_wrapper)
+	_deployment_vbox.move_child(tower_wrapper, 0)
+
+	# ── 分割线 ──
+	var row_separator := HSeparator.new()
+	row_separator.modulate = Color(0.8, 0.8, 0.8, 0.5)
+	_deployment_vbox.add_child(row_separator)
+	_deployment_vbox.move_child(row_separator, 1)
 
 	# ── 模块储备行（叠加显示，无上限）──
+	var module_wrapper := HBoxContainer.new()
+	module_wrapper.name = "ModuleWrapper"
+	module_wrapper.custom_minimum_size = Vector2(0, 80)
+	module_wrapper.add_theme_constant_override("separation", 8)
+	var module_label := Label.new()
+	module_label.text = "模\n块"
+	module_label.custom_minimum_size = Vector2(18, 80)
+	module_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	module_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	module_label.add_theme_font_size_override("font_size", 14)
+	module_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	module_wrapper.add_child(module_label)
 	_module_reserve = HBoxContainer.new()
 	_module_reserve.name = "ModuleReserve"
 	_module_reserve.add_theme_constant_override("separation", 8)
-	_deployment_vbox.add_child(_module_reserve)
-	_deployment_vbox.move_child(_module_reserve, 1)
+	module_wrapper.add_child(_module_reserve)
+	_deployment_vbox.add_child(module_wrapper)
+	_deployment_vbox.move_child(module_wrapper, 2)
 
 	# ── 暂存区（左侧，初始隐藏）──
 	_create_staging_panel()
@@ -101,7 +134,7 @@ func _setup_ui():
 	_lives_label.anchor_top = 0.0
 	_lives_label.anchor_bottom = 0.0
 	_lives_label.offset_left = 10.0
-	_lives_label.offset_top = 48.0
+	_lives_label.offset_top = 10.0
 	_lives_label.offset_right = 180.0
 	_lives_label.offset_bottom = 36.0
 	_lives_label.add_theme_color_override("font_color", Color(0.95, 0.3, 0.3))
@@ -117,7 +150,7 @@ func _setup_ui():
 	_coin_label.anchor_top = 0.0
 	_coin_label.anchor_bottom = 0.0
 	_coin_label.offset_left = 10.0
-	_coin_label.offset_top = 84.0
+	_coin_label.offset_top = 46.0
 	_coin_label.offset_right = 180.0
 	_coin_label.offset_bottom = 72.0
 	_coin_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
@@ -202,7 +235,7 @@ func _do_place_initial_tower():
 
 	# 在储备区创建对应图标（先加入树，_ready 后再 mark_deployed）
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(80, 80)
+	icon.custom_minimum_size = Vector2(40, 40)
 	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	icon.set_script(TowerIconScript)
 	icon.tower_data = SimpleEmitterData
@@ -219,6 +252,9 @@ func _do_place_initial_tower():
 		tower.entity_id = icon.entity_id
 		tower.source_icon = icon
 		icon.mark_deployed(tower)
+
+	# 初始模块储备：一个加速器
+	_add_to_module_reserve(AcceleratorData)
 
 # ── 奖励添加 ──────────────────────────────────────────────────
 
@@ -276,8 +312,11 @@ func _add_to_module_reserve(mod: Module) -> void:
 			return
 	# 新建叠加图标
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(80, 80)
+	icon.custom_minimum_size = Vector2(60, 60)
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.set_script(ModuleStackIconScript)
 	icon.module_data = mod
 	icon.count = 1

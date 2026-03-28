@@ -1,10 +1,13 @@
-[gd_resource type="Resource" script_class="AcceleratorModule" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AcceleratorModule" load_steps=3 format=3 uid="uid://b6ds7jkqkkoe7"]
 
-[ext_resource type="Script" path="res://entities/modules/accelerator_module.gd" id="1_accelerator"]
+[ext_resource type="Script" uid="uid://drhhm7gpt0e7p" path="res://entities/modules/accelerator_module.gd" id="1_accelerator"]
+[ext_resource type="Texture2D" uid="uid://5cahyupjm7mx" path="res://assets/module_speed.svg" id="2_icon"]
 
 [resource]
 script = ExtResource("1_accelerator")
+speed_bonus = 150.0
 module_name = "加速器"
 category = 0
 description = "子弹速度 +150"
-speed_bonus = 150.0
+icon = ExtResource("2_icon")
+slot_color = Color(0.5, 0.5, 0.5, 1)

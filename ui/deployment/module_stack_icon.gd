@@ -2,6 +2,8 @@
 # 模块叠加图标：同类型模块显示 x N，安装/卸载自动增减计数
 extends TextureRect
 
+const FALLBACK_TEX = preload("res://assets/bullet.svg")
+
 var module_data: Module
 var count: int = 1
 var drag_enabled: bool = true
@@ -23,8 +25,9 @@ func _ready() -> void:
 	add_child(_count_label)
 
 	if module_data:
-		if module_data.icon:
-			texture = module_data.icon
+		texture = module_data.icon if module_data.icon else FALLBACK_TEX
+		if "slot_color" in module_data:
+			modulate = module_data.slot_color
 		tooltip_text = "%s\n%s" % [module_data.module_name, module_data.description]
 	_update_count_label()
 

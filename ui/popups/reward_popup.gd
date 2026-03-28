@@ -21,9 +21,7 @@ var _cards_row: HBoxContainer = null
 func _ready():
     visible = false
     process_mode = Node.PROCESS_MODE_ALWAYS
-    anchor_right = 1.0
-    anchor_bottom = 1.0
-    layout_mode = 3
+    set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
     # 半透明遮罩背景
     var bg := ColorRect.new()
@@ -64,7 +62,7 @@ func show_rewards():
     var choices := pool.slice(0, min(3, pool.size()))
 
     for child in _cards_row.get_children():
-        child.queue_free()
+        child.free()
 
     for reward in choices:
         _cards_row.add_child(_make_card(reward))
