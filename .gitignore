@@ -41,6 +41,11 @@ obj/
 # *.sln
 # *.csproj
 
+# Netlify CLI 本地状态
+# ----------------------
+.netlify/
+web/.netlify/
+
 # 通用系统文件
 # ----------------------
 .DS_Store

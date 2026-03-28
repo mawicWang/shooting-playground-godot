@@ -17,6 +17,16 @@ func generate_entity_id() -> int:
 	_next_entity_id += 1
 	return id
 
+# 炮塔储备数量（最多 5 个）
+var tower_reserve_count: int = 0
+const TOWER_RESERVE_MAX: int = 5
+
+func is_tower_reserve_full() -> bool:
+	return tower_reserve_count >= TOWER_RESERVE_MAX
+
+func reset_reserve_count() -> void:
+	tower_reserve_count = 0
+
 # 金币
 var coins: int = 0
 

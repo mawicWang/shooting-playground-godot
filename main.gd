@@ -9,6 +9,9 @@ const LayoutManager := preload("res://core/LayoutManager.gd")
 const GameLoopManager := preload("res://core/GameLoopManager.gd")
 const EffectManager := preload("res://core/EffectManager.gd")
 const SimpleEmitterData := preload("res://resources/simple_emitter.tres")
+const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
+const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
+const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
 
 @onready var game_content = $GameContent
 @onready var start_stop_button = $GameContent/PanelContainer/StartStopButton
@@ -25,7 +28,15 @@ var _game_over_popup: Control
 var _reward_popup: Control
 var _coin_label: Label
 var _debug_stop_button: Button
-var _reward_row: HBoxContainer
+
+# 储备区
+var _tower_reserve: HBoxContainer   # 炮塔行，最多 5 个，附 TowerReserveBarScript
+var _module_reserve: HBoxContainer  # 模块行，叠加显示
+
+# 暂存区（储备满时的溢出，左侧显示）
+var _staging_panel: PanelContainer
+var _staging_content: HBoxContainer
+var _staging_icon: Node = null  # 当前暂存的图标节点（最多 1 个）
 
 func _ready():
 	_setup_managers()
@@ -53,25 +64,36 @@ func _setup_signals():
 	SignalBus.enemy_reached_grid.connect(_on_enemy_breached)
 	SignalBus.coins_changed.connect(_on_coins_changed)
 
-	# 连接 grid_root 的敌人触碰信号到 SignalBus
 	if grid_root.has_signal("enemy_breached_grid"):
 		grid_root.enemy_breached_grid.connect(func(): SignalBus.enemy_reached_grid.emit())
 
 func _setup_ui():
 	start_stop_button.pressed.connect(_on_start_stop_pressed)
 
-	# 隐藏原商店（改为通过奖励系统解锁道具）
+	# 隐藏原商店
 	_tower_row.visible = false
 	_module_row.visible = false
 
-	# 奖励手牌行（放在最顶部）
-	_reward_row = HBoxContainer.new()
-	_reward_row.name = "RewardRow"
-	_reward_row.add_theme_constant_override("separation", 10)
-	_deployment_vbox.add_child(_reward_row)
-	_deployment_vbox.move_child(_reward_row, 0)
+	# ── 炮塔储备行（最多 5 格，可接受暂存 drop）──
+	_tower_reserve = HBoxContainer.new()
+	_tower_reserve.name = "TowerReserve"
+	_tower_reserve.set_script(TowerReserveBarScript)
+	_tower_reserve.add_theme_constant_override("separation", 8)
+	_tower_reserve.staging_tower_received.connect(_on_staging_tower_to_reserve)
+	_deployment_vbox.add_child(_tower_reserve)
+	_deployment_vbox.move_child(_tower_reserve, 0)
 
-	# 金币显示（左侧，版本号下方）
+	# ── 模块储备行（叠加显示，无上限）──
+	_module_reserve = HBoxContainer.new()
+	_module_reserve.name = "ModuleReserve"
+	_module_reserve.add_theme_constant_override("separation", 8)
+	_deployment_vbox.add_child(_module_reserve)
+	_deployment_vbox.move_child(_module_reserve, 1)
+
+	# ── 暂存区（左侧，初始隐藏）──
+	_create_staging_panel()
+
+	# ── 金币显示 ──
 	_coin_label = Label.new()
 	_coin_label.text = "金币: 0"
 	_coin_label.layout_mode = 1
@@ -81,13 +103,13 @@ func _setup_ui():
 	_coin_label.anchor_bottom = 0.0
 	_coin_label.offset_left = 10.0
 	_coin_label.offset_top = 35.0
-	_coin_label.offset_right = 150.0
-	_coin_label.offset_bottom = 58.0
+	_coin_label.offset_right = 180.0
+	_coin_label.offset_bottom = 65.0
 	_coin_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
-	_coin_label.add_theme_font_size_override("font_size", 16)
+	_coin_label.add_theme_font_size_override("font_size", 24)
 	add_child(_coin_label)
 
-	# 调试用停止按钮（默认隐藏）
+	# ── 调试停止按钮 ──
 	_debug_stop_button = Button.new()
 	_debug_stop_button.text = "[调试] 停止"
 	_debug_stop_button.visible = false
@@ -107,11 +129,46 @@ func _setup_ui():
 	_create_game_over_popup()
 	_create_reward_popup()
 
+# ── 暂存区创建 ─────────────────────────────────────────────────
+
+func _create_staging_panel() -> void:
+	_staging_panel = PanelContainer.new()
+	_staging_panel.name = "StagingPanel"
+	_staging_panel.layout_mode = 1
+	_staging_panel.anchor_left = 0.0
+	_staging_panel.anchor_right = 0.0
+	_staging_panel.anchor_top = 1.0
+	_staging_panel.anchor_bottom = 1.0
+	_staging_panel.grow_horizontal = Control.GROW_DIRECTION_END
+	_staging_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_staging_panel.offset_left = 5
+	_staging_panel.offset_right = 100
+	_staging_panel.offset_top = -270
+	_staging_panel.offset_bottom = -170
+	_staging_panel.visible = false
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+
+	var label := Label.new()
+	label.text = "待处理"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.2))
+	vbox.add_child(label)
+
+	_staging_content = HBoxContainer.new()
+	_staging_content.name = "StagingContent"
+	vbox.add_child(_staging_content)
+
+	_staging_panel.add_child(vbox)
+	game_content.add_child(_staging_panel)
+
+# ── 初始炮塔放置 ──────────────────────────────────────────────
+
 func _prepare_game():
 	_game_loop.prepare_enemy_warnings()
 	call_deferred("_try_place_initial_tower")
-
-# ── 初始炮塔放置 ──────────────────────────────────────────────
 
 func _try_place_initial_tower():
 	if grid_container.get_child_count() < 25:
@@ -128,62 +185,27 @@ func _do_place_initial_tower():
 	if not (is_instance_valid(center_cell) and not center_cell.is_occupied):
 		return
 
-	# 在储备区创建对应图标
+	# 在储备区创建对应图标（先加入树，_ready 后再 mark_deployed）
 	var icon := TextureRect.new()
 	icon.custom_minimum_size = Vector2(80, 80)
 	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-	icon.set_script(preload("res://ui/deployment/tower_icon.gd"))
+	icon.set_script(TowerIconScript)
 	icon.tower_data = SimpleEmitterData
 	icon.entity_id = GameState.generate_entity_id()
-	_reward_row.add_child(icon)
+	_tower_reserve.add_child(icon)
+	GameState.tower_reserve_count += 1  # 先计入
 
 	# 直接部署到格子
 	center_cell.place_tower_data(SimpleEmitterData, 0)
 
-	# 将格子上的炮塔与储备图标互相绑定，并置灰图标
+	# 将格子上的炮塔与储备图标绑定，并隐藏图标（会再减 1 count）
 	var tower = center_cell.get_deployed_tower()
 	if is_instance_valid(tower):
 		tower.entity_id = icon.entity_id
 		tower.source_icon = icon
 		icon.mark_deployed(tower)
 
-# ── 按钮事件 ──────────────────────────────────────────────────
-
-func _on_start_stop_pressed():
-	# 运行中不允许手动停止（仅允许开始）
-	if not GameState.is_running():
-		_game_loop.start_game()
-
-func _on_debug_stop_pressed():
-	if GameState.is_running():
-		_game_loop.stop_game()
-		_game_loop.prepare_enemy_warnings()
-
-# ── 游戏状态事件 ──────────────────────────────────────────────
-
-func _on_game_started():
-	_update_button_style()
-
-func _on_game_stopped():
-	_effect_manager.reset_position()
-	_update_button_style()
-
-# ── 敌人突破 → 立即 Game Over ────────────────────────────────
-
-func _on_enemy_breached():
-	if not GameState.is_running():
-		return  # 已处理过（如同帧多次触发）
-	_effect_manager.trigger_screen_shake()
-	_game_loop.stop_game()
-	_game_over_popup.show_defeat()
-
-# ── 波次完成 → 奖励选择 ──────────────────────────────────────
-
-func _on_all_enemies_defeated():
-	if not GameState.is_running():
-		return
-	_game_loop.stop_game()
-	_reward_popup.show_rewards()
+# ── 奖励添加 ──────────────────────────────────────────────────
 
 func _on_reward_chosen(reward: Resource):
 	_add_reward_to_hand(reward)
@@ -191,27 +213,78 @@ func _on_reward_chosen(reward: Resource):
 	_update_button_style()
 
 func _add_reward_to_hand(reward: Resource) -> void:
-	var eid := GameState.generate_entity_id()
 	if reward is TowerData:
-		var icon := TextureRect.new()
-		icon.custom_minimum_size = Vector2(80, 80)
-		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-		icon.set_script(preload("res://ui/deployment/tower_icon.gd"))
-		icon.tower_data = reward
-		icon.entity_id = eid
-		_reward_row.add_child(icon)
+		if GameState.is_tower_reserve_full():
+			_add_to_staging(reward, GameState.generate_entity_id())
+		else:
+			_add_to_tower_reserve(reward, GameState.generate_entity_id())
 	elif reward is Module:
-		var icon := TextureRect.new()
-		icon.custom_minimum_size = Vector2(80, 80)
-		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-		icon.texture = preload("res://assets/bullet.svg")
-		icon.set_script(preload("res://ui/deployment/module_icon.gd"))
-		icon.module_data = reward
-		icon.entity_id = eid
-		match reward.module_name:
-			"加速器": icon.modulate = Color(0.1, 0.9, 1.0)
-			"乘法器": icon.modulate = Color(1.0, 0.6, 0.1)
-		_reward_row.add_child(icon)
+		_add_to_module_reserve(reward)
+
+func _add_to_tower_reserve(tower_data: TowerData, eid: int) -> void:
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(80, 80)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.set_script(TowerIconScript)
+	icon.tower_data = tower_data
+	icon.entity_id = eid
+	_tower_reserve.add_child(icon)
+	GameState.tower_reserve_count += 1
+	_update_button_style()
+
+func _add_to_staging(tower_data: TowerData, eid: int) -> void:
+	# 暂存区只有一格，理论上调用时不应已有暂存
+	if is_instance_valid(_staging_icon):
+		return
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(80, 80)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.set_script(TowerIconScript)
+	icon.tower_data = tower_data
+	icon.entity_id = eid
+	icon.is_staging = true
+	icon._on_state_changed = func(): _on_staging_state_changed()
+	_staging_content.add_child(icon)
+	_staging_icon = icon
+	_staging_panel.visible = true
+	_update_button_style()
+
+func _add_to_module_reserve(mod: Module) -> void:
+	# 查找同类型叠加图标（按 resource_path）
+	var res_path := mod.resource_path
+	for child in _module_reserve.get_children():
+		if child.get("module_data") and child.module_data.resource_path == res_path:
+			child.count += 1
+			child.visible = true
+			child.set_drag_enabled(true)
+			child._update_count_label()
+			return
+	# 新建叠加图标
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(80, 80)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.set_script(ModuleStackIconScript)
+	icon.module_data = mod
+	icon.count = 1
+	_module_reserve.add_child(icon)
+
+# ── 暂存区事件 ────────────────────────────────────────────────
+
+## 暂存图标部署到战场或被隐藏后触发
+func _on_staging_state_changed() -> void:
+	if not is_instance_valid(_staging_icon) or not _staging_icon.visible:
+		_staging_panel.visible = false
+		_staging_icon = null
+	_update_button_style()
+
+## 暂存图标被拖入储备区
+func _on_staging_tower_to_reserve(tower_data: Resource, eid: int, old_icon: Node) -> void:
+	if is_instance_valid(old_icon):
+		old_icon.queue_free()
+	_staging_icon = null
+	_staging_panel.visible = false
+	_add_to_tower_reserve(tower_data, eid)
+	_update_button_style()
 
 # ── 失败弹窗关闭 → 完整重置 ──────────────────────────────────
 
@@ -234,9 +307,53 @@ func _clear_all_towers_from_grid():
 			if cell.has_method("remove_tower_reference"):
 				cell.remove_tower_reference()
 
-func _clear_reward_items():
-	for child in _reward_row.get_children():
+func _clear_reward_items() -> void:
+	for child in _tower_reserve.get_children():
 		child.queue_free()
+	for child in _module_reserve.get_children():
+		child.queue_free()
+	if is_instance_valid(_staging_icon):
+		_staging_icon.queue_free()
+	_staging_icon = null
+	_staging_panel.visible = false
+	GameState.reset_reserve_count()
+
+# ── 按钮事件 ──────────────────────────────────────────────────
+
+func _on_start_stop_pressed():
+	if not GameState.is_running():
+		_game_loop.start_game()
+
+func _on_debug_stop_pressed():
+	if GameState.is_running():
+		_game_loop.stop_game()
+		_game_loop.prepare_enemy_warnings()
+
+# ── 游戏状态事件 ──────────────────────────────────────────────
+
+func _on_game_started():
+	_update_button_style()
+
+func _on_game_stopped():
+	_effect_manager.reset_position()
+	_update_button_style()
+
+# ── 敌人突破 → 立即 Game Over ────────────────────────────────
+
+func _on_enemy_breached():
+	if not GameState.is_running():
+		return
+	_effect_manager.trigger_screen_shake()
+	_game_loop.stop_game()
+	_game_over_popup.show_defeat()
+
+# ── 波次完成 → 奖励选择 ──────────────────────────────────────
+
+func _on_all_enemies_defeated():
+	if not GameState.is_running():
+		return
+	_game_loop.stop_game()
+	_reward_popup.show_rewards()
 
 # ── 金币显示 ──────────────────────────────────────────────────
 
@@ -248,19 +365,16 @@ func _on_coins_changed(total: int):
 
 func _create_game_over_popup():
 	var popup_layer = CanvasLayer.new()
-	popup_layer.layer = 101  # 比奖励弹窗(100)更高，避免层级冲突
+	popup_layer.layer = 101
 	add_child(popup_layer)
-
 	_game_over_popup = GameOverPopupScene.instantiate()
 	_game_over_popup.popup_closed.connect(_on_popup_closed)
 	popup_layer.add_child(_game_over_popup)
 
 func _create_reward_popup():
-	# 用 CanvasLayer 确保弹窗始终渲染在最上层（高于任何 z_index 设置的节点）
 	var popup_layer = CanvasLayer.new()
 	popup_layer.layer = 100
 	add_child(popup_layer)
-
 	_reward_popup = Control.new()
 	_reward_popup.set_script(RewardPopupScript)
 	popup_layer.add_child(_reward_popup)
@@ -270,24 +384,25 @@ func _create_reward_popup():
 
 func _update_button_style():
 	var is_running = GameState.is_running()
-	# 运行中隐藏开始按钮（不允许手动停止）
 	start_stop_button.visible = not is_running
 	if not is_running:
+		var has_staging: bool = is_instance_valid(_staging_icon) and _staging_icon.visible
+		start_stop_button.disabled = has_staging
 		var next_wave = _game_loop.get_current_wave() + 1
 		start_stop_button.text = "开始第" + str(next_wave) + "关"
-		var style = _create_button_style()
+		var style = _create_button_style(has_staging)
 		start_stop_button.add_theme_stylebox_override("normal", style.normal)
 		start_stop_button.add_theme_stylebox_override("hover", style.hover)
 		start_stop_button.add_theme_stylebox_override("pressed", style.pressed)
 
-func _create_button_style() -> Dictionary:
+func _create_button_style(greyed: bool = false) -> Dictionary:
 	var base = StyleBoxFlat.new()
 	base.border_width_left = 2
 	base.border_width_top = 2
 	base.border_width_right = 2
 	base.border_width_bottom = 2
 	base.border_color = Color.BLACK
-	base.bg_color = Color(0.2, 0.8, 0.2)
+	base.bg_color = Color(0.5, 0.5, 0.5) if greyed else Color(0.2, 0.8, 0.2)
 
 	var hover = base.duplicate()
 	hover.bg_color = base.bg_color.lightened(0.1)

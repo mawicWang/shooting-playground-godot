@@ -292,11 +292,15 @@ func _drop_data(_at_position, data):
 		var tower_scene = preload("res://entities/towers/tower.tscn")
 		tower = tower_scene.instantiate()
 		tower.data = td
-		# 绑定实体 ID 和储备区图标引用
 		tower.entity_id = data.get("entity_id", -1)
-		tower.source_icon = data.get("source_icon", null)
-		if is_instance_valid(tower.source_icon):
-			tower.source_icon.mark_deployed(tower)
+		var src_icon = data.get("source_icon", null)
+		if is_instance_valid(src_icon):
+			if "is_staging" in src_icon and src_icon.is_staging:
+				# 暂存区直接部署：不建立回收链路，通知图标隐藏
+				tower.source_icon = null
+			else:
+				tower.source_icon = src_icon
+			src_icon.mark_deployed(tower)
 		final_rotation = DragManager.get_current_drag_rotation()
 
 	# Add the tower to this cell

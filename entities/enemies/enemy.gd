@@ -65,7 +65,7 @@ func take_damage(amount: float) -> void:
 	# 生成伤害数字
 	var dn := DamageNumber.new()
 	get_tree().root.add_child(dn)
-	dn.show_damage(global_position, amount)
+	dn.show_damage(global_position + Vector2(0.0, -42.0), amount)
 	if current_health <= 0.0:
 		_is_dying = true
 		destroy()

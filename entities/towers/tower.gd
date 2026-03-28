@@ -199,9 +199,9 @@ func _create_ammo_label() -> void:
 	_ammo_label.z_index = 2
 	_ammo_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ammo_label.add_theme_font_size_override("font_size", 70)
-	_ammo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
-	_ammo_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	_ammo_label.add_theme_constant_override("outline_size", 4)
+	_ammo_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+	_ammo_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	_ammo_label.add_theme_constant_override("outline_size", 8)
 	_ammo_label.size = Vector2(80, 60)
 	_ammo_label.position = Vector2(-40, -30)
 	_ammo_label.pivot_offset = Vector2(40, 30)  # 绕中心旋转

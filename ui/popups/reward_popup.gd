@@ -48,7 +48,7 @@ func _ready():
 
     var title := Label.new()
     title.text = "选择奖励"
-    title.add_theme_font_size_override("font_size", 36)
+    title.add_theme_font_size_override("font_size", 44)
     title.add_theme_color_override("font_color", Color.WHITE)
     title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     vbox.add_child(title)
@@ -74,7 +74,7 @@ func show_rewards():
 
 func _make_card(reward: Resource) -> Button:
     var btn := Button.new()
-    btn.custom_minimum_size = Vector2(140, 200)
+    btn.custom_minimum_size = Vector2(190, 250)
     _apply_card_styles(btn)
 
     var vbox := VBoxContainer.new()
@@ -89,13 +89,15 @@ func _make_card(reward: Resource) -> Button:
     vbox.add_child(_make_icon(reward))
     vbox.add_child(_make_label(
         reward.tower_name if reward is TowerData else reward.module_name,
-        14, Color.WHITE, true))
+        22, Color(0.1, 0.1, 0.1), true))
 
     if reward is Module:
-        vbox.add_child(_make_label(reward.description, 11, Color(0.7, 0.7, 0.7), true))
-        vbox.add_child(_make_label("【模块】", 12, Color(0.4, 0.8, 1.0)))
+        vbox.add_child(_make_label(reward.description, 17, Color(0.3, 0.3, 0.3), true))
+        vbox.add_child(_make_label("【模块】", 17, Color(0.0, 0.5, 0.8)))
     else:
-        vbox.add_child(_make_label("【炮塔】", 12, Color(0.4, 1.0, 0.4)))
+        var ammo_text := "初始弹药：无限" if reward.initial_ammo == -1 else "初始弹药：%d" % reward.initial_ammo
+        vbox.add_child(_make_label(ammo_text, 17, Color(0.3, 0.3, 0.3), true))
+        vbox.add_child(_make_label("【炮塔】", 17, Color(0.0, 0.6, 0.1)))
 
     btn.pressed.connect(func(): _on_card_selected(reward))
     return btn
@@ -126,9 +128,9 @@ func _make_label(text: String, size: int, color: Color, autowrap: bool = false) 
 
 func _apply_card_styles(btn: Button) -> void:
     var normal_style := StyleBoxFlat.new()
-    normal_style.bg_color = Color(0.15, 0.15, 0.25)
+    normal_style.bg_color = Color.WHITE
     normal_style.set_border_width_all(2)
-    normal_style.border_color = Color(0.5, 0.5, 0.8, 0.8)
+    normal_style.border_color = Color(0.7, 0.7, 0.8, 1.0)
     normal_style.set_corner_radius_all(10)
     normal_style.content_margin_top = 10
     normal_style.content_margin_bottom = 10
@@ -137,12 +139,12 @@ func _apply_card_styles(btn: Button) -> void:
     btn.add_theme_stylebox_override("normal", normal_style)
 
     var hover_style := normal_style.duplicate()
-    hover_style.bg_color = Color(0.25, 0.25, 0.45)
-    hover_style.border_color = Color(0.8, 0.8, 1.0)
+    hover_style.bg_color = Color(0.92, 0.95, 1.0)
+    hover_style.border_color = Color(0.3, 0.5, 0.9)
     btn.add_theme_stylebox_override("hover", hover_style)
 
     var pressed_style := hover_style.duplicate()
-    pressed_style.bg_color = Color(0.35, 0.35, 0.55)
+    pressed_style.bg_color = Color(0.85, 0.88, 0.96)
     btn.add_theme_stylebox_override("pressed", pressed_style)
 
 func _get_module_color(mod: Module) -> Color:

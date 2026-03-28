@@ -19,7 +19,7 @@ func _ready() -> void:
 	add_child(_label)
 
 func show_damage(world_pos: Vector2, amount: float) -> void:
-	global_position = world_pos + Vector2(randf_range(-8.0, 8.0), -10.0)
+	global_position = world_pos + Vector2(randf_range(-8.0, 8.0), 0.0)
 	_label.text = "%d" % int(amount) if amount == floorf(amount) else "%.1f" % amount
 
 	var tween := create_tween()

@@ -9,17 +9,32 @@ var drag_enabled = true
 
 ## 实体追踪：由 main.gd 在添加奖励时赋值
 var entity_id: int = -1
-var deployed_tower_node: Node = null  # 部署到战场上的炮塔实例
+var deployed_tower_node: Node = null
 
-## 标记为已部署（图标灰化不可拖）
+## 暂存区标记：暂存区的图标不计入储备数量
+var is_staging: bool = false
+
+## 状态变化回调（供 main.gd 监听暂存区变化）
+var _on_state_changed: Callable = Callable()
+
+## 标记为已部署（图标隐藏）
 func mark_deployed(tower_node: Node) -> void:
 	deployed_tower_node = tower_node
-	set_drag_enabled(false)
+	visible = false
+	if not is_staging:
+		GameState.tower_reserve_count = max(0, GameState.tower_reserve_count - 1)
+	if _on_state_changed.is_valid():
+		_on_state_changed.call()
 
-## 标记为已回收（图标恢复可拖）
+## 标记为已回收（图标重新显示）
 func mark_returned() -> void:
 	deployed_tower_node = null
-	set_drag_enabled(true)
+	visible = true
+	drag_enabled = true
+	if not is_staging:
+		GameState.tower_reserve_count += 1
+	if _on_state_changed.is_valid():
+		_on_state_changed.call()
 
 func _ready():
 	if tower_data and tower_data.icon:
@@ -64,9 +79,9 @@ func _add_ammo_badge() -> void:
 	badge.offset_left = 0
 	badge.offset_right = 0
 	badge.add_theme_font_size_override("font_size", 45)
-	badge.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
+	badge.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 	badge.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
-	badge.add_theme_constant_override("outline_size", 4)
+	badge.add_theme_constant_override("outline_size", 8)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(badge)
 
@@ -108,7 +123,7 @@ func _get_drag_data(_at_position):
 	_update_drag_rotation()
 	DragManager.start_drag(texture, self)
 
-	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation, "entity_id": entity_id, "source_icon": self}
+	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation, "entity_id": entity_id, "source_icon": self, "is_staging": is_staging}
 
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:

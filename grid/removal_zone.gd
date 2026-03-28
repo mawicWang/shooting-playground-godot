@@ -11,13 +11,17 @@ func set_drag_enabled(enabled: bool):
 func _can_drop_data(_at_position, data):
 	if not drop_enabled:
 		return false
-	
-	# Allow dropping if:
-	# 1. It's a valid tower drag (dict with "is_moving": true, "tower_instance", "source_cell")
-	return (typeof(data) == TYPE_DICTIONARY and 
-		data.has("is_moving") and data.is_moving and
-		data.has("tower_instance") and 
-		data.has("source_cell"))
+	if not (typeof(data) == TYPE_DICTIONARY and
+			data.has("is_moving") and data.is_moving and
+			data.has("tower_instance") and data.has("source_cell")):
+		return false
+
+	var source_icon = data.get("source_icon", null)
+	if is_instance_valid(source_icon) and not ("is_staging" in source_icon and source_icon.is_staging):
+		# 储备区的炮塔：只有储备未满才能回收
+		return not GameState.is_tower_reserve_full()
+	# 无 source_icon（初始炮塔、暂存区直接部署）= 允许永久删除
+	return true
 
 func _drop_data(_at_position, data):
 	if data.has("tower_instance") and data.has("source_cell"):
