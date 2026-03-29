@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CdOnHitTowerSelfModule" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://entities/modules/cd_on_hit_tower_self_module.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/TODO.svg" id="2_icon"]
+[ext_resource type="Texture2D" path="res://assets/module_cd_hit_tower_self.svg" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
