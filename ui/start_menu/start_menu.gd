@@ -1,7 +1,7 @@
 extends Control
 
 const MODE_NAMES = ["混乱模式", "普通模式"]
-var _selected_mode: int = 0
+var _selected_mode: int = 1
 var _mode_label: Label
 
 func _ready() -> void:

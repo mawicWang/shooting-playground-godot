@@ -50,6 +50,10 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	_pending_release = true
 	visible = false
 	set_physics_process(false)
+	# 碰撞特效
+	var impact := BulletImpact.new()
+	get_tree().root.add_child(impact)
+	impact.spawn(global_position)
 	# 1. 触发子弹击中效果
 	if data:
 		for effect in data.hit_effects:

@@ -214,8 +214,24 @@ func _update_ammo_label() -> void:
 
 # ── 被击中处理 ───────────────────────────────────────────────
 
+## 发射后坐力动画：沿射击方向（本地 Y 轴）拉长，然后弹回。
+## sprite 的 -Y 方向始终是炮管朝向，不需要额外计算旋转。
+func play_fire_effect() -> void:
+	var tween := create_tween()
+	tween.tween_property(sprite, "scale", Vector2(0.75, 1.35), 0.05)
+	tween.tween_property(sprite, "scale", Vector2(1.1, 0.9), 0.08)
+	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.1)
+
+## 果冻弹性受击动画：瞬间横向压缩，然后弹性回弹。
+func play_hit_effect() -> void:
+	var tween := create_tween()
+	tween.tween_property(sprite, "scale", Vector2(1.3, 0.75), 0.05)
+	tween.tween_property(sprite, "scale", Vector2(0.85, 1.2), 0.09)
+	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.12)
+
 ## 被子弹击中时调用（由 bullet.gd 负责调用）。
 func on_bullet_hit(bullet_data: BulletData) -> void:
+	play_hit_effect()
 	for effect in on_hit_effects:
 		effect.apply(self, bullet_data)
 

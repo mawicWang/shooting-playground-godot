@@ -33,6 +33,9 @@ signal relic_acquired(relic: Resource)
 signal wave_started(wave_number: int)
 signal wave_completed(wave_number: int)
 
+# ==================== 视觉效果事件 ====================
+signal light_shake_requested
+
 # ==================== 经济系统事件 ====================
 signal coins_changed(new_total: int)
 signal lives_changed(remaining: int)

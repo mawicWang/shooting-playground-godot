@@ -35,6 +35,13 @@ func _drop_data(_at_position, data):
 			if is_instance_valid(tower) and tower.get_parent() == source_cell:
 				source_cell.remove_child(tower)
 
+		# 退还塔上安装的所有模块图标
+		if is_instance_valid(tower) and "modules" in tower:
+			for mod in tower.modules:
+				var mod_src_icon = mod.get_meta("source_icon", null) if mod.has_meta("source_icon") else null
+				if is_instance_valid(mod_src_icon) and mod_src_icon.has_method("mark_returned"):
+					mod_src_icon.mark_returned()
+
 		if is_instance_valid(tower):
 			tower.queue_free()
 

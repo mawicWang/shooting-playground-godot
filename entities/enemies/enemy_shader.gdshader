@@ -14,6 +14,9 @@ instance uniform float noise_seed : hint_range(0.0, 1000.0) = 0.0;
 // --- 时间偏移：让不同敌人在不同时刻触发抖动帧，避免同步 ---
 instance uniform float time_offset : hint_range(0.0, 10.0) = 0.0;
 
+// --- 受击白闪 ---
+instance uniform float hit_flash_intensity : hint_range(0.0, 1.0) = 0.0;
+
 // --- 噪点贴图 ---
 uniform sampler2D shake_noise_tex : hint_default_black;
 
@@ -55,4 +58,10 @@ void vertex() {
 
     // 6. 应用最终位置
     VERTEX = rotated + vec2(offset_x, offset_y) * shake_amplitude;
+}
+
+void fragment() {
+    vec4 tex = texture(TEXTURE, UV);
+    // 受击时将颜色混入白色，alpha 保持不变
+    COLOR = vec4(mix(tex.rgb * COLOR.rgb, vec3(1.0), hit_flash_intensity), tex.a * COLOR.a);
 }

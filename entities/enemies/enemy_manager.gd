@@ -199,12 +199,20 @@ signal all_enemies_defeated()  # 所有敌人被消灭信号
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 	if body.is_in_group("bullets"):
 		var damage := 1.0
+		var knockback := 180.0
+		var knockback_decay := 7.0
+		var bullet_dir := Vector2.ZERO
 		if is_instance_valid(body) and body.data != null:
 			damage = body.data.energy
+			knockback = body.data.knockback
+			knockback_decay = body.data.knockback_decay
+			bullet_dir = body.direction
 		if is_instance_valid(body):
 			BulletPool.release(body)
 		if is_instance_valid(enemy):
 			enemy.take_damage(damage)
+			if knockback > 0.0 and bullet_dir != Vector2.ZERO:
+				enemy.apply_knockback(bullet_dir * knockback, knockback_decay)
 
 func _on_enemy_destroyed(enemy: CharacterBody2D):
 	if enemy in active_enemies:

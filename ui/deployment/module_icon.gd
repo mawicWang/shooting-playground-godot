@@ -38,7 +38,9 @@ func _get_drag_data(_at_position) -> Variant:
 
 	var preview := TextureRect.new()
 	preview.texture = texture
-	preview.custom_minimum_size = Vector2(60, 60)
+	preview.custom_minimum_size = Vector2(40, 40)
+	preview.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	preview.modulate.a = 0.7
 	set_drag_preview(preview)
 

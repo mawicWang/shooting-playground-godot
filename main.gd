@@ -66,6 +66,7 @@ func _setup_signals():
 	SignalBus.enemy_reached_grid.connect(_on_enemy_breached)
 	SignalBus.coins_changed.connect(_on_coins_changed)
 	SignalBus.lives_changed.connect(_on_lives_changed)
+	SignalBus.light_shake_requested.connect(_on_light_shake_requested)
 
 func _setup_ui():
 	start_stop_button.pressed.connect(_on_start_stop_pressed)
@@ -395,6 +396,9 @@ func _on_game_stopped():
 	if not GameState.is_game_over() and not _effect_manager.is_shaking():
 		_effect_manager.reset_position()
 	_update_button_style()
+
+func _on_light_shake_requested():
+	_effect_manager.trigger_light_shake()
 
 # ── 敌人突破 → 扣生命，归零才 Game Over ─────────────────────
 

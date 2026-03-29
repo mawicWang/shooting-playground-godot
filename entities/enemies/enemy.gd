@@ -16,6 +16,8 @@ signal enemy_hit(body, enemy)
 signal enemy_destroyed(enemy)  # 敌人被销毁信号
 
 var _health_bar: HealthBar
+var _knockback_velocity: Vector2 = Vector2.ZERO
+var _knockback_decay: float = 7.0
 
 func _ready():
 	add_to_group("enemies")
@@ -39,6 +41,9 @@ func _ready():
 func _physics_process(delta):
 	# 不使用move_and_slide，直接修改位置避免物理碰撞
 	global_position += direction * SPEED * delta
+	if _knockback_velocity != Vector2.ZERO:
+		global_position += _knockback_velocity * delta
+		_knockback_velocity = _knockback_velocity.lerp(Vector2.ZERO, _knockback_decay * delta)
 
 func set_direction(dir: Vector2):
 	direction = dir.normalized()
@@ -62,6 +67,8 @@ func take_damage(amount: float) -> void:
 	current_health = maxf(current_health - amount, 0.0)
 	SignalBus.enemy_damaged.emit(self, amount, current_health, max_health)
 	_health_bar.update(current_health, max_health)
+	# 受击白闪
+	_flash_hit()
 	# 生成伤害数字
 	var dn := DamageNumber.new()
 	get_tree().root.add_child(dn)
@@ -69,6 +76,18 @@ func take_damage(amount: float) -> void:
 	if current_health <= 0.0:
 		_is_dying = true
 		destroy()
+
+func apply_knockback(impulse: Vector2, decay: float) -> void:
+	_knockback_velocity += impulse
+	_knockback_decay = decay
+
+func _flash_hit() -> void:
+	var sprite = $Sprite2D
+	sprite.set_instance_shader_parameter("hit_flash_intensity", 1.0)
+	var tw := create_tween()
+	tw.tween_method(func(v: float):
+		sprite.set_instance_shader_parameter("hit_flash_intensity", v),
+		1.0, 0.0, 0.15)
 
 func _on_hitbox_body_entered(body: Node2D):
 	# 发出信号给管理器处理碰撞
