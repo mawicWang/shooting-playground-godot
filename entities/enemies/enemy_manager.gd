@@ -14,6 +14,9 @@ var active_warnings: Array = []
 # 预生成的敌人信息
 var pending_enemies: Array = []
 
+# 普通模式：传入已占用的位置键，生成时跳过这些位置
+var excluded_pos_keys: Array = []
+
 func _ready():
 	pass
 
@@ -46,8 +49,10 @@ func prepare_enemies() -> Array:
 		Vector2(-1, 0)   # 右 -> 左
 	]
 	
-	# 追踪已使用的生成位置，避免重叠
+	# 追踪已使用的生成位置，避免重叠（含外部排除键）
 	var used_positions = {}
+	for key in excluded_pos_keys:
+		used_positions[key] = true
 	
 	# 随机选择要生成的行/列
 	var spawned_count = 0
@@ -167,6 +172,15 @@ func spawn_enemies_from_data(enemy_data: Array):
 		get_tree().root.add_child(enemy)
 		active_enemies.append(enemy)
 	
+
+# 普通模式：为已有敌人数据补充显示警告（不重新生成位置）
+func show_warnings_for_existing(enemy_data: Array):
+	for enemy_info in enemy_data:
+		var warning = WARNING_SCENE.instantiate()
+		warning.set_grid_aligned_position(enemy_info["warning_pos"])
+		warning.set_direction(enemy_info["direction"])
+		get_tree().root.add_child(warning)
+		active_warnings.append(warning)
 
 func clear_warnings():
 	for warning in active_warnings:

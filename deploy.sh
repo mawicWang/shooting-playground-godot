@@ -13,11 +13,13 @@ set -e
 TARGET=""
 UPLOAD_R2=false
 DRY_RUN=false
+DEPLOY_ITCH=true
 
 for arg in "$@"; do
   case "$arg" in
     --r2)           UPLOAD_R2=true ;;
     --dry-run)      DRY_RUN=true ;;
+    --no-itch)      DEPLOY_ITCH=false ;;
     cloudflare|netlify) TARGET="$arg" ;;
   esac
 done
@@ -75,6 +77,20 @@ elif [[ "$TARGET" == "cloudflare" ]]; then
 
 else
     echo "❌ 未知目标: $TARGET"
-    echo "用法: $0 [cloudflare|netlify] [--r2] [--dry-run]"
+    echo "用法: $0 [cloudflare|netlify] [--r2] [--no-itch] [--dry-run]"
     exit 1
+fi
+
+# itch.io 部署
+if [[ "$DEPLOY_ITCH" == true ]]; then
+    BUTLER="${HOME}/.local/bin/butler-darwin-arm64/butler"
+    if [[ ! -x "$BUTLER" ]]; then
+        echo "⚠️  [itch] 未找到 butler，跳过 itch.io 部署 ($BUTLER)"
+    else
+        echo ""
+        echo "🎮 [Deploy] 推送到 itch.io..."
+        run "$BUTLER" push web/ mawicwang/pow-pow-defence:html5
+        echo "✅ [Deploy] itch.io 部署完成!"
+        echo "🎮 游戏地址: https://mawicwang.itch.io/pow-pow-defence"
+    fi
 fi

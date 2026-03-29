@@ -15,6 +15,8 @@ var _grid_container: Control
 var _dead_zone_manager: Node = null
 var _enemy_manager: Node = null
 var _pending_enemy_data: Array = []
+# 普通模式：跨波次累积的敌人位置（下一波保留这些并追加新敌人）
+var _accumulated_enemy_data: Array = []
 
 ## 已完成的波次数（0 = 还未完成任何波次，下一波是第1关）
 var current_wave: int = 0
@@ -109,8 +111,33 @@ func prepare_enemy_warnings():
     add_child(_enemy_manager)
 
     _enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
-    _enemy_manager.enemy_count = current_wave + 1  # 第N关 = N个敌人
-    _pending_enemy_data = _enemy_manager.prepare_enemies()
+
+    var new_enemy_count = current_wave + 1  # 第N关 = N个敌人
+
+    if GameState.game_mode == GameState.GameMode.NORMAL and _accumulated_enemy_data.size() > 0:
+        # 普通模式：保留上一波敌人位置，只新增差额
+        _pending_enemy_data = _accumulated_enemy_data.duplicate()
+        var additional_count = new_enemy_count - _accumulated_enemy_data.size()
+        if additional_count > 0:
+            # 排除已有位置，只随机生成新增部分
+            _enemy_manager.excluded_pos_keys = []
+            for info in _accumulated_enemy_data:
+                _enemy_manager.excluded_pos_keys.append(info["pos_key"])
+            _enemy_manager.enemy_count = additional_count
+            var new_data = _enemy_manager.prepare_enemies()
+            _pending_enemy_data.append_array(new_data)
+            # 为已有敌人补充显示警告
+            _enemy_manager.show_warnings_for_existing(_accumulated_enemy_data)
+        else:
+            # 敌人数未增加，为所有已有敌人显示警告
+            _enemy_manager.show_warnings_for_existing(_accumulated_enemy_data)
+    else:
+        # 混乱模式（或普通模式首波）：完全随机生成
+        _enemy_manager.excluded_pos_keys = []
+        _enemy_manager.enemy_count = new_enemy_count
+        _pending_enemy_data = _enemy_manager.prepare_enemies()
+
+    _accumulated_enemy_data = _pending_enemy_data.duplicate()
 
 func _create_enemy_manager():
     if is_instance_valid(_enemy_manager):
@@ -144,6 +171,7 @@ func _on_all_enemies_defeated():
 
 func reset_wave():
     current_wave = 0
+    _accumulated_enemy_data.clear()
 
 func get_current_wave() -> int:
     return current_wave

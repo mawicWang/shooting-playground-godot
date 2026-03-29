@@ -5,6 +5,9 @@ extends Node
 ## 拖拽状态由 DragManager 单独负责，不在此重复
 
 enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
+enum GameMode { CHAOS, NORMAL }
+
+var game_mode: GameMode = GameMode.CHAOS
 
 var current_state: State = State.DEPLOYMENT
 var current_wave: int = 0
