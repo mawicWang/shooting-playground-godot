@@ -11,6 +11,7 @@ func _ready() -> void:
 	_mode_names = MODE_NAMES_DEBUG if OS.is_debug_build() else MODE_NAMES_RELEASE
 	_build_mode_selector()
 	$CenterContainer/StartButton.pressed.connect(_on_start_pressed)
+	$VersionLabel.text = ProjectSettings.get_setting("application/config/version", "v?")
 
 func _build_mode_selector() -> void:
 	var vbox := VBoxContainer.new()

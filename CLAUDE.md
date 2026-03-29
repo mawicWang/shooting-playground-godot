@@ -139,7 +139,13 @@ DEPLOYMENT → [Start button] → RUNNING → [all enemies defeated]
 - Reward popup pauses game tree (`get_tree().paused = true`); game over popup does not (game already stopped)
 
 ## Version
-版本号显示在 `main.tscn` 的 `VersionLabel` 节点上。更新版本时直接修改该节点的 `text` 属性。
+版本号存储在 `project.godot` 的 `application/config/version` 字段。更新版本时只需修改该字段：
+
+```ini
+config/version="v0.8.0"
+```
+
+`start_menu.gd` 的 `_ready()` 通过 `ProjectSettings.get_setting("application/config/version")` 读取并写入 `VersionLabel`（位于 `ui/start_menu/start_menu.tscn`）。
 
 ## Resource Paths
 All scene/script paths are centralized in `autoload/Paths.gd`. Use these constants instead of hardcoded strings.
