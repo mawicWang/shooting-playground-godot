@@ -20,3 +20,7 @@ func on_install(_tower: Node) -> void:
 ## 模块被从炮塔卸载时调用，负责清理对该塔施加的所有 Modifier
 func on_uninstall(_tower: Node) -> void:
 	pass
+
+## 炮塔被子弹击中时调用（在 tower.on_bullet_hit 中触发）
+func on_receive_bullet_hit(_tower: Node, _bullet_data: BulletData) -> void:
+	pass

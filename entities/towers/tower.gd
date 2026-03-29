@@ -1,5 +1,7 @@
 extends Node2D
 
+const CooldownOverlayScript = preload("res://entities/towers/cooldown_overlay.gd")
+
 @export var data: TowerData
 
 ## 实体标识：与储备区图标绑定，拖拽来回保持不变
@@ -22,9 +24,11 @@ var _ammo_label: Label = null
 var _tower_body: Area2D = null
 
 ## 冷却驱动开火
-var _base_cooldown: float = 1.0       # 由 TowerData.firing_rate 派生
-var _cooldown_remaining: float = 0.0  # 当前剩余 CD；0 = 可发射
-var _is_firing: bool = false          # 是否处于开火状态（RUNNING 阶段）
+var _base_cooldown: float = 1.0         # 由 TowerData.firing_rate 派生
+var _cooldown_remaining: float = 0.0    # 当前剩余 CD；0 = 可发射
+var _current_full_cooldown: float = 1.0 # 本次 CD 总时长（用于进度比例计算）
+var _is_firing: bool = false            # 是否处于开火状态（RUNNING 阶段）
+var _cd_overlay: CooldownOverlay = null # WoW 风格 CD 遮罩
 
 signal module_installed(module: Resource)
 signal module_uninstalled(index: int)
@@ -42,6 +46,7 @@ func _ready():
 	_apply_data()
 	_setup_click_area()
 	_setup_tower_body()
+	_create_cd_overlay()
 	set_process(false)  # 默认关闭，start_firing() 时启用
 
 func _apply_data():
@@ -122,12 +127,16 @@ func _set_rotation_clockwise(degrees: float):
 	rotation_degrees = fmod(degrees, 360.0)
 	if is_instance_valid(_ammo_label):
 		_ammo_label.rotation = -rotation
+	if is_instance_valid(_cd_overlay):
+		_cd_overlay.rotation = -rotation
 
 func set_initial_direction(direction_index: int):
 	current_rotation_index = direction_index % 4
 	rotation_degrees = current_rotation_index * 90.0
 	if is_instance_valid(_ammo_label):
 		_ammo_label.rotation = -rotation
+	if is_instance_valid(_cd_overlay):
+		_cd_overlay.rotation = -rotation
 
 func _on_rotation_complete():
 	is_rotating = false
@@ -139,6 +148,7 @@ func _process(delta: float) -> void:
 		return
 	if _cooldown_remaining > 0.0:
 		_cooldown_remaining -= delta
+		_update_cd_overlay()
 		return
 	# CD 归零：尝试发射
 	if has_ammo():
@@ -152,10 +162,14 @@ func _process(delta: float) -> void:
 func start_firing() -> void:
 	_is_firing = true
 	_cooldown_remaining = _base_cooldown
+	_current_full_cooldown = _base_cooldown
+	_update_cd_overlay()
 	set_process(true)
 
 func stop_firing() -> void:
 	_is_firing = false
+	if is_instance_valid(_cd_overlay):
+		_cd_overlay.progress = 1.0
 	set_process(false)
 
 # ── 模组系统 ─────────────────────────────────────────────────
@@ -202,10 +216,30 @@ func add_ammo(amount: int) -> void:
 		return
 	ammo += amount
 	_update_ammo_label()
-	# CD 已归零且正在开火阶段：弹药补充后立即发射
+	# CD 已归零且正在开火阶段：重启 process，下一帧统一检查并发射
+	# 注意：不在此直接调用 _do_fire()，避免多 effect 顺序执行时
+	# 第一次补充触发开炮消耗弹药，导致后续补充效果被抵消
 	if _is_firing and _cooldown_remaining <= 0.0:
-		_do_fire()
 		set_process(true)
+
+func _create_cd_overlay() -> void:
+	_cd_overlay = CooldownOverlayScript.new()
+	_cd_overlay.name = "CooldownOverlay"
+	_cd_overlay.z_index = 1
+	add_child(_cd_overlay)
+	call_deferred("_init_cd_overlay_size")
+
+func _init_cd_overlay_size() -> void:
+	if is_instance_valid(sprite) and sprite.texture:
+		_cd_overlay.radius = sprite.texture.get_size().x * 0.4
+
+func _update_cd_overlay() -> void:
+	if not is_instance_valid(_cd_overlay):
+		return
+	if _current_full_cooldown <= 0.0:
+		_cd_overlay.progress = 1.0
+		return
+	_cd_overlay.progress = 1.0 - clamp(_cooldown_remaining / _current_full_cooldown, 0.0, 1.0)
 
 func _create_ammo_label() -> void:
 	_ammo_label = Label.new()
@@ -236,11 +270,24 @@ func play_hit_effect() -> void:
 	tween.tween_property(sprite, "scale", Vector2(0.85, 1.2), 0.09)
 	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.12)
 
+## 减少当前剩余 CD（不低于 0）
+func reduce_cooldown(amount: float) -> void:
+	_cooldown_remaining = maxf(0.0, _cooldown_remaining - amount)
+	_update_cd_overlay()
+
 ## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 on_tower_hit 效果。
 func on_bullet_hit(bullet_data: BulletData) -> void:
 	play_hit_effect()
+	var ammo_before := ammo
 	for effect in bullet_data.effects:
 		effect.on_tower_hit(bullet_data, self)
+	for mod in modules:
+		mod.on_receive_bullet_hit(self, bullet_data)
+	# 同一子弹触发的弹药回复累加显示一次，不同子弹随机错开位置
+	if ammo != -1 and ammo > ammo_before:
+		var an := AmmoNumber.new()
+		get_tree().root.add_child(an)
+		an.show_ammo(global_position, ammo - ammo_before)
 
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
@@ -255,6 +302,8 @@ func _do_fire() -> void:
 
 	# 使用模块修改后的 cooldown 作为下次 CD
 	_cooldown_remaining = bd.cooldown
+	_current_full_cooldown = bd.cooldown
+	_update_cd_overlay()
 
 	var parent := get_tree().get_first_node_in_group("bullet_layer")
 	if not is_instance_valid(parent):

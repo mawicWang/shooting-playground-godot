@@ -27,13 +27,3 @@ func show_damage(world_pos: Vector2, amount: float) -> void:
 	tween.parallel().tween_property(_label, "modulate:a", 0.0, 0.85)
 	tween.tween_callback(queue_free)
 
-## 显示任意彩色文字（如塔补给的 "+1"）
-func show_text(world_pos: Vector2, text: String, color: Color) -> void:
-	global_position = world_pos + Vector2(randf_range(-8.0, 8.0), 0.0)
-	_label.text = text
-	_label.add_theme_color_override("font_color", color)
-
-	var tween := create_tween()
-	tween.tween_property(self, "global_position", global_position + Vector2(0.0, -45.0), 0.7)
-	tween.parallel().tween_property(_label, "modulate:a", 0.0, 0.7)
-	tween.tween_callback(queue_free)
