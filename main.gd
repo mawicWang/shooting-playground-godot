@@ -9,7 +9,7 @@ const LayoutManager := preload("res://core/LayoutManager.gd")
 const GameLoopManager := preload("res://core/GameLoopManager.gd")
 const EffectManager := preload("res://core/EffectManager.gd")
 const SimpleEmitterData := preload("res://resources/simple_emitter.tres")
-const AcceleratorData := preload("res://resources/module_data/accelerator.tres")
+const Replenish1Data := preload("res://resources/module_data/replenish1.tres")
 const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
 const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
 const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
@@ -254,8 +254,8 @@ func _do_place_initial_tower():
 		tower.source_icon = icon
 		icon.mark_deployed(tower)
 
-	# 初始模块储备：一个加速器
-	_add_to_module_reserve(AcceleratorData)
+	# 初始模块储备：一个补充1
+	_add_to_module_reserve(Replenish1Data)
 
 # ── 奖励添加 ──────────────────────────────────────────────────
 

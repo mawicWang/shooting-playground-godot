@@ -1,22 +1,27 @@
 class_name BulletData extends Resource
 
-var energy: float = 1.0
-var speed: float = 200.0
+var attack: float = 1.0         ## 对敌人造成的伤害值
+var energy: float = 1.0         ## 子弹能量（供 MultiplierModule 等模块使用）
+var speed: float = 200.0        ## 飞行速度（像素/秒）
+var cooldown: float = 1.0       ## 射击冷却（秒），由模块可修改
+var chain_count: int = 0        ## 连锁次数（预留，暂无逻辑）
 var knockback: float = 150.0
 var knockback_decay: float = 25.0
 var transmission_chain: Array = []
-## 子弹击中炮塔时依次触发的效果列表（Array[BulletHitEffect]）
-var hit_effects: Array = []
+## 效果列表（Array[BulletEffect]），子弹携带，各触发时机依次调用
+var effects: Array = []
 
 func duplicate_with_mods(mods: Dictionary) -> BulletData:
-	# 逐字段手动复制，避免依赖 Resource.duplicate() 对非 @export 变量的不可靠行为
 	var copy := BulletData.new()
+	copy.attack = attack
 	copy.energy = energy
 	copy.speed = speed
+	copy.cooldown = cooldown
+	copy.chain_count = chain_count
 	copy.knockback = knockback
 	copy.knockback_decay = knockback_decay
 	copy.transmission_chain = transmission_chain.duplicate()
-	copy.hit_effects = hit_effects.duplicate()
+	copy.effects = effects.duplicate()
 	for key in mods:
 		copy.set(key, mods[key])
 	return copy

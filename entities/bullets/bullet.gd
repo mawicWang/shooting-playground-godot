@@ -44,7 +44,7 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	var parent = other_area.get_parent()
 	if not is_instance_valid(parent) or not parent.is_in_group("towers"):
 		return
-	# 不击中自己发射的炮塔
+	# 不击中自己发射的炮塔（transmission_chain 防止自碰）
 	if data and data.transmission_chain.has(parent):
 		return
 	_pending_release = true
@@ -54,11 +54,11 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	var impact := BulletImpact.new()
 	get_tree().root.add_child(impact)
 	impact.spawn(global_position, BulletImpact.COLORS_TOWER)
-	# 1. 触发子弹击中效果
+	# 1. 触发 on_hit_tower 效果（子弹侧）
 	if data:
-		for effect in data.hit_effects:
-			effect.apply(data, parent)
-	# 2. 触发炮塔被击中效果
+		for effect in data.effects:
+			effect.on_hit_tower(data, parent)
+	# 2. 触发炮塔被击中（炮塔侧，内部触发 on_tower_hit）
 	parent.on_bullet_hit(data)
 	# 3. 延迟回收，避免在物理回调中直接修改场景树
 	BulletPool.release.call_deferred(self)

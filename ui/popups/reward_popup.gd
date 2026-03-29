@@ -13,6 +13,9 @@ const REWARD_POOL: Array = [
     preload("res://resources/tower1111.tres"),
     preload("res://resources/module_data/accelerator.tres"),
     preload("res://resources/module_data/multiplier.tres"),
+    preload("res://resources/module_data/replenish1.tres"),
+    preload("res://resources/module_data/replenish2.tres"),
+    preload("res://resources/module_data/rate_boost.tres"),
 ]
 const FALLBACK_MODULE_TEX = preload("res://assets/bullet.svg")
 

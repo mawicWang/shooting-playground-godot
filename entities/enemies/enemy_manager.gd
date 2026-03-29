@@ -197,25 +197,47 @@ func clear_enemies():
 signal all_enemies_defeated()  # 所有敌人被消灭信号
 
 func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
-	if body.is_in_group("bullets"):
-		var damage := 1.0
-		var knockback := 180.0
-		var knockback_decay := 7.0
-		var bullet_dir := Vector2.ZERO
-		if is_instance_valid(body) and body.data != null:
-			damage = body.data.energy
-			knockback = body.data.knockback
-			knockback_decay = body.data.knockback_decay
-			bullet_dir = body.direction
-		if is_instance_valid(body):
-			var impact := BulletImpact.new()
-			get_tree().root.add_child(impact)
-			impact.spawn(body.global_position)
-			BulletPool.release(body)
+	if not body.is_in_group("bullets"):
+		return
+	if not is_instance_valid(body) or not is_instance_valid(enemy):
+		return
+
+	# 保存子弹数据（BulletPool.release 后仍需使用）
+	var bullet_data: BulletData = body.data if body.data != null else null
+	var attack := 1.0
+	var knockback := 180.0
+	var knockback_decay := 7.0
+	var bullet_dir := Vector2.ZERO
+	if bullet_data:
+		attack = bullet_data.attack
+		knockback = bullet_data.knockback
+		knockback_decay = bullet_data.knockback_decay
+		bullet_dir = body.direction
+
+	# 1. 子弹击中敌人时
+	if bullet_data:
+		for effect in bullet_data.effects:
+			effect.on_hit_enemy(bullet_data, enemy)
+
+	# 碰撞特效 + 回收子弹
+	var impact := BulletImpact.new()
+	get_tree().root.add_child(impact)
+	impact.spawn(body.global_position)
+	BulletPool.release(body)
+
+	if not is_instance_valid(enemy):
+		return
+
+	# 2. 子弹造成伤害时
+	if bullet_data:
+		for effect in bullet_data.effects:
+			effect.on_deal_damage(bullet_data, enemy, attack)
+
+	# 实际造成伤害（enemy.take_damage 内部处理 on_enemy_died）
+	enemy.take_damage(attack, bullet_data)
+	if knockback > 0.0 and bullet_dir != Vector2.ZERO:
 		if is_instance_valid(enemy):
-			enemy.take_damage(damage)
-			if knockback > 0.0 and bullet_dir != Vector2.ZERO:
-				enemy.apply_knockback(bullet_dir * knockback, knockback_decay)
+			enemy.apply_knockback(bullet_dir * knockback, knockback_decay)
 
 func _on_enemy_destroyed(enemy: CharacterBody2D):
 	if enemy in active_enemies:

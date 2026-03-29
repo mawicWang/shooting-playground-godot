@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RateBoostModule" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://entities/modules/rate_boost_module.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/TODO.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+cooldown_reduction = 0.3
+module_name = "加速射击"
+category = 0
+description = "射击冷却 -0.3 秒"
+icon = ExtResource("2_icon")
+slot_color = Color(1.0, 0.35, 0.1, 1)

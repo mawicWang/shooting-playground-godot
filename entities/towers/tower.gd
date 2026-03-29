@@ -6,12 +6,11 @@ extends Node2D
 var entity_id: int = -1
 var source_icon: Node = null  # 指向储备区中对应的 tower_icon 节点
 
-@onready var fire_timer: Timer = $FireTimer
+@onready var fire_timer: Timer = $FireTimer  # 保留节点引用，但不再驱动开火逻辑
 @onready var _click_area: Area2D = $Area2D
 @onready var _click_shape: CollisionShape2D = $Area2D/CollisionShape2D
 @onready var sprite: Sprite2D = $Sprite2D
 
-var firing_rate_stat: StatAttribute
 var modules: Array = []   # Array[Module]，每个是 duplicate() 后的独立副本
 var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
 
@@ -19,14 +18,13 @@ var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
 var ammo: int = 0
 var _ammo_label: Label = null
 
-## 默认子弹击中效果（复用，避免每发子弹都 new）
-var _default_hit_effect: BulletHitEffect = null
-
-## 被击中效果列表（Array[TowerOnHitEffect]）
-var on_hit_effects: Array = []
-
 ## 炮塔实体 Hitbox（供子弹碰撞检测）
 var _tower_body: Area2D = null
+
+## 冷却驱动开火
+var _base_cooldown: float = 1.0       # 由 TowerData.firing_rate 派生
+var _cooldown_remaining: float = 0.0  # 当前剩余 CD；0 = 可发射
+var _is_firing: bool = false          # 是否处于开火状态（RUNNING 阶段）
 
 signal module_installed(module: Resource)
 signal module_uninstalled(index: int)
@@ -39,24 +37,22 @@ const ROTATION_DURATION: float = 0.15
 
 func _ready():
 	add_to_group("towers")
-	_default_hit_effect = AmmoReplenishEffect.new()
 	_create_ammo_label()
-	_ammo_label.rotation = -rotation  # 同步初始方向
+	_ammo_label.rotation = -rotation
 	_apply_data()
-	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	_setup_click_area()
 	_setup_tower_body()
+	set_process(false)  # 默认关闭，start_firing() 时启用
 
 func _apply_data():
 	if data:
-		firing_rate_stat = StatAttribute.new(data.firing_rate)
+		_base_cooldown = 1.0 / maxf(data.firing_rate, 0.01)
 		if data.sprite:
 			sprite.texture = data.sprite
 		ammo = data.initial_ammo
 	else:
-		firing_rate_stat = StatAttribute.new(1.0)
+		_base_cooldown = 1.0
 		ammo = 3
-	fire_timer.wait_time = 1.0 / firing_rate_stat.get_value()
 	_update_ammo_label()
 
 # ── 碰撞区域设置 ──────────────────────────────────────────────
@@ -76,7 +72,7 @@ func _init_click_shape():
 		var rect = RectangleShape2D.new()
 		rect.size = tex_size * 0.8
 		_click_shape.shape = rect
-		_click_shape.position = Vector2.ZERO  # 居中对齐 Sprite2D
+		_click_shape.position = Vector2.ZERO
 
 ## 子弹碰撞检测用 Area2D（独立层，monitorable）
 func _setup_tower_body():
@@ -96,7 +92,7 @@ func _init_tower_body_shape():
 		rect.size = tex_size * 0.8
 		var shape_node = CollisionShape2D.new()
 		shape_node.shape = rect
-		shape_node.position = Vector2.ZERO  # 居中对齐 Sprite2D
+		shape_node.position = Vector2.ZERO
 		_tower_body.add_child(shape_node)
 
 # ── 鼠标旋转 ─────────────────────────────────────────────────
@@ -136,16 +132,31 @@ func set_initial_direction(direction_index: int):
 func _on_rotation_complete():
 	is_rotating = false
 
-# ── 开火控制 ─────────────────────────────────────────────────
+# ── 冷却驱动开火 ──────────────────────────────────────────────
 
-func start_firing():
-	if is_instance_valid(fire_timer):
-		fire_timer.wait_time = 1.0 / firing_rate_stat.get_value()
-		fire_timer.start()
+func _process(delta: float) -> void:
+	if not _is_firing:
+		return
+	if _cooldown_remaining > 0.0:
+		_cooldown_remaining -= delta
+		return
+	# CD 归零：尝试发射
+	if has_ammo():
+		_do_fire()
+	else:
+		# 无弹药：CD 停在 0，关闭 process 节省性能。
+		# 注意：_process 目前只做计时开火，若将来在此添加其他逻辑，
+		# 需评估无弹药时是否仍需保持 process 开启。
+		set_process(false)
 
-func stop_firing():
-	if is_instance_valid(fire_timer):
-		fire_timer.stop()
+func start_firing() -> void:
+	_is_firing = true
+	_cooldown_remaining = _base_cooldown
+	set_process(true)
+
+func stop_firing() -> void:
+	_is_firing = false
+	set_process(false)
 
 # ── 模组系统 ─────────────────────────────────────────────────
 
@@ -191,6 +202,10 @@ func add_ammo(amount: int) -> void:
 		return
 	ammo += amount
 	_update_ammo_label()
+	# CD 已归零且正在开火阶段：弹药补充后立即发射
+	if _is_firing and _cooldown_remaining <= 0.0:
+		_do_fire()
+		set_process(true)
 
 func _create_ammo_label() -> void:
 	_ammo_label = Label.new()
@@ -204,7 +219,7 @@ func _create_ammo_label() -> void:
 	_ammo_label.add_theme_constant_override("outline_size", 8)
 	_ammo_label.size = Vector2(80, 60)
 	_ammo_label.position = Vector2(-40, -30)
-	_ammo_label.pivot_offset = Vector2(40, 30)  # 绕中心旋转
+	_ammo_label.pivot_offset = Vector2(40, 30)
 	add_child(_ammo_label)
 
 func _update_ammo_label() -> void:
@@ -214,39 +229,32 @@ func _update_ammo_label() -> void:
 
 # ── 被击中处理 ───────────────────────────────────────────────
 
-## 发射后坐力动画：沿射击方向（本地 Y 轴）拉长，然后弹回。
-## sprite 的 -Y 方向始终是炮管朝向，不需要额外计算旋转。
-func play_fire_effect() -> void:
-	var tween := create_tween()
-	tween.tween_property(sprite, "scale", Vector2(0.75, 1.35), 0.05)
-	tween.tween_property(sprite, "scale", Vector2(1.1, 0.9), 0.08)
-	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.1)
-
-## 果冻弹性受击动画：瞬间横向压缩，然后弹性回弹。
+## 果冻弹性受击动画
 func play_hit_effect() -> void:
 	var tween := create_tween()
 	tween.tween_property(sprite, "scale", Vector2(1.3, 0.75), 0.05)
 	tween.tween_property(sprite, "scale", Vector2(0.85, 1.2), 0.09)
 	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.12)
 
-## 被子弹击中时调用（由 bullet.gd 负责调用）。
+## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 on_tower_hit 效果。
 func on_bullet_hit(bullet_data: BulletData) -> void:
 	play_hit_effect()
-	for effect in on_hit_effects:
-		effect.apply(self, bullet_data)
+	for effect in bullet_data.effects:
+		effect.on_tower_hit(bullet_data, self)
 
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
-func _on_fire_timer_timeout():
-	if not has_ammo():
-		return
-
+func _do_fire() -> void:
 	consume_ammo()
 
 	var bd := BulletData.new()
+	bd.cooldown = _base_cooldown
+	bd.attack = 1.0
 	bd.transmission_chain = [self]
-	bd.hit_effects = [_default_hit_effect]
 	bd = _apply_modules(bd)
+
+	# 使用模块修改后的 cooldown 作为下次 CD
+	_cooldown_remaining = bd.cooldown
 
 	var parent := get_tree().get_first_node_in_group("bullet_layer")
 	if not is_instance_valid(parent):

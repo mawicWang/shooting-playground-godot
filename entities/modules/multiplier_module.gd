@@ -10,4 +10,5 @@ func _init() -> void:
 
 func apply_effect(_tower: Node, bullet_data: BulletData) -> BulletData:
 	bullet_data.energy *= multiplier
+	bullet_data.attack *= multiplier
 	return bullet_data
