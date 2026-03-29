@@ -208,6 +208,9 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 			knockback_decay = body.data.knockback_decay
 			bullet_dir = body.direction
 		if is_instance_valid(body):
+			var impact := BulletImpact.new()
+			get_tree().root.add_child(impact)
+			impact.spawn(body.global_position)
 			BulletPool.release(body)
 		if is_instance_valid(enemy):
 			enemy.take_damage(damage)

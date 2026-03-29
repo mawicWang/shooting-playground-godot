@@ -53,7 +53,7 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	# 碰撞特效
 	var impact := BulletImpact.new()
 	get_tree().root.add_child(impact)
-	impact.spawn(global_position)
+	impact.spawn(global_position, BulletImpact.COLORS_TOWER)
 	# 1. 触发子弹击中效果
 	if data:
 		for effect in data.hit_effects:
