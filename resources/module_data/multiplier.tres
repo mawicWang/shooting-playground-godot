@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_multiplier")
-multiplier = 1.5
+multiplier = 1.2
 module_name = "乘法器"
 category = 0
 description = "子弹能量 ×1.5"

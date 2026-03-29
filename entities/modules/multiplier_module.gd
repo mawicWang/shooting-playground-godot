@@ -1,6 +1,6 @@
 class_name MultiplierModule extends Module
 
-@export var multiplier: float = 1.5
+@export var multiplier: float = 1.2
 
 func _init() -> void:
 	module_name = "乘法器"
