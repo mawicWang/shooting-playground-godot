@@ -5,9 +5,9 @@ class_name ReplenishModule2 extends Module
 var _effect: ReplenishEffect
 
 func _init() -> void:
-	module_name = "补充2"
+	module_name = "补充+2"
 	category = Category.LOGICAL
-	description = "子弹击中炮塔时\n补充 2 弹药"
+	description = "子弹击中炮塔时\n补充弹药 +2"
 	slot_color = Color(0.1, 0.65, 0.95)  # 蓝色
 	_effect = ReplenishEffect.new()
 	_effect.ammo_amount = 2

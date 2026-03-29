@@ -5,7 +5,7 @@ class_name CdOnHitEnemyModule extends Module
 var _effect: CdReduceOnEnemyEffect
 
 func _init() -> void:
-	module_name = "击敌减速"
+	module_name = "击敌减CD"
 	category = Category.LOGICAL
 	description = "击中敌人时\n自身 CD -0.5s"
 	slot_color = Color(1.0, 0.8, 0.1)  # 黄

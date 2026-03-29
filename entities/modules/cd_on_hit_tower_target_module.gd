@@ -5,7 +5,7 @@ class_name CdOnHitTowerTargetModule extends Module
 var _effect: CdReduceTargetTowerEffect
 
 func _init() -> void:
-	module_name = "连接减速"
+	module_name = "连接减CD"
 	category = Category.LOGICAL
 	description = "击中炮塔时\n对方 CD -0.5s"
 	slot_color = Color(0.5, 0.3, 1.0)  # 紫

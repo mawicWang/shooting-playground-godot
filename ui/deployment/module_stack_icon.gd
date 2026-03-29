@@ -34,6 +34,10 @@ func _ready() -> void:
 func _update_count_label() -> void:
 	if not is_instance_valid(_count_label):
 		return
+	if GameState.is_dev_mode():
+		_count_label.text = "∞"
+		_count_label.visible = true
+		return
 	if count > 1:
 		_count_label.text = "x%d" % count
 		_count_label.visible = true
@@ -44,8 +48,10 @@ func set_drag_enabled(enabled: bool) -> void:
 	drag_enabled = enabled
 	modulate.a = 1.0 if enabled else 0.5
 
-## 安装一个：计数 -1，归零时隐藏图标
+## 安装一个：计数 -1，归零时隐藏图标（开发者模式下不消耗）
 func mark_deployed() -> void:
+	if GameState.is_dev_mode():
+		return
 	count -= 1
 	if count <= 0:
 		count = 0

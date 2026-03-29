@@ -1,5 +1,12 @@
 <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-  <text x="32" y="20" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black" font-weight="bold">击敌</text>
-  <text x="32" y="36" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black" font-weight="bold">减CD</text>
-  <text x="32" y="52" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black">-0.5s</text>
+  <!-- 击敌减CD: Hit enemy → own CD -0.5s -->
+  <rect width="64" height="64" rx="10" fill="#4a3800"/>
+  <!-- Lightning bolt = hitting enemy -->
+  <polygon points="38,4 22,34 34,34 26,60 46,30 34,30 42,4" fill="#FFD700"/>
+  <!-- Clock circle bottom-left = CD -->
+  <circle cx="13" cy="52" r="10" fill="none" stroke="#ffe566" stroke-width="2.5"/>
+  <line x1="13" y1="45" x2="13" y2="52" stroke="#ffe566" stroke-width="2" stroke-linecap="round"/>
+  <line x1="13" y1="52" x2="18" y2="55" stroke="#ffe566" stroke-width="2" stroke-linecap="round"/>
+  <!-- Minus bar on clock = reduction -->
+  <rect x="8" y="51" width="10" height="2.5" rx="1" fill="white"/>
 </svg>

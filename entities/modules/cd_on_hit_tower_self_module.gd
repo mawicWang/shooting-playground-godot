@@ -5,7 +5,7 @@ class_name CdOnHitTowerSelfModule extends Module
 var _effect: CdReduceOnHitTowerEffect
 
 func _init() -> void:
-	module_name = "连接自减速"
+	module_name = "连接自减CD"
 	category = Category.LOGICAL
 	description = "击中炮塔时\n自身 CD -0.5s"
 	slot_color = Color(0.3, 0.8, 1.0)  # 浅蓝

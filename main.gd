@@ -14,6 +14,27 @@ const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
 const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
 const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
 
+# 开发者模式用：全量炮塔 & 模块资源
+const _DEV_ALL_TOWERS := [
+	preload("res://resources/simple_emitter.tres"),
+	preload("res://resources/tower1010.tres"),
+	preload("res://resources/tower1100.tres"),
+	preload("res://resources/tower1110.tres"),
+	preload("res://resources/tower1111.tres"),
+]
+const _DEV_ALL_MODULES := [
+	preload("res://resources/module_data/accelerator.tres"),
+	preload("res://resources/module_data/multiplier.tres"),
+	preload("res://resources/module_data/rate_boost.tres"),
+	preload("res://resources/module_data/replenish1.tres"),
+	preload("res://resources/module_data/replenish2.tres"),
+	preload("res://resources/module_data/heavy_ammo.tres"),
+	preload("res://resources/module_data/cd_on_hit_enemy.tres"),
+	preload("res://resources/module_data/cd_on_hit_tower_self.tres"),
+	preload("res://resources/module_data/cd_on_hit_tower_target.tres"),
+	preload("res://resources/module_data/cd_on_receive_hit.tres"),
+]
+
 @onready var game_content = $GameContent
 @onready var start_stop_button = $GameContent/PanelContainer/StartStopButton
 @onready var grid_root = $GameContent/CenterContainer/GridRoot
@@ -75,53 +96,10 @@ func _setup_ui():
 	_tower_row.visible = false
 	_module_row.visible = false
 
-	# ── 炮塔储备行（最多 5 格，可接受暂存 drop）──
-	var tower_wrapper := HBoxContainer.new()
-	tower_wrapper.name = "TowerWrapper"
-	tower_wrapper.custom_minimum_size = Vector2(0, 80)
-	tower_wrapper.add_theme_constant_override("separation", 8)
-	var tower_label := Label.new()
-	tower_label.text = "炮\n塔"
-	tower_label.custom_minimum_size = Vector2(18, 100)
-	tower_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tower_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	tower_label.add_theme_font_size_override("font_size", 14)
-	tower_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	tower_wrapper.add_child(tower_label)
-	_tower_reserve = HBoxContainer.new()
-	_tower_reserve.name = "TowerReserve"
-	_tower_reserve.set_script(TowerReserveBarScript)
-	_tower_reserve.add_theme_constant_override("separation", 8)
-	_tower_reserve.staging_tower_received.connect(_on_staging_tower_to_reserve)
-	tower_wrapper.add_child(_tower_reserve)
-	_deployment_vbox.add_child(tower_wrapper)
-	_deployment_vbox.move_child(tower_wrapper, 0)
-
-	# ── 分割线 ──
-	var row_separator := HSeparator.new()
-	row_separator.modulate = Color(0.8, 0.8, 0.8, 0.5)
-	_deployment_vbox.add_child(row_separator)
-	_deployment_vbox.move_child(row_separator, 1)
-
-	# ── 模块储备行（叠加显示，无上限）──
-	var module_wrapper := HBoxContainer.new()
-	module_wrapper.name = "ModuleWrapper"
-	module_wrapper.custom_minimum_size = Vector2(0, 80)
-	module_wrapper.add_theme_constant_override("separation", 8)
-	var module_label := Label.new()
-	module_label.text = "模\n块"
-	module_label.custom_minimum_size = Vector2(18, 80)
-	module_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	module_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	module_label.add_theme_font_size_override("font_size", 14)
-	module_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	module_wrapper.add_child(module_label)
-	_module_reserve = HBoxContainer.new()
-	_module_reserve.name = "ModuleReserve"
-	_module_reserve.add_theme_constant_override("separation", 8)
-	module_wrapper.add_child(_module_reserve)
-	_deployment_vbox.add_child(module_wrapper)
-	_deployment_vbox.move_child(module_wrapper, 2)
+	if GameState.is_dev_mode():
+		_setup_dev_panel()
+	else:
+		_setup_normal_panel()
 
 	# ── 暂存区（左侧，初始隐藏）──
 	_create_staging_panel()
@@ -178,6 +156,117 @@ func _setup_ui():
 	_create_game_over_popup()
 	_create_reward_popup()
 
+# ── 普通储备面板 ───────────────────────────────────────────────
+
+func _setup_normal_panel() -> void:
+	# ── 炮塔储备行（最多 5 格，可接受暂存 drop）──
+	var tower_wrapper := HBoxContainer.new()
+	tower_wrapper.name = "TowerWrapper"
+	tower_wrapper.custom_minimum_size = Vector2(0, 80)
+	tower_wrapper.add_theme_constant_override("separation", 8)
+	tower_wrapper.add_child(_make_section_label("炮\n塔", Vector2(18, 100), 14, Color(0.9, 0.9, 0.9)))
+	_tower_reserve = HBoxContainer.new()
+	_tower_reserve.name = "TowerReserve"
+	_tower_reserve.set_script(TowerReserveBarScript)
+	_tower_reserve.add_theme_constant_override("separation", 8)
+	_tower_reserve.staging_tower_received.connect(_on_staging_tower_to_reserve)
+	tower_wrapper.add_child(_tower_reserve)
+	_deployment_vbox.add_child(tower_wrapper)
+	_deployment_vbox.move_child(tower_wrapper, 0)
+
+	# ── 分割线 ──
+	var row_separator := HSeparator.new()
+	row_separator.modulate = Color(0.8, 0.8, 0.8, 0.5)
+	_deployment_vbox.add_child(row_separator)
+	_deployment_vbox.move_child(row_separator, 1)
+
+	# ── 模块储备行（叠加显示，无上限）──
+	var module_wrapper := HBoxContainer.new()
+	module_wrapper.name = "ModuleWrapper"
+	module_wrapper.custom_minimum_size = Vector2(0, 80)
+	module_wrapper.add_theme_constant_override("separation", 8)
+	module_wrapper.add_child(_make_section_label("模\n块", Vector2(18, 80), 14, Color(0.9, 0.9, 0.9)))
+	_module_reserve = HBoxContainer.new()
+	_module_reserve.name = "ModuleReserve"
+	_module_reserve.add_theme_constant_override("separation", 8)
+	module_wrapper.add_child(_module_reserve)
+	_deployment_vbox.add_child(module_wrapper)
+	_deployment_vbox.move_child(module_wrapper, 2)
+
+# ── 开发者模式面板（横向滚动，全量炮塔+模块）──────────────────
+
+func _setup_dev_panel() -> void:
+	# 顶部标题栏
+	var title_row := HBoxContainer.new()
+	title_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var dev_label := Label.new()
+	dev_label.text = "⚡ 开发者模式  ·  无限金币  ·  不掉血"
+	dev_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	dev_label.add_theme_font_size_override("font_size", 13)
+	dev_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.0))
+	title_row.add_child(dev_label)
+	_deployment_vbox.add_child(title_row)
+	_deployment_vbox.move_child(title_row, 0)
+
+	# 横向滚动容器
+	var scroll := ScrollContainer.new()
+	scroll.name = "DevScrollContainer"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, 115)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_deployment_vbox.add_child(scroll)
+	_deployment_vbox.move_child(scroll, 1)
+
+	var hbox := HBoxContainer.new()
+	hbox.name = "DevItemContainer"
+	hbox.add_theme_constant_override("separation", 6)
+	# 高度撑满滚动区
+	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(hbox)
+
+	# ── 炮塔区 ──
+	hbox.add_child(_make_section_label("炮\n塔", Vector2(16, 0), 13, Color(0.8, 0.8, 0.8)))
+
+	for tower_data in _DEV_ALL_TOWERS:
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(80, 110)
+		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		icon.set_script(TowerIconScript)
+		icon.tower_data = tower_data
+		icon.entity_id = -1  # 每次拖拽动态生成
+		hbox.add_child(icon)
+
+	# ── 分隔线 ──
+	var vsep := VSeparator.new()
+	vsep.custom_minimum_size = Vector2(8, 0)
+	vsep.modulate = Color(0.8, 0.8, 0.8, 0.5)
+	hbox.add_child(vsep)
+
+	# ── 模块区 ──
+	hbox.add_child(_make_section_label("模\n块", Vector2(16, 0), 13, Color(0.8, 0.8, 0.8)))
+
+	for mod_data in _DEV_ALL_MODULES:
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(60, 60)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.set_script(ModuleStackIconScript)
+		icon.module_data = mod_data
+		icon.count = 1
+		hbox.add_child(icon)
+
+func _make_section_label(text: String, min_size: Vector2, font_size: int, color: Color) -> Label:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.custom_minimum_size = min_size
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", font_size)
+	lbl.add_theme_color_override("font_color", color)
+	return lbl
+
 # ── 暂存区创建 ─────────────────────────────────────────────────
 
 func _create_staging_panel() -> void:
@@ -217,6 +306,9 @@ func _create_staging_panel() -> void:
 
 func _prepare_game():
 	_game_loop.prepare_enemy_warnings()
+	if GameState.is_dev_mode():
+		GameState.add_coins(99999)
+		return
 	call_deferred("_try_place_initial_tower")
 
 func _try_place_initial_tower():
@@ -351,7 +443,10 @@ func _on_popup_closed():
 	_clear_all_towers_from_grid()
 	_clear_reward_items()
 	_effect_manager.reset_position()
-	_do_place_initial_tower()
+	if GameState.is_dev_mode():
+		GameState.add_coins(99999)
+	else:
+		_do_place_initial_tower()
 	_game_loop.prepare_enemy_warnings()
 	_update_button_style()
 
@@ -422,6 +517,11 @@ func _on_all_enemies_defeated():
 	# 若正在抖动（说明有敌人刚突破），等抖完再弹奖励，避免 popup 盖住 shake
 	if _effect_manager.is_shaking():
 		await _effect_manager.shake_finished
+	if GameState.is_dev_mode():
+		# 开发者模式跳过奖励弹窗，直接返回部署阶段
+		_game_loop.prepare_enemy_warnings()
+		_update_button_style()
+		return
 	_reward_popup.show_rewards()
 
 # ── 金币显示 ──────────────────────────────────────────────────

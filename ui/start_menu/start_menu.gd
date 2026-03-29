@@ -1,10 +1,14 @@
 extends Control
 
-const MODE_NAMES = ["混乱模式", "普通模式"]
+# 正式包只暴露前两个模式；debug 包额外追加开发者模式
+const MODE_NAMES_RELEASE = ["混乱模式", "普通模式"]
+const MODE_NAMES_DEBUG   = ["混乱模式", "普通模式", "开发者模式"]
+var _mode_names: Array
 var _selected_mode: int = 1
 var _mode_label: Label
 
 func _ready() -> void:
+	_mode_names = MODE_NAMES_DEBUG if OS.is_debug_build() else MODE_NAMES_RELEASE
 	_build_mode_selector()
 	$CenterContainer/StartButton.pressed.connect(_on_start_pressed)
 
@@ -55,16 +59,23 @@ func _build_mode_selector() -> void:
 	_update_mode_label()
 
 func _on_left_pressed() -> void:
-	_selected_mode = (_selected_mode - 1 + MODE_NAMES.size()) % MODE_NAMES.size()
+	_selected_mode = (_selected_mode - 1 + _mode_names.size()) % _mode_names.size()
 	_update_mode_label()
 
 func _on_right_pressed() -> void:
-	_selected_mode = (_selected_mode + 1) % MODE_NAMES.size()
+	_selected_mode = (_selected_mode + 1) % _mode_names.size()
 	_update_mode_label()
 
 func _update_mode_label() -> void:
-	_mode_label.text = MODE_NAMES[_selected_mode]
+	_mode_label.text = _mode_names[_selected_mode]
+	match _selected_mode:
+		0: _mode_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.15))
+		1: _mode_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.15))
+		2: _mode_label.add_theme_color_override("font_color", Color(0.9, 0.45, 0.0))
 
 func _on_start_pressed() -> void:
-	GameState.game_mode = GameState.GameMode.CHAOS if _selected_mode == 0 else GameState.GameMode.NORMAL
+	match _selected_mode:
+		0: GameState.game_mode = GameState.GameMode.CHAOS
+		1: GameState.game_mode = GameState.GameMode.NORMAL
+		2: GameState.game_mode = GameState.GameMode.DEV
 	get_tree().change_scene_to_file("res://main.tscn")

@@ -270,24 +270,51 @@ func play_hit_effect() -> void:
 	tween.tween_property(sprite, "scale", Vector2(0.85, 1.2), 0.09)
 	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.12)
 
-## 减少当前剩余 CD（不低于 0）
+## 减少当前剩余 CD。
+## 若减少量不足以归零，直接缩短剩余 CD；
+## 若超过剩余 CD，触发发射并将溢出量带入下一轮，可能触发多次。
+## 公式：超出量 / 最大CD = 额外触发次数 … 余 = 新剩余CD
 func reduce_cooldown(amount: float) -> void:
-	_cooldown_remaining = maxf(0.0, _cooldown_remaining - amount)
+	if not _is_firing or amount <= 0.0:
+		return
+
+	if _cooldown_remaining > amount:
+		# 未归零：直接缩短，不触发发射
+		_cooldown_remaining -= amount
+		_update_cd_overlay()
+		return
+
+	# 剩余 CD ≤ 减少量：至少触发一次发射
+	var excess := amount - _cooldown_remaining
+	var additional_fires := int(excess / _base_cooldown)
+	var leftover := fmod(excess, _base_cooldown)
+	# leftover == 0 表示恰好整除，新一轮从满 CD 开始
+	var new_remaining := (_base_cooldown - leftover) if leftover > 0.0 else _base_cooldown
+
+	var total_fires := 1 + additional_fires
+	for i in range(total_fires):
+		if has_ammo():
+			_do_fire()
+		else:
+			# 弹药耗尽，停止并冻结 CD 显示
+			set_process(false)
+			_cooldown_remaining = 0.0
+			_current_full_cooldown = _base_cooldown
+			_update_cd_overlay()
+			return
+
+	# 发射完毕，设置进位后的剩余 CD
+	_cooldown_remaining = new_remaining
+	_current_full_cooldown = _base_cooldown
 	_update_cd_overlay()
 
 ## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 on_tower_hit 效果。
 func on_bullet_hit(bullet_data: BulletData) -> void:
 	play_hit_effect()
-	var ammo_before := ammo
 	for effect in bullet_data.effects:
 		effect.on_tower_hit(bullet_data, self)
 	for mod in modules:
 		mod.on_receive_bullet_hit(self, bullet_data)
-	# 同一子弹触发的弹药回复累加显示一次，不同子弹随机错开位置
-	if ammo != -1 and ammo > ammo_before:
-		var an := AmmoNumber.new()
-		get_tree().root.add_child(an)
-		an.show_ammo(global_position, ammo - ammo_before)
 
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
@@ -298,6 +325,9 @@ func _do_fire() -> void:
 	bd.cooldown = _base_cooldown
 	bd.attack = 1.0
 	bd.transmission_chain = [self]
+	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
+	var default_replenish := ReplenishEffect.new()
+	bd.effects.append(default_replenish)
 	bd = _apply_modules(bd)
 
 	# 使用模块修改后的 cooldown 作为下次 CD

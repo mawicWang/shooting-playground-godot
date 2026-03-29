@@ -1,7 +1,7 @@
 class_name AmmoNumber extends Node2D
 
 ## AmmoNumber - 弹药补充数字
-## 在炮塔位置生成，向上飘动并淡出。
+## 在炮塔上方随机位置生成，向上飘动并淡出。
 
 var _label: Label
 
@@ -19,7 +19,7 @@ func _ready() -> void:
 	add_child(_label)
 
 func show_ammo(world_pos: Vector2, amount: int) -> void:
-	global_position = world_pos + Vector2(randf_range(-14.0, 14.0), -42.0)
+	global_position = world_pos + Vector2(randf_range(-30.0, 30.0), randf_range(-65.0, -35.0))
 	_label.text = "+%d" % amount
 
 	var tween := create_tween()

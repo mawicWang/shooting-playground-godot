@@ -1,5 +1,14 @@
 <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-  <text x="32" y="18" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black" font-weight="bold">连接</text>
-  <text x="32" y="33" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black" font-weight="bold">自减CD</text>
-  <text x="32" y="50" text-anchor="middle" font-size="11" font-family="sans-serif" fill="black">-0.5s</text>
+  <!-- 连接自减CD: Bullet hits tower → own CD -0.5s (self loop) -->
+  <rect width="64" height="64" rx="10" fill="#07154a"/>
+  <!-- Circular self-arrow (loop) -->
+  <path d="M 32 12 A 20 20 0 1 1 12 32" fill="none" stroke="#4488ff" stroke-width="5" stroke-linecap="round"/>
+  <!-- Arrow head pointing back to self -->
+  <polygon points="8,22 20,28 14,40" fill="#4488ff"/>
+  <!-- Clock face = CD, center -->
+  <circle cx="32" cy="32" r="10" fill="none" stroke="#88bbff" stroke-width="2"/>
+  <line x1="32" y1="25" x2="32" y2="32" stroke="#88bbff" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="32" x2="37" y2="35" stroke="#88bbff" stroke-width="2" stroke-linecap="round"/>
+  <!-- Minus = reduction -->
+  <rect x="27" y="31" width="10" height="2.5" rx="1" fill="white"/>
 </svg>

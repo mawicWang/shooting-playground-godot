@@ -1,5 +1,17 @@
 <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-  <text x="32" y="22" text-anchor="middle" font-size="13" font-family="sans-serif" fill="black" font-weight="bold">重</text>
-  <text x="32" y="38" text-anchor="middle" font-size="13" font-family="sans-serif" fill="black" font-weight="bold">弹</text>
-  <text x="32" y="54" text-anchor="middle" font-size="13" font-family="sans-serif" fill="black" font-weight="bold">头</text>
+  <!-- 重弹头: Heavy Ammo — x1.8 atk, costs extra ammo per shot -->
+  <rect width="64" height="64" rx="10" fill="#4a0a0a"/>
+  <!-- Bullet tip -->
+  <polygon points="22,32 42,32 32,10" fill="#ff5533"/>
+  <!-- Bullet body -->
+  <rect x="22" y="32" width="20" height="20" rx="3" fill="#cc2200"/>
+  <!-- Heavy bands on body -->
+  <rect x="22" y="37" width="20" height="3" fill="#ff7755" opacity="0.7"/>
+  <rect x="22" y="44" width="20" height="3" fill="#ff7755" opacity="0.7"/>
+  <!-- x cross top-left = multiplier -->
+  <line x1="8"  y1="8"  x2="18" y2="18" stroke="#ffbbaa" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="18" y1="8"  x2="8"  y2="18" stroke="#ffbbaa" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Exclamation bottom-right = extra ammo cost -->
+  <rect x="52" y="46" width="5" height="11" rx="2" fill="#ffbbaa"/>
+  <circle cx="54" cy="61" r="2.5" fill="#ffbbaa"/>
 </svg>

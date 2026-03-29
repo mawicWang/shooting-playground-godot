@@ -20,19 +20,21 @@ var _on_state_changed: Callable = Callable()
 ## 标记为已部署（图标隐藏）
 func mark_deployed(tower_node: Node) -> void:
 	deployed_tower_node = tower_node
-	visible = false
-	if not is_staging:
-		GameState.tower_reserve_count = max(0, GameState.tower_reserve_count - 1)
+	if not GameState.is_dev_mode():
+		visible = false
+		if not is_staging:
+			GameState.tower_reserve_count = max(0, GameState.tower_reserve_count - 1)
 	if _on_state_changed.is_valid():
 		_on_state_changed.call()
 
 ## 标记为已回收（图标重新显示）
 func mark_returned() -> void:
 	deployed_tower_node = null
-	visible = true
 	drag_enabled = true
-	if not is_staging:
-		GameState.tower_reserve_count += 1
+	if not GameState.is_dev_mode():
+		visible = true
+		if not is_staging:
+			GameState.tower_reserve_count += 1
 	if _on_state_changed.is_valid():
 		_on_state_changed.call()
 
@@ -123,7 +125,14 @@ func _get_drag_data(_at_position):
 	_update_drag_rotation()
 	DragManager.start_drag(texture, self)
 
-	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation, "entity_id": entity_id, "source_icon": self, "is_staging": is_staging}
+	# 开发者模式：每次拖拽生成新 entity_id，source_icon 为 null（不追踪储备）
+	var eid: int = entity_id
+	var src = self
+	if GameState.is_dev_mode() and entity_id == -1:
+		eid = GameState.generate_entity_id()
+		src = null
+
+	return {"tower_data": tower_data, "icon": texture, "is_moving": false, "rotation": current_drag_rotation, "entity_id": eid, "source_icon": src, "is_staging": is_staging}
 
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:

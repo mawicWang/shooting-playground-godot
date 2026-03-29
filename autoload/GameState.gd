@@ -5,9 +5,12 @@ extends Node
 ## 拖拽状态由 DragManager 单独负责，不在此重复
 
 enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
-enum GameMode { CHAOS, NORMAL }
+enum GameMode { CHAOS, NORMAL, DEV }
 
 var game_mode: GameMode = GameMode.CHAOS
+
+func is_dev_mode() -> bool:
+	return game_mode == GameMode.DEV
 
 var current_state: State = State.DEPLOYMENT
 var current_wave: int = 0
@@ -25,6 +28,8 @@ var tower_reserve_count: int = 0
 const TOWER_RESERVE_MAX: int = 5
 
 func is_tower_reserve_full() -> bool:
+	if is_dev_mode():
+		return false
 	return tower_reserve_count >= TOWER_RESERVE_MAX
 
 func reset_reserve_count() -> void:
@@ -39,6 +44,8 @@ var player_lives: int = MAX_LIVES
 ## 返回 true 表示生命归零。这样所有事件处理器只需检查 is_running() 即可，
 ## 无需额外标志或手动调 stop_game()。
 func lose_life() -> bool:
+	if is_dev_mode():
+		return false
 	player_lives -= 1
 	player_lives = max(player_lives, 0)
 	SignalBus.lives_changed.emit(player_lives)
