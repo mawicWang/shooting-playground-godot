@@ -1,23 +1,19 @@
-[gd_resource type="Resource" script_class="Module" load_steps=8 format=3 uid="uid://crrdwu0sdwbeh"]
+[gd_resource type="Resource" script_class="Module" load_steps=6 format=3 uid="uid://crrdwu0sdwbeh"]
 
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
-[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effect.gd" id="2_47taw"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effect.gd" id="2_fire_base"]
-[ext_resource type="Script" uid="uid://dajfs35k851kn" path="res://entities/effects/energy_multiplier_fire_effect.gd" id="3_energy"]
-[ext_resource type="Texture2D" uid="uid://ccayef0ln1nof" path="res://assets/module_multiply.svg" id="4_icon"]
+[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="2_tsmr"]
+[ext_resource type="Texture2D" uid="uid://ccayef0ln1nof" path="res://assets/module_multiply.svg" id="3_icon"]
 [ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effect.gd" id="5_tower_base"]
-
-[sub_resource type="Resource" id="EnergyFire_1"]
-script = ExtResource("3_energy")
-multiplier = 1.2
-bullet_effects = Array[ExtResource("2_47taw")]([])
 
 [resource]
 script = ExtResource("1_module")
 module_name = "乘法器"
 category = 0
-description = "子弹能量 ×1.2"
-icon = ExtResource("4_icon")
+description = "子弹能量 ×1.2
+攻击力 ×1.2"
+icon = ExtResource("3_icon")
 slot_color = Color(1, 0.6, 0.1, 1)
-fire_effects = Array[ExtResource("2_fire_base")]([SubResource("EnergyFire_1")])
+fire_effects = Array[ExtResource("2_fire_base")]([])
 tower_effects = Array[ExtResource("5_tower_base")]([])
+stat_modifiers = Array[ExtResource("2_tsmr")]([])

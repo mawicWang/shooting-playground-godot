@@ -26,8 +26,14 @@ var _ammo_label: Label = null
 ## 炮塔实体 Hitbox（供子弹碰撞检测）
 var _tower_body: Area2D = null
 
+## 炮塔属性（StatAttribute，供模块通过 StatModifier 修改）
+var _cd_stat: StatAttribute
+var _bullet_speed_stat: StatAttribute
+var _bullet_attack_stat: StatAttribute
+var _bullet_energy_stat: StatAttribute
+var _ammo_extra_stat: StatAttribute
+
 ## 冷却驱动开火
-var _base_cooldown: float = 1.0         # 由 TowerData.firing_rate 派生
 var _cooldown_remaining: float = 0.0    # 当前剩余 CD；0 = 可发射
 var _current_full_cooldown: float = 1.0 # 本次 CD 总时长（用于进度比例计算）
 var _is_firing: bool = false            # 是否处于开火状态（RUNNING 阶段）
@@ -71,15 +77,32 @@ func _ready():
 	set_process(false)  # 默认关闭，start_firing() 时启用
 
 func _apply_data():
+	var base_cd := 1.0 / maxf(data.firing_rate if data else 1.0, 0.01)
+	_cd_stat           = StatAttribute.new(base_cd)
+	_bullet_speed_stat = StatAttribute.new(200.0)
+	_bullet_attack_stat = StatAttribute.new(1.0)
+	_bullet_energy_stat = StatAttribute.new(1.0)
+	_ammo_extra_stat   = StatAttribute.new(0.0)
 	if data:
-		_base_cooldown = 1.0 / maxf(data.firing_rate, 0.01)
 		if data.sprite:
 			sprite.texture = data.sprite
 		ammo = data.initial_ammo
 	else:
-		_base_cooldown = 1.0
 		ammo = 3
 	_update_ammo_label()
+
+func _get_effective_cd() -> float:
+	return maxf(0.1, _cd_stat.get_value())
+
+func get_stat(stat: TowerStatModifierRes.Stat) -> StatAttribute:
+	match stat:
+		TowerStatModifierRes.Stat.CD:            return _cd_stat
+		TowerStatModifierRes.Stat.BULLET_SPEED:  return _bullet_speed_stat
+		TowerStatModifierRes.Stat.BULLET_ATTACK: return _bullet_attack_stat
+		TowerStatModifierRes.Stat.BULLET_ENERGY: return _bullet_energy_stat
+		TowerStatModifierRes.Stat.AMMO_EXTRA:    return _ammo_extra_stat
+	push_error("Tower.get_stat: unknown stat %d" % stat)
+	return null
 
 # ── 碰撞区域设置 ──────────────────────────────────────────────
 
@@ -201,8 +224,9 @@ func _process(delta: float) -> void:
 
 func start_firing() -> void:
 	_is_firing = true
-	_cooldown_remaining = _base_cooldown
-	_current_full_cooldown = _base_cooldown
+	var cd := _get_effective_cd()
+	_cooldown_remaining = cd
+	_current_full_cooldown = cd
 	_update_cd_overlay()
 	set_process(true)
 
@@ -340,11 +364,12 @@ func reduce_cooldown(amount: float) -> void:
 		return
 
 	# 剩余 CD ≤ 减少量：至少触发一次发射
+	var cycle := _get_effective_cd()
 	var excess := amount - _cooldown_remaining
-	var additional_fires := int(excess / _base_cooldown)
-	var leftover := fmod(excess, _base_cooldown)
+	var additional_fires := int(excess / cycle)
+	var leftover := fmod(excess, cycle)
 	# leftover == 0 表示恰好整除，新一轮从满 CD 开始
-	var new_remaining := (_base_cooldown - leftover) if leftover > 0.0 else _base_cooldown
+	var new_remaining := (cycle - leftover) if leftover > 0.0 else cycle
 
 	var total_fires := 1 + additional_fires
 	for i in range(total_fires):
@@ -354,13 +379,13 @@ func reduce_cooldown(amount: float) -> void:
 			# 弹药耗尽，停止并冻结 CD 显示
 			set_process(false)
 			_cooldown_remaining = 0.0
-			_current_full_cooldown = _base_cooldown
+			_current_full_cooldown = cycle
 			_update_cd_overlay()
 			return
 
 	# 发射完毕，设置进位后的剩余 CD
 	_cooldown_remaining = new_remaining
-	_current_full_cooldown = _base_cooldown
+	_current_full_cooldown = cycle
 	_update_cd_overlay()
 
 ## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 tower_effects。
@@ -373,10 +398,15 @@ func on_bullet_hit(bullet_data: BulletData) -> void:
 
 func _do_fire() -> void:
 	consume_ammo()
+	# 额外弹药消耗（由 ammo_extra_stat 驱动，如重弹头模块）
+	var extra := int(_ammo_extra_stat.get_value())
+	for _i in range(extra):
+		consume_ammo()
 
 	var bd := BulletData.new()
-	bd.cooldown = _base_cooldown
-	bd.attack = 1.0
+	bd.attack = _bullet_attack_stat.get_value()
+	bd.speed  = _bullet_speed_stat.get_value()
+	bd.energy = _bullet_energy_stat.get_value()
 	bd.transmission_chain = [self]
 	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
 	var default_replenish := ReplenishEffect.new()
@@ -391,9 +421,9 @@ func _do_fire() -> void:
 		bd.tower_body_mask = Layers.TOWER_BODY | Layers.AIR_TOWER_BODY  # hits both
 	# else: default tower_body_mask = 32 (TOWER_BODY) from BulletData
 
-	# 使用模块修改后的 cooldown 作为下次 CD
-	_cooldown_remaining = bd.cooldown
-	_current_full_cooldown = bd.cooldown
+	var cd := _get_effective_cd()
+	_cooldown_remaining = cd
+	_current_full_cooldown = cd
 	_update_cd_overlay()
 
 	var parent := get_tree().get_first_node_in_group("bullet_layer")

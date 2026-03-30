@@ -3,7 +3,6 @@ class_name BulletData extends Resource
 var attack: float = 1.0         ## 对敌人造成的伤害值
 var energy: float = 1.0         ## 子弹能量（供 MultiplierModule 等模块使用）
 var speed: float = 200.0        ## 飞行速度（像素/秒）
-var cooldown: float = 1.0       ## 射击冷却（秒），由模块可修改
 var chain_count: int = 0        ## 连锁次数（预留，暂无逻辑）
 var knockback: float = 150.0
 var knockback_decay: float = 25.0
@@ -17,7 +16,6 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	copy.attack = attack
 	copy.energy = energy
 	copy.speed = speed
-	copy.cooldown = cooldown
 	copy.chain_count = chain_count
 	copy.knockback = knockback
 	copy.knockback_decay = knockback_decay
