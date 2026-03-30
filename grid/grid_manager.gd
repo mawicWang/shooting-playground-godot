@@ -30,7 +30,7 @@ func _center_grid():
 	var grid_size_2d = 5
 	for i in range(25):
 		var cell = PanelContainer.new()
-		cell.clip_contents = true # 启用裁剪，防止内容溢出
+		# cell.clip_contents = true # 启用裁剪，防止内容溢出
 		cell.set_script(cell_script) # 重要：给生成的节点挂载脚本
 		cell.custom_minimum_size = Vector2(80, 80)
 		# Note: mouse_filter is set to MOUSE_FILTER_STOP in cell.gd's _ready()

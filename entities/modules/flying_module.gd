@@ -10,6 +10,8 @@ func _init() -> void:
 	description = "炮塔进入飞行状态，普通子弹无法命中"
 	slot_color = Color(0.4, 0.8, 1.0)  # 天蓝色
 
+const FLYING_SCALE_MULTIPLIER: float = 1.5
+
 ## 每个安装实例独立保存状态（Module 在 install_module 中已 duplicate()）
 var _original_collision_layer: int = -1
 var _original_tower_scale: Vector2 = Vector2.ONE
@@ -26,9 +28,9 @@ func on_install(tower: Node) -> void:
 		_original_collision_layer = tower_body.collision_layer
 		tower_body.collision_layer = Layers.AIR_TOWER_BODY
 
-	# 保存并放大炮塔整体 scale（表现高度感）
-	_original_tower_scale = tower.scale
-	tower.scale = _original_tower_scale * 1.1
+	# 保存并放大炮塔精灵 scale（表现高度感）
+	_original_tower_scale = tower.sprite.scale
+	tower.sprite.scale = _original_tower_scale * FLYING_SCALE_MULTIPLIER
 
 	# 启动悬浮动画
 	_start_animation(tower)
@@ -47,16 +49,16 @@ func on_uninstall(tower: Node) -> void:
 	# 停止动画并重置精灵状态
 	_stop_animation()
 
-	var sprite: Node2D = tower.get_node_or_null("Sprite2D")
+	var sprite: Node2D = tower.get_node_or_null("TowerVisual/Sprite2D")
 	if is_instance_valid(sprite):
 		sprite.position.y = 0.0
 		sprite.rotation_degrees = 0.0
 
-	# 恢复炮塔 scale
-	tower.scale = _original_tower_scale
+	# 恢复炮塔精灵 scale
+	tower.sprite.scale = _original_tower_scale
 
 func _start_animation(tower: Node) -> void:
-	var sprite: Node2D = tower.get_node_or_null("Sprite2D")
+	var sprite: Node2D = tower.get_node_or_null("TowerVisual/Sprite2D")
 	if not is_instance_valid(sprite):
 		return
 
