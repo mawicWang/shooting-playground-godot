@@ -11,6 +11,19 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 60,
+            "statusMessage": "Validating Godot project...",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); echo \"$FILE\" | grep -qE '\\.(gd|tscn)$' && godot --headless --script res://tests/validate.gd 2>&1 | grep -E '(FAIL|RESULT)' || true"
+          }
+        ]
+      }
     ]
   }
 }
