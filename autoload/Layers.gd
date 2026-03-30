@@ -9,3 +9,4 @@ const BULLET: int = 4         ## 第3层：子弹 Hitbox（Area2D）
 const DEAD_ZONE: int = 8      ## 第4层：死亡区域（Area2D）
 const GRID_BORDER: int = 16   ## 第5层：网格边界 Hitbox（Area2D）
 const TOWER_BODY: int = 32    ## 第6层：炮塔实体 Hitbox — 供子弹碰撞检测用
+const AIR_TOWER_BODY: int = 64  ## 第7层：飞行炮塔实体 Hitbox — FlyingModule 使用

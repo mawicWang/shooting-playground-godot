@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HitSpeedBoostModule" load_steps=3 format=3 uid="uid://beu6d3x185yy1"]
+
+[ext_resource type="Script" uid="uid://c5ewot6l263if" path="res://entities/modules/hit_speed_boost_module.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cm3wclad8vyuf" path="res://assets/module_cd_hit_enemy.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+module_name = "击中加速"
+category = 1
+description = "击中炮塔时
+对方加速+1s"
+icon = ExtResource("2_icon")
+slot_color = Color(1, 0.85, 0.1, 1)

@@ -30,6 +30,18 @@ var _current_full_cooldown: float = 1.0 # 本次 CD 总时长（用于进度比�
 var _is_firing: bool = false            # 是否处于开火状态（RUNNING 阶段）
 var _cd_overlay: CooldownOverlay = null # WoW 风格 CD 遮罩
 
+# Speed boost state
+var _boost_time_remaining: float = 0.0
+const _boost_k: float = 2.0
+var _boost_overlay: Node2D  # BoostOverlay node (created in _ready)
+
+# Flying / anti-air flags (set by modules)
+var is_flying: bool = false
+var has_anti_air: bool = false
+
+# CD countdown label
+var _cd_label: Label
+
 signal module_installed(module: Resource)
 signal module_uninstalled(index: int)
 
@@ -47,6 +59,12 @@ func _ready():
 	_setup_click_area()
 	_setup_tower_body()
 	_create_cd_overlay()
+	_create_cd_label()
+	var overlay_scene = load("res://entities/towers/boost_overlay.tscn")
+	if overlay_scene:
+		_boost_overlay = overlay_scene.instantiate()
+		add_child(_boost_overlay)
+		_boost_overlay.set_tower(self)
 	set_process(false)  # 默认关闭，start_firing() 时启用
 
 func _apply_data():
@@ -129,6 +147,8 @@ func _set_rotation_clockwise(degrees: float):
 		_ammo_label.rotation = -rotation
 	if is_instance_valid(_cd_overlay):
 		_cd_overlay.rotation = -rotation
+	if is_instance_valid(_cd_label):
+		_cd_label.rotation = -rotation
 
 func set_initial_direction(direction_index: int):
 	current_rotation_index = direction_index % 4
@@ -137,6 +157,8 @@ func set_initial_direction(direction_index: int):
 		_ammo_label.rotation = -rotation
 	if is_instance_valid(_cd_overlay):
 		_cd_overlay.rotation = -rotation
+	if is_instance_valid(_cd_label):
+		_cd_label.rotation = -rotation
 
 func _on_rotation_complete():
 	is_rotating = false
@@ -146,11 +168,26 @@ func _on_rotation_complete():
 func _process(delta: float) -> void:
 	if not _is_firing:
 		return
+
+	var effective_delta := delta
+	if _boost_time_remaining > 0.0:
+		_boost_time_remaining -= delta
+		if _boost_time_remaining < 0.0:
+			_boost_time_remaining = 0.0
+		effective_delta = delta * _boost_k
+
 	if _cooldown_remaining > 0.0:
-		_cooldown_remaining -= delta
+		_cooldown_remaining -= effective_delta
 		_update_cd_overlay()
+		if _cd_label:
+			if _cooldown_remaining > 0.0 and _is_firing:
+				_cd_label.text = "%.1f" % _cooldown_remaining
+			else:
+				_cd_label.text = ""
 		return
-	# CD 归零：尝试发射
+	# CD 归零：更新 label 并尝试发射
+	if _cd_label:
+		_cd_label.text = ""
 	if has_ammo():
 		_do_fire()
 	else:
@@ -170,7 +207,14 @@ func stop_firing() -> void:
 	_is_firing = false
 	if is_instance_valid(_cd_overlay):
 		_cd_overlay.progress = 1.0
+	if _cd_label:
+		_cd_label.text = ""
 	set_process(false)
+
+# ── Speed Boost ───────────────────────────────────────────────
+
+func apply_speed_boost(duration: float) -> void:
+	_boost_time_remaining += duration
 
 # ── 模组系统 ─────────────────────────────────────────────────
 
@@ -261,6 +305,20 @@ func _update_ammo_label() -> void:
 		return
 	_ammo_label.text = "∞" if ammo == -1 else str(ammo)
 
+func _create_cd_label() -> void:
+	_cd_label = Label.new()
+	_cd_label.name = "CDLabel"
+	_cd_label.position = Vector2(-60, -60)  # top-left corner
+	_cd_label.size = Vector2(50, 28)
+	var settings = LabelSettings.new()
+	settings.font_size = 40
+	settings.font_color = Color(1, 1, 1)
+	settings.outline_size = 2
+	settings.outline_color = Color(0, 0, 0)
+	_cd_label.label_settings = settings
+	_cd_label.text = ""
+	add_child(_cd_label)
+
 # ── 被击中处理 ───────────────────────────────────────────────
 
 ## 果冻弹性受击动画
@@ -329,6 +387,13 @@ func _do_fire() -> void:
 	var default_replenish := ReplenishEffect.new()
 	bd.effects.append(default_replenish)
 	bd = _apply_modules(bd)
+
+	# 设置子弹碰撞层以反映飞行/反空状态
+	if is_flying:
+		bd.tower_body_mask = Layers.AIR_TOWER_BODY  # flying bullets only hit air towers
+	elif has_anti_air:
+		bd.tower_body_mask = Layers.TOWER_BODY | Layers.AIR_TOWER_BODY  # hits both
+	# else: default tower_body_mask = 32 (TOWER_BODY) from BulletData
 
 	# 使用模块修改后的 cooldown 作为下次 CD
 	_cooldown_remaining = bd.cooldown

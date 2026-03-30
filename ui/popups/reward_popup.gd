@@ -21,6 +21,10 @@ const REWARD_POOL: Array = [
     preload("res://resources/module_data/cd_on_hit_tower_self.tres"),
     preload("res://resources/module_data/cd_on_hit_tower_target.tres"),
     preload("res://resources/module_data/cd_on_receive_hit.tres"),
+    preload("res://resources/module_data/speed_boost.tres"),
+    preload("res://resources/module_data/flying.tres"),
+    preload("res://resources/module_data/anti_air.tres"),
+    preload("res://resources/module_data/hit_speed_boost.tres"),
 ]
 const FALLBACK_MODULE_TEX = preload("res://assets/bullet.svg")
 

@@ -32,6 +32,8 @@ func reset() -> void:
 	_pending_release = false
 	velocity = Vector2.ZERO
 	set_physics_process(true)
+	if data and has_node("Hitbox"):
+		$Hitbox.collision_mask = data.tower_body_mask
 
 func set_direction(dir: Vector2) -> void:
 	direction = dir.normalized()

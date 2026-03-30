@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://boost_overlay1"]
+
+[ext_resource type="Script" path="res://entities/towers/boost_overlay.gd" id="1_boost_overlay_script"]
+
+[node name="BoostOverlay" type="Node2D"]
+script = ExtResource("1_boost_overlay_script")

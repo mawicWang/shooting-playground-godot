@@ -10,6 +10,7 @@ var knockback_decay: float = 25.0
 var transmission_chain: Array = []
 ## 效果列表（Array[BulletEffect]），子弹携带，各触发时机依次调用
 var effects: Array = []
+var tower_body_mask: int = 32   ## 子弹 Hitbox 碰撞遮罩（默认 TOWER_BODY 层，FlyingModule 可扩展为 32|64）
 
 func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	var copy := BulletData.new()
@@ -22,6 +23,7 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	copy.knockback_decay = knockback_decay
 	copy.transmission_chain = transmission_chain.duplicate()
 	copy.effects = effects.duplicate()
+	copy.tower_body_mask = tower_body_mask
 	for key in mods:
 		copy.set(key, mods[key])
 	return copy
