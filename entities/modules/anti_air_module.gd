@@ -10,7 +10,9 @@ func _init() -> void:
 	slot_color = Color(1.0, 0.9, 0.2)  # 黄色
 
 func on_install(tower: Node) -> void:
+	super.on_install(tower)
 	tower.has_anti_air = true
 
 func on_uninstall(tower: Node) -> void:
+	super.on_uninstall(tower)
 	tower.has_anti_air = false

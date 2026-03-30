@@ -6,21 +6,19 @@ enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
 @export var category: Category = Category.COMPUTATIONAL
 @export var description: String = ""
 @export var icon: Texture2D
-@export var slot_color: Color = Color(0.5, 0.5, 0.5)  # 槽位填充色
+@export var slot_color: Color = Color(0.5, 0.5, 0.5)
 
-## 每次炮塔发射时调用，可修改 bullet_data 后返回
-## 注意：实例通过 install_module() 的 duplicate() 已隔离，可在此安全存储每塔状态
-func apply_effect(_tower: Node, bullet_data: BulletData) -> BulletData:
-	return bullet_data
+## 安装到炮塔时，自动将 fire_effects / tower_effects 装载进去
+@export var fire_effects: Array[FireEffect] = []
+@export var tower_effects: Array[TowerEffect] = []
 
-## 模块被安装到炮塔时调用
-func on_install(_tower: Node) -> void:
-	pass
+func on_install(tower: Node) -> void:
+	tower.fire_effects.append_array(fire_effects)
+	tower.tower_effects.append_array(tower_effects)
 
-## 模块被从炮塔卸载时调用，负责清理对该塔施加的所有 Modifier
-func on_uninstall(_tower: Node) -> void:
-	pass
-
-## 炮塔被子弹击中时调用（在 tower.on_bullet_hit 中触发）
-func on_receive_bullet_hit(_tower: Node, _bullet_data: BulletData) -> void:
-	pass
+## 模块被从炮塔卸载时调用，负责清理对该塔施加的所有效果
+func on_uninstall(tower: Node) -> void:
+	for e in fire_effects:
+		tower.fire_effects.erase(e)
+	for e in tower_effects:
+		tower.tower_effects.erase(e)

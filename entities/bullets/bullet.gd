@@ -56,13 +56,13 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	var impact := BulletImpact.new()
 	get_tree().root.add_child(impact)
 	impact.spawn(global_position, BulletImpact.COLORS_TOWER)
-	# 记录弹药基线（on_hit_tower 和 on_receive_bullet_hit 都可能补弹，统一在此捕获）
+	# 记录弹药基线（on_hit_tower 和 tower_effects 都可能补弹，统一在此捕获）
 	var ammo_before: int = parent.ammo if parent.get("ammo") != null else -1
 	# 1. 触发 on_hit_tower 效果（子弹侧）
 	if data:
 		for effect in data.effects:
 			effect.on_hit_tower(data, parent)
-	# 2. 触发炮塔被击中（炮塔侧，内部触发 on_tower_hit 和模组 on_receive_bullet_hit）
+	# 2. 触发炮塔被击中（炮塔侧，内部触发 tower_effects.on_receive_bullet_hit）
 	parent.on_bullet_hit(data)
 	# 3. 弹药回复浮动数字（在所有效果跑完后统一显示）
 	var ammo_after: int = parent.ammo if parent.get("ammo") != null else -1

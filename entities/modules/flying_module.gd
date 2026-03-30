@@ -17,6 +17,7 @@ var _bob_tween: Tween = null
 var _rot_tween: Tween = null
 
 func on_install(tower: Node) -> void:
+	super.on_install(tower)
 	tower.is_flying = true
 
 	# 切换 TowerBody 碰撞层到飞行层
@@ -33,6 +34,7 @@ func on_install(tower: Node) -> void:
 	_start_animation(tower)
 
 func on_uninstall(tower: Node) -> void:
+	super.on_uninstall(tower)
 	tower.is_flying = false
 
 	# 恢复 TowerBody 碰撞层

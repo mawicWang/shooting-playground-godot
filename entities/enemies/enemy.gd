@@ -19,7 +19,6 @@ var _health_bar: HealthBar
 var _knockback_velocity: Vector2 = Vector2.ZERO
 var _knockback_decay: float = 7.0
 
-## 击杀该敌人的最后一颗子弹的数据（用于 on_enemy_died 触发）
 var _last_bullet_data: BulletData = null
 
 func _ready():
@@ -70,7 +69,7 @@ func take_damage(amount: float, bullet_data: BulletData = null) -> void:
 		# 3. 敌人死亡时触发效果
 		if _last_bullet_data:
 			for effect in _last_bullet_data.effects:
-				effect.on_enemy_died(_last_bullet_data, self)
+				effect.on_killed_enemy(_last_bullet_data, self)
 		destroy()
 
 func apply_knockback(impulse: Vector2, decay: float) -> void:

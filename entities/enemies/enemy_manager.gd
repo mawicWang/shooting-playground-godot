@@ -233,7 +233,7 @@ func _on_enemy_hit(body: Node2D, enemy: CharacterBody2D):
 		for effect in bullet_data.effects:
 			effect.on_deal_damage(bullet_data, enemy, attack)
 
-	# 实际造成伤害（enemy.take_damage 内部处理 on_enemy_died）
+	# 实际造成伤害（enemy.take_damage 内部处理 on_killed_enemy）
 	enemy.take_damage(attack, bullet_data)
 	if knockback > 0.0 and bullet_dir != Vector2.ZERO:
 		if is_instance_valid(enemy):

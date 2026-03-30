@@ -16,6 +16,9 @@ var source_icon: Node = null  # 指向储备区中对应的 tower_icon 节点
 var modules: Array = []   # Array[Module]，每个是 duplicate() 后的独立副本
 var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
 
+var fire_effects: Array[FireEffect] = []
+var tower_effects: Array[TowerEffect] = []
+
 ## 弹药系统：-1 = 无限，≥0 = 有限弹药
 var ammo: int = 0
 var _ammo_label: Label = null
@@ -238,12 +241,6 @@ func uninstall_module(index: int) -> void:
 func get_module_count() -> int:
 	return modules.size()
 
-func _apply_modules(bullet_data: BulletData) -> BulletData:
-	var bd := bullet_data
-	for mod in modules:
-		bd = mod.apply_effect(self, bd)
-	return bd
-
 # ── 弹药系统 ─────────────────────────────────────────────────
 
 func has_ammo() -> bool:
@@ -366,13 +363,11 @@ func reduce_cooldown(amount: float) -> void:
 	_current_full_cooldown = _base_cooldown
 	_update_cd_overlay()
 
-## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 on_tower_hit 效果。
+## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 tower_effects。
 func on_bullet_hit(bullet_data: BulletData) -> void:
 	play_hit_effect()
-	for effect in bullet_data.effects:
-		effect.on_tower_hit(bullet_data, self)
-	for mod in modules:
-		mod.on_receive_bullet_hit(self, bullet_data)
+	for te in tower_effects:
+		te.on_receive_bullet_hit(bullet_data, self)
 
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
@@ -386,7 +381,8 @@ func _do_fire() -> void:
 	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
 	var default_replenish := ReplenishEffect.new()
 	bd.effects.append(default_replenish)
-	bd = _apply_modules(bd)
+	for fe in fire_effects:
+		fe.apply(self, bd)
 
 	# 设置子弹碰撞层以反映飞行/反空状态
 	if is_flying:
