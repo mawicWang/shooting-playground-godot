@@ -11,7 +11,8 @@ var source_icon: Node = null  # 指向储备区中对应的 tower_icon 节点
 @onready var fire_timer: Timer = $FireTimer  # 保留节点引用，但不再驱动开火逻辑
 @onready var _click_area: Area2D = $Area2D
 @onready var _click_shape: CollisionShape2D = $Area2D/CollisionShape2D
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var _tower_visual: Node2D = $TowerVisual
+@onready var sprite: Sprite2D = $TowerVisual/Sprite2D
 
 var modules: Array = []   # Array[Module]，每个是 duplicate() 后的独立副本
 var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
@@ -63,7 +64,6 @@ const ROTATION_DURATION: float = 0.15
 func _ready():
 	add_to_group("towers")
 	_create_ammo_label()
-	_ammo_label.rotation = -rotation
 	_apply_data()
 	_setup_click_area()
 	_setup_tower_body()
@@ -155,7 +155,7 @@ func _rotate_90_degrees():
 	is_rotating = true
 	current_rotation_index = (current_rotation_index + 1) % 4
 
-	var start_rotation := rotation_degrees
+	var start_rotation := _tower_visual.rotation_degrees
 	var target_rotation := current_rotation_index * 90.0
 
 	if target_rotation < start_rotation:
@@ -168,23 +168,11 @@ func _rotate_90_degrees():
 	tween.tween_callback(_on_rotation_complete)
 
 func _set_rotation_clockwise(degrees: float):
-	rotation_degrees = fmod(degrees, 360.0)
-	if is_instance_valid(_ammo_label):
-		_ammo_label.rotation = -rotation
-	if is_instance_valid(_cd_overlay):
-		_cd_overlay.rotation = -rotation
-	if is_instance_valid(_cd_label):
-		_cd_label.rotation = -rotation
+	_tower_visual.rotation_degrees = fmod(degrees, 360.0)
 
 func set_initial_direction(direction_index: int):
 	current_rotation_index = direction_index % 4
-	rotation_degrees = current_rotation_index * 90.0
-	if is_instance_valid(_ammo_label):
-		_ammo_label.rotation = -rotation
-	if is_instance_valid(_cd_overlay):
-		_cd_overlay.rotation = -rotation
-	if is_instance_valid(_cd_label):
-		_cd_label.rotation = -rotation
+	_tower_visual.rotation_degrees = current_rotation_index * 90.0
 
 func _on_rotation_complete():
 	is_rotating = false
@@ -329,11 +317,12 @@ func _update_ammo_label() -> void:
 func _create_cd_label() -> void:
 	_cd_label = Label.new()
 	_cd_label.name = "CDLabel"
-	_cd_label.position = Vector2(-60, -60)  # top-left corner
+	_cd_label.position = Vector2(-60, -70)  # top-left corner
 	_cd_label.size = Vector2(50, 28)
 	var settings = LabelSettings.new()
 	settings.font_size = 40
-	settings.font_color = Color(1, 1, 1)
+	settings.font_color = Color.AQUA
+	settings.shadow_color = Color.BLACK
 	settings.outline_size = 2
 	settings.outline_color = Color(0, 0, 0)
 	_cd_label.label_settings = settings
@@ -437,6 +426,6 @@ func _do_fire() -> void:
 		directions = PackedVector2Array([Vector2(0, -1)])
 
 	for local_dir in directions:
-		BulletPool.spawn(parent, global_position, local_dir.rotated(rotation), bd)
+		BulletPool.spawn(parent, global_position, local_dir.rotated(_tower_visual.rotation), bd)
 
 	EventManager.notify_bullet_fired(bd, self)

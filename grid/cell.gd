@@ -364,7 +364,7 @@ func _setup_tower_visuals(tower):
 	tower.visible = true # Ensure it's visible
 	if is_instance_valid(tower) and tower is Node2D:
 		tower.position = size / 2
-		var sprite = tower if tower is Sprite2D else tower.get_node_or_null("Sprite2D")
+		var sprite = tower if tower is Sprite2D else tower.get_node_or_null("TowerVisual/Sprite2D")
 		if is_instance_valid(sprite) and sprite.texture:
 			var tex_size = sprite.texture.get_size()
 			var target_size = size * 0.8 # Use 80% of cell size
@@ -398,8 +398,8 @@ func _get_drag_data(_at_position):
 
 	# Inform DragManager to start custom drag preview
 	var texture_to_drag: Texture2D = null
-	if is_instance_valid(tower_node) and tower_node.has_node("Sprite2D"):
-		texture_to_drag = (tower_node.get_node("Sprite2D") as Sprite2D).texture
+	if is_instance_valid(tower_node) and tower_node.has_node("TowerVisual/Sprite2D"):
+		texture_to_drag = (tower_node.get_node("TowerVisual/Sprite2D") as Sprite2D).texture
 	
 	if is_instance_valid(texture_to_drag):
 		DragManager.start_drag(texture_to_drag, self) # Pass self as source_node

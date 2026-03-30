@@ -19,7 +19,7 @@ func on_install(tower: Node) -> void:
 	tower.fire_effects.append_array(fire_effects)
 	tower.tower_effects.append_array(tower_effects)
 	for entry in stat_modifiers:
-		var attr := tower.get_stat(entry.stat)
+		var attr: StatAttribute = tower.get_stat(entry.stat)
 		if attr:
 			attr.add_modifier(StatModifier.new(entry.value, entry.modifier_type as StatModifier.Type, self))
 
@@ -30,6 +30,6 @@ func on_uninstall(tower: Node) -> void:
 	for e in tower_effects:
 		tower.tower_effects.erase(e)
 	for entry in stat_modifiers:
-		var attr := tower.get_stat(entry.stat)
+		var attr: StatAttribute = tower.get_stat(entry.stat)
 		if attr:
 			attr.remove_modifiers_from(self)

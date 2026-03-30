@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Module" load_steps=9 format=3 uid="uid://beu6d3x185yy1"]
+[gd_resource type="Resource" script_class="Module" load_steps=10 format=3 uid="uid://beu6d3x185yy1"]
 
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effect.gd" id="2_fire_base"]
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effect.gd" id="3_bullet_base"]
 [ext_resource type="Script" uid="uid://7i3hk3n3t7gw" path="res://entities/effects/hit_speed_boost_effect.gd" id="4_hit_boost"]
 [ext_resource type="Texture2D" uid="uid://cm3wclad8vyuf" path="res://assets/module_cd_hit_enemy.svg" id="5_icon"]
+[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="6_8cr16"]
 [ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effect.gd" id="6_tower_base"]
 
 [sub_resource type="Resource" id="HitBoost_1"]
@@ -25,3 +26,4 @@ icon = ExtResource("5_icon")
 slot_color = Color(1, 0.85, 0.1, 1)
 fire_effects = Array[ExtResource("2_fire_base")]([SubResource("FireEffect_1")])
 tower_effects = Array[ExtResource("6_tower_base")]([])
+stat_modifiers = Array[ExtResource("6_8cr16")]([])

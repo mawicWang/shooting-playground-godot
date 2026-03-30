@@ -54,6 +54,7 @@ var _game_over_popup: Control
 var _reward_popup: Control
 var _lives_label: Label
 var _coin_label: Label
+var _fps_label: Label
 var _debug_stop_button: Button
 
 # 储备区
@@ -70,6 +71,10 @@ func _ready():
 	_setup_signals()
 	_setup_ui()
 	call_deferred("_prepare_game")
+
+func _process(_delta: float) -> void:
+	if _fps_label:
+		_fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 
 func _setup_managers():
 	_layout_manager = LayoutManager.new()
@@ -139,6 +144,22 @@ func _setup_ui():
 	_coin_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 	_coin_label.add_theme_font_size_override("font_size", 24)
 	add_child(_coin_label)
+
+	# ── FPS 显示 ──
+	_fps_label = Label.new()
+	_fps_label.text = "FPS: --"
+	_fps_label.layout_mode = 1
+	_fps_label.anchor_left = 0.0
+	_fps_label.anchor_right = 0.0
+	_fps_label.anchor_top = 0.0
+	_fps_label.anchor_bottom = 0.0
+	_fps_label.offset_left = 10.0
+	_fps_label.offset_top = 82.0
+	_fps_label.offset_right = 180.0
+	_fps_label.offset_bottom = 108.0
+	_fps_label.add_theme_color_override("font_color", Color(0.3, 0.4, 0.1))
+	_fps_label.add_theme_font_size_override("font_size", 25)
+	add_child(_fps_label)
 
 	# ── 调试停止按钮 ──
 	_debug_stop_button = Button.new()
