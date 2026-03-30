@@ -19,6 +19,7 @@ var max_slots: int = 4    # 槽位上限，未来可根据稀有度随机生成
 
 var fire_effects: Array[FireEffect] = []
 var tower_effects: Array[TowerEffect] = []
+var bullet_effects: Array[BulletEffect] = []
 
 ## 弹药系统：-1 = 无限，≥0 = 有限弹药
 var ammo: int = 0
@@ -400,8 +401,7 @@ func _do_fire() -> void:
 	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
 	var default_replenish := ReplenishEffect.new()
 	bd.effects.append(default_replenish)
-	for fe in fire_effects:
-		fe.apply(self, bd)
+	bd.effects.append_array(bullet_effects)
 
 	# 设置子弹碰撞层以反映飞行/反空状态
 	if is_flying:

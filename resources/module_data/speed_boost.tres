@@ -1,20 +1,17 @@
-[gd_resource type="Resource" script_class="Module" load_steps=10 format=3 uid="uid://du2bm8nbh3h4q"]
+[gd_resource type="Resource" script_class="Module" load_steps=9 format=3 uid="uid://du2bm8nbh3h4q"]
 
+[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_gxx54"]
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
-[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effect.gd" id="2_fire_base"]
-[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effect.gd" id="3_bullet_base"]
-[ext_resource type="Script" uid="uid://cixmhtv0sra8a" path="res://entities/effects/kill_boost_effect.gd" id="4_kill_boost"]
+[ext_resource type="Script" uid="uid://cixmhtv0sra8a" path="res://entities/effects/bullet_effects/kill_boost_effect.gd" id="2_w6y20"]
+[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="3_t8kms"]
 [ext_resource type="Texture2D" uid="uid://5cahyupjm7mx" path="res://assets/module_speed.svg" id="5_icon"]
 [ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="6_gxx54"]
-[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effect.gd" id="6_tower_base"]
+[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="7_xx1lc"]
 
-[sub_resource type="Resource" id="KillBoost_1"]
-script = ExtResource("4_kill_boost")
+[sub_resource type="Resource" id="Resource_yyyme"]
+script = ExtResource("2_w6y20")
 boost_duration = 1.0
-
-[sub_resource type="Resource" id="FireEffect_1"]
-script = ExtResource("2_fire_base")
-bullet_effects = Array[ExtResource("3_bullet_base")]([SubResource("KillBoost_1")])
+metadata/_custom_type_script = "uid://cixmhtv0sra8a"
 
 [resource]
 script = ExtResource("1_module")
@@ -24,6 +21,7 @@ description = "击杀敌人时
 炮塔速度提升 1s"
 icon = ExtResource("5_icon")
 slot_color = Color(1, 0.4, 0.1, 1)
-fire_effects = Array[ExtResource("2_fire_base")]([SubResource("FireEffect_1")])
-tower_effects = Array[ExtResource("6_tower_base")]([])
+fire_effects = Array[ExtResource("3_t8kms")]([])
+tower_effects = Array[ExtResource("7_xx1lc")]([])
+bullet_effects = Array[ExtResource("1_gxx54")]([SubResource("Resource_yyyme")])
 stat_modifiers = Array[ExtResource("6_gxx54")]([])
