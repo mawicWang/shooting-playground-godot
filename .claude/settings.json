@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "git diff --name-only HEAD | while read f; do test -f \"$f\" || echo \"WARNING: Missing staged file: $f\"; done 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

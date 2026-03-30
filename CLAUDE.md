@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## General Principles
+
+Prefer simple, minimal solutions first. Do not over-engineer. If a random offset works, don't build a candidate-list system. Avoid adding unrequested features like screen shake.
+
 ## Project Overview
 
 A Godot 4.4+ tower defense game prototype ("shooting playground") with drag-and-drop tower placement, 4-directional tower rotation, wave-based enemy combat, coin economy, wave reward system, module/relic system, and responsive Web/mobile layout.
@@ -20,6 +24,8 @@ python3 -m http.server 8000 --directory web
 ```
 
 ## Architecture
+
+This is a Godot game project using GDScript. Key architecture: autoloaded singletons (e.g., EffectManager), data-driven design with Resource types (TowerData, BulletData). Always check if a manager is an autoload before referencing it globally.
 
 ### Autoload Singletons (globally accessible)
 - **`SignalBus`** (`autoload/SignalBus.gd`) — Central event bus. All cross-system communication goes through here. Prefer emitting signals over direct calls between systems. Key signals: `coins_changed(new_total)`, `lives_changed(remaining)`, `enemy_reached_grid`, `game_stopped`.
@@ -146,6 +152,14 @@ config/version="v0.8.0"
 ```
 
 `start_menu.gd` 的 `_ready()` 通过 `ProjectSettings.get_setting("application/config/version")` 读取并写入 `VersionLabel`（位于 `ui/start_menu/start_menu.tscn`）。
+
+## UI/Visual Changes
+
+When implementing visual/UI changes in Godot, always consider: z-index layering, node visibility (avoid white-on-white), parent node visibility state, and CanvasLayer ordering. Test mentally before suggesting code.
+
+## Debugging Guidelines
+
+When fixing bugs, check the full call chain. Especially for Godot signals and collision callbacks — code may be bypassed if the collision is handled in a parent/pool class rather than the expected script.
 
 ## Resource Paths
 All scene/script paths are centralized in `autoload/Paths.gd`. Use these constants instead of hardcoded strings.
