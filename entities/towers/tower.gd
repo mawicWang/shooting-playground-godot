@@ -32,7 +32,6 @@ var _tower_body: Area2D = null
 var _cd_stat: StatAttribute
 var _bullet_speed_stat: StatAttribute
 var _bullet_attack_stat: StatAttribute
-var _bullet_energy_stat: StatAttribute
 var _ammo_extra_stat: StatAttribute
 
 ## 冷却驱动开火
@@ -82,7 +81,6 @@ func _apply_data():
 	_cd_stat           = StatAttribute.new(base_cd)
 	_bullet_speed_stat = StatAttribute.new(200.0)
 	_bullet_attack_stat = StatAttribute.new(1.0)
-	_bullet_energy_stat = StatAttribute.new(1.0)
 	_ammo_extra_stat   = StatAttribute.new(0.0)
 	if data:
 		if data.sprite:
@@ -100,7 +98,6 @@ func get_stat(stat: TowerStatModifierRes.Stat) -> StatAttribute:
 		TowerStatModifierRes.Stat.CD:            return _cd_stat
 		TowerStatModifierRes.Stat.BULLET_SPEED:  return _bullet_speed_stat
 		TowerStatModifierRes.Stat.BULLET_ATTACK: return _bullet_attack_stat
-		TowerStatModifierRes.Stat.BULLET_ENERGY: return _bullet_energy_stat
 		TowerStatModifierRes.Stat.AMMO_EXTRA:    return _ammo_extra_stat
 	push_error("Tower.get_stat: unknown stat %d" % stat)
 	return null
@@ -396,7 +393,6 @@ func _do_fire() -> void:
 	var bd := BulletData.new()
 	bd.attack = _bullet_attack_stat.get_value()
 	bd.speed  = _bullet_speed_stat.get_value()
-	bd.energy = _bullet_energy_stat.get_value()
 	bd.transmission_chain = [self]
 	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
 	var default_replenish := ReplenishEffect.new()

@@ -15,7 +15,7 @@ enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
 ## 安装到炮塔时，自动将  bullet_effects 装载进去
 @export var bullet_effects: Array[BulletEffect] = []
 
-## 炮塔属性修改器（通过 StatAttribute 修改 CD / 子弹速度 / 攻击 / 能量 / 额外弹药消耗）
+## 炮塔属性修改器（通过 StatAttribute 修改 CD / 子弹速度 / 攻击 / 额外弹药消耗）
 @export var stat_modifiers: Array[TowerStatModifierRes] = []
 
 func on_install(tower: Node) -> void:

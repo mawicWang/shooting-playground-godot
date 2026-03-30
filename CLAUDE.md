@@ -55,7 +55,7 @@ This is a Godot game project using GDScript. Key architecture: autoloaded single
 ### Module System
 - **`Module`** (`entities/modules/module.gd`) — Base resource class. Override `apply_effect(bullet_data)` to modify bullets per shot, `on_install()` / `on_uninstall()` for stat modifier lifecycle.
 - **`AcceleratorModule`** — Adds speed bonus (default +150) to bullet speed. Slot color: cyan.
-- **`MultiplierModule`** — Multiplies bullet energy (default ×1.5). Slot color: orange.
+- **`MultiplierModule`** — Multiplies bullet damage (default ×1.5). Slot color: orange.
 - Module resources stored in `resources/module_data/`.
 
 ### Relic System
@@ -71,7 +71,7 @@ This is a Godot game project using GDScript. Key architecture: autoloaded single
 
 ### Resources (Data Classes)
 - **`TowerData`** — `tower_name`, `sprite`, `icon`, `firing_rate`, `initial_ammo` (-1 = infinite), `barrel_directions` (PackedVector2Array of local fire directions, default `[Vector2(0,-1)]`). Multi-barrel towers define multiple directions.
-- **`BulletData`** — `energy`, `speed`, `transmission_chain` (prevents self-targeting), `hit_effects: Array`. Use `duplicate_with_mods()` for per-shot copies.
+- **`BulletData`** — `speed`, `transmission_chain` (prevents self-targeting), `hit_effects: Array`. Use `duplicate_with_mods()` for per-shot copies.
 - **`StatAttribute`** — Base value + modifier array. `get_value()` applies additive + multiplicative mods. Use `remove_modifiers_from(source)` for cleanup.
 - **`StatModifier`** — ADDITIVE or MULTIPLICATIVE modifier with source reference for cleanup.
 
