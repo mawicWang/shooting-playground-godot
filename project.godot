@@ -35,6 +35,14 @@ window/stretch/aspect="expand"
 window/size/width=480
 window/size/height=800
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
+[gdunit4]
+
+settings/common/update_notification_enabled=false
+
 [gui]
 
 theme/custom="res://resources/default_theme.tres"

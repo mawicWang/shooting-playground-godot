@@ -30,6 +30,7 @@ var install_calls: Array = []      # 记录 install_module 调用
 var uninstall_calls: Array = []    # 记录 uninstall_module 调用
 var ammo_consumed: int = 0         # 记录弹药消耗
 var ammo_added: int = 0            # 记录弹药补充
+var reduce_cooldown_calls: Array = []  # 记录 reduce_cooldown 调用
 
 func _init(tower_data: TowerData = null) -> void:
 	data = tower_data if tower_data else TowerData.new()
@@ -119,6 +120,11 @@ func add_ammo(amount: int) -> void:
 		return
 	ammo += amount
 	ammo_added += amount
+
+func reduce_cooldown(amount: float) -> void:
+	reduce_cooldown_calls.append(amount)
+	# 这里可以模拟 CD 减少，但 MockTower 没有实际的 CD 计时器
+	# 我们只是记录调用
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 测试辅助方法
