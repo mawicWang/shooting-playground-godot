@@ -152,6 +152,8 @@ func reset_tracking() -> void:
 	uninstall_calls.clear()
 	ammo_consumed = 0
 	ammo_added = 0
+	reduce_cooldown_calls.clear()
+	speed_boost_calls.clear()
 
 ## 打印当前状态（调试用）
 func print_state() -> void:
