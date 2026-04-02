@@ -25,12 +25,16 @@ var _ammo_extra_stat: StatAttribute
 var is_flying: bool = false
 var has_anti_air: bool = false
 
+## Dummy sprite node so FlyingModule can access .scale without crashing
+var sprite: Node2D = Node2D.new()
+
 # 状态追踪（用于测试验证）
 var install_calls: Array = []      # 记录 install_module 调用
 var uninstall_calls: Array = []    # 记录 uninstall_module 调用
 var ammo_consumed: int = 0         # 记录弹药消耗
 var ammo_added: int = 0            # 记录弹药补充
 var reduce_cooldown_calls: Array = []  # 记录 reduce_cooldown 调用
+var speed_boost_calls: Array = []    # 记录 apply_speed_boost 调用
 
 func _init(tower_data: TowerData = null) -> void:
 	data = tower_data if tower_data else TowerData.new()
@@ -125,6 +129,9 @@ func reduce_cooldown(amount: float) -> void:
 	reduce_cooldown_calls.append(amount)
 	# 这里可以模拟 CD 减少，但 MockTower 没有实际的 CD 计时器
 	# 我们只是记录调用
+
+func apply_speed_boost(duration: float) -> void:
+	speed_boost_calls.append(duration)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 测试辅助方法
