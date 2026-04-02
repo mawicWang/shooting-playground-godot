@@ -31,7 +31,9 @@ func test_all_towers_satisfy_invariants() -> void:
 
 	for path in paths:
 		var td := load(path) as TowerData
-		assert_object(td).override_failure_message("Failed to load: %s" % path).is_not_null()
+		if td == null:
+			assert_object(td).override_failure_message("Failed to load: %s" % path).is_not_null()
+			continue
 		assert_str(td.tower_name).override_failure_message("%s: tower_name empty" % path).is_not_empty()
 		assert_object(td.sprite).override_failure_message("%s: sprite null" % path).is_not_null()
 		assert_object(td.icon).override_failure_message("%s: icon null" % path).is_not_null()
