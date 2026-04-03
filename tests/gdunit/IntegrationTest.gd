@@ -58,9 +58,9 @@ func test_bullet_hits_enemy() -> void:
 	_add_child(enemy)
 	await await_idle_frame()
 
-	var hit_count := 0
+	var hit_count := [0]
 	enemy.enemy_hit.connect(func(_body: Node, _e: Node) -> void:
-		hit_count += 1
+		hit_count[0] += 1
 	)
 
 	# Simulate a bullet entering the enemy's area by directly calling the handler.
@@ -76,7 +76,7 @@ func test_bullet_hits_enemy() -> void:
 	var bullet_hitbox := bullet.get_node("Hitbox") as Area2D
 	enemy._on_hitbox_area_entered(bullet_hitbox)
 
-	assert_int(hit_count).is_greater(0)
+	assert_int(hit_count[0]).is_greater(0)
 
 
 func test_enemy_takes_damage() -> void:
@@ -126,20 +126,20 @@ func test_enemy_destroyed_after_3_hits() -> void:
 	_add_child(enemy)
 	await await_idle_frame()
 
-	var destroyed := false
+	var destroyed := [false]
 	enemy.enemy_destroyed.connect(func(_e: Node) -> void:
-		destroyed = true
+		destroyed[0] = true
 	)
 
 	var bd := BulletData.new()
 	enemy.take_damage(1.0, bd)
-	assert_bool(destroyed).is_false()
+	assert_bool(destroyed[0]).is_false()
 
 	enemy.take_damage(1.0, bd)
-	assert_bool(destroyed).is_false()
+	assert_bool(destroyed[0]).is_false()
 
 	enemy.take_damage(1.0, bd)
-	assert_bool(destroyed).is_true()
+	assert_bool(destroyed[0]).is_true()
 
 
 func test_tower_ammo_decreases() -> void:
