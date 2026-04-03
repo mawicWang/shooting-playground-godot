@@ -9,7 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_w3gsl"]
 script = ExtResource("2_tsmr")
-stat = 4
+stat = 3
 value = 1.0
 modifier_type = 0
 metadata/_custom_type_script = "uid://colbecdbctu8q"
