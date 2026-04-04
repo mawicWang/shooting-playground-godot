@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Module" load_steps=8 format=3 uid="uid://PLACEHOLDER_rhr2"]
+
+[ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
+[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_be"]
+[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="3_fe"]
+[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="4_sm"]
+[ext_resource type="Texture2D" uid="uid://cuc4yjc2miops" path="res://assets/TODO.svg" id="5_icon"]
+[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="6_te"]
+[ext_resource type="Script" path="res://entities/effects/tower_effects/receive_hit_self_replenish_effect.gd" id="7_effect"]
+
+[sub_resource type="Resource" id="Effect_rhr2"]
+script = ExtResource("7_effect")
+ammo_amount = 2
+
+[resource]
+script = ExtResource("1_module")
+module_name = "受击补2弹"
+category = 1
+description = "被子弹击中时
+自身补充弹药 +2"
+icon = ExtResource("5_icon")
+slot_color = Color(0.1, 0.65, 0.95, 1)
+fire_effects = Array[ExtResource("3_fe")]([])
+tower_effects = Array[ExtResource("6_te")]([SubResource("Effect_rhr2")])
+bullet_effects = Array[ExtResource("1_be")]([])
+stat_modifiers = Array[ExtResource("4_sm")]([])
