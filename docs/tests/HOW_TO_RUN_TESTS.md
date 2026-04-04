@@ -66,7 +66,7 @@ godot --headless --script tests/validate.gd
 3. 节点用 `auto_free(obj)` 自动清理
 4. 使用 `assert_*` 系列方法断言
 
-详细文档见 [`tests/gdunit/README.md`](gdunit/README.md)。
+详细文档见 [`docs/tests/gdunit_testing.md`](../tests/gdunit_testing.md)。
 
 ## 已知问题
 

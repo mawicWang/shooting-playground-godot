@@ -26,10 +26,13 @@ tests/
 │   ├── ModuleTest.gd           # 模块资源完整性 + 生命周期测试
 │   ├── EffectTriggerTest.gd    # Effect 触发行为测试
 │   ├── FullChainTest.gd        # 完整效果链条测试 ★
-│   ├── IntegrationTest.gd      # 场景集成测试（需要真实 Godot 运行时）
-│   └── README.md               # 本文档
+│   └── IntegrationTest.gd      # 场景集成测试（需要真实 Godot 运行时）
 ├── mock_tower.gd               # MockTower 辅助类
 └── validate.gd                 # 独立验证脚本
+
+docs/tests/
+├── HOW_TO_RUN_TESTS.md         # 如何运行测试
+└── gdunit_testing.md           # 本文档
 ```
 
 ## 测试覆盖详情

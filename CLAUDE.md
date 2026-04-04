@@ -165,6 +165,4 @@ When fixing bugs, check the full call chain. Especially for Godot signals and co
 All scene/script paths are centralized in `autoload/Paths.gd`. Use these constants instead of hardcoded strings.
 
 ## Documentation
-- `doc/DEVELOPER.md` — Deep-dive architecture and algorithm details
-- `doc/DESIGN_V1.0.md` — Planned v1.0 module/relic system design
-- `doc/IMPLEMENTATION_PLAN.md` — Development roadmap
+- see `docs/DOC_INDEX.md`

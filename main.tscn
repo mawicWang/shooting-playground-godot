@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://b1awtwjdwm2jh" path="res://assets/bullet.svg" id="6_bullet_tex"]
 [ext_resource type="Script" uid="uid://csjd44671a5vd" path="res://ui/deployment/module_icon.gd" id="7_module_icon"]
 [ext_resource type="Script" uid="uid://blb3psp1bnrac" path="res://ui/deployment/relic_icon.gd" id="8_relic_icon"]
-[ext_resource type="Resource" path="res://resources/tower1010.tres" id="9_tower1010"]
+[ext_resource type="Resource" uid="uid://bdmtd553es65n" path="res://resources/tower1010.tres" id="9_tower1010"]
 [ext_resource type="Resource" path="res://resources/tower1100.tres" id="10_tower1100"]
 [ext_resource type="Resource" path="res://resources/tower1110.tres" id="11_tower1110"]
 [ext_resource type="Resource" path="res://resources/tower1111.tres" id="12_tower1111"]
@@ -213,3 +213,30 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 5
+
+[node name="LivesLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 180.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.95, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="CoinLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 46.0
+offset_right = 180.0
+offset_bottom = 72.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="FpsLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 82.0
+offset_right = 180.0
+offset_bottom = 108.0
+theme_override_colors/font_color = Color(0.3, 0.4, 0.1, 1)
+theme_override_font_sizes/font_size = 25

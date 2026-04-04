@@ -126,7 +126,5 @@ godot --headless --script addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests/gdu
 
 ## Documentation
 
-- `CLAUDE.md` — Detailed architecture reference (same info, more depth)
-- `doc/DEVELOPER.md` — Deep-dive architecture and algorithms
-- `doc/DESIGN_V1.0.md` — v1.0 module/relic design
-- `doc/IMPLEMENTATION_PLAN.md` — Development roadmap
+- `CLAUDE.md` — Detailed architecture reference (create and maintained by claud-code, DO NOT modify it)
+- others see `docs/DOC_INDEX.md`

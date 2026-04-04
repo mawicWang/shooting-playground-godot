@@ -52,10 +52,11 @@ var _game_loop: GameLoopManager
 var _effect_manager: EffectManager
 var _game_over_popup: Control
 var _reward_popup: Control
-var _lives_label: Label
-var _coin_label: Label
-var _fps_label: Label
 var _debug_stop_button: Button
+
+@onready var _lives_label: Label = $LivesLabel
+@onready var _coin_label: Label = $CoinLabel
+@onready var _fps_label: Label = $FpsLabel
 
 # 储备区
 var _tower_reserve: HBoxContainer   # 炮塔行，最多 5 个，附 TowerReserveBarScript
