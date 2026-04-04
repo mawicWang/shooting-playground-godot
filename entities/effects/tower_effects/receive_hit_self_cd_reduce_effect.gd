@@ -1,4 +1,4 @@
-class_name CdReduceOnReceiveTowerEffect extends TowerEffect
+class_name ReceiveHitSelfCdReduceEffect extends TowerEffect
 
 @export var reduction: float = 0.5
 

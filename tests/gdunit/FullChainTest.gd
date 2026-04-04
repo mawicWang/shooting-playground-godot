@@ -188,9 +188,9 @@ func test_multiple_effects_in_chain() -> void:
 
 	# 使用 call 方法触发 effects（绕过 has_method 检查）
 	for effect in bd.effects:
-		if effect is CdReduceOnEnemyEffect:
+		if effect is HitEnemySelfCdReduceEffect:
 			effect.on_hit_enemy(bd, enemy)
-		elif effect is ReplenishEffect:
+		elif effect is HitTowerTargetReplenishEffect:
 			effect.on_hit_tower(bd, target_tower)
 
 	# 验证两个 effects 都触发了

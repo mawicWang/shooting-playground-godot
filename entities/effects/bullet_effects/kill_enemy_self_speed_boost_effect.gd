@@ -1,4 +1,4 @@
-class_name KillBoostEffect extends BulletEffect
+class_name KillEnemySelfSpeedBoostEffect extends BulletEffect
 
 ## 击杀触发速度提升效果
 ## 子弹击杀敌人时，通知发射该子弹的炮塔触发速度加成

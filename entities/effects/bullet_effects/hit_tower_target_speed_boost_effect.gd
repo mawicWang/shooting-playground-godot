@@ -1,4 +1,4 @@
-class_name HitSpeedBoostEffect extends BulletEffect
+class_name HitTowerTargetSpeedBoostEffect extends BulletEffect
 
 ## 击中炮塔时，使被击中炮塔获得加速（持续 duration 秒，CD 冷却速度 ×K，可叠加）
 

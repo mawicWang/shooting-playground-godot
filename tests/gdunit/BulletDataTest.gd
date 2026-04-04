@@ -60,7 +60,7 @@ func test_duplicate_preserves_transmission_chain() -> void:
 func test_duplicate_preserves_effects() -> void:
 	"""测试复制保留 effects 数组"""
 	var original := BulletData.new()
-	var effect = load("res://entities/effects/bullet_effects/replenish_effect.gd").new()
+	var effect = load("res://entities/effects/bullet_effects/hit_tower_target_replenish_effect.gd").new()
 	original.effects.append(effect)
 	
 	var copy := original.duplicate_with_mods({})

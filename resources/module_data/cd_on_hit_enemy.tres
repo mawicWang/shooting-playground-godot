@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_wyloj"]
-[ext_resource type="Script" uid="uid://bvntkqwe2b7bo" path="res://entities/effects/bullet_effects/cd_reduce_on_enemy_effect.gd" id="2_unixd"]
+[ext_resource type="Script" uid="uid://bvntkqwe2b7bo" path="res://entities/effects/bullet_effects/hit_enemy_self_cd_reduce_effect.gd" id="2_unixd"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="3_4kbjk"]
 [ext_resource type="Texture2D" uid="uid://cm3wclad8vyuf" path="res://assets/module_cd_hit_enemy.svg" id="5_icon"]
 [ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="6_wyloj"]

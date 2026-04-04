@@ -1,4 +1,4 @@
-class_name CdReduceTargetTowerEffect extends BulletEffect
+class_name HitTowerTargetCdReduceEffect extends BulletEffect
 
 ## 子弹击中炮塔时，减少被击中炮塔（目标方）的 CD
 

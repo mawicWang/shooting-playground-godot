@@ -398,7 +398,7 @@ func _do_fire() -> void:
 	bd.speed  = _bullet_speed_stat.get_value()
 	bd.transmission_chain = [self]
 	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
-	var default_replenish := ReplenishEffect.new()
+	var default_replenish := HitTowerTargetReplenishEffect.new()
 	bd.effects.append(default_replenish)
 	bd.effects.append_array(bullet_effects)
 

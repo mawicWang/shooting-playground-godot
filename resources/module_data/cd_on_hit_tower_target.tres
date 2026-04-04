@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_gtj2o"]
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
-[ext_resource type="Script" uid="uid://5kdjkm0f2842" path="res://entities/effects/bullet_effects/cd_reduce_target_tower_effect.gd" id="2_eh852"]
+[ext_resource type="Script" uid="uid://5kdjkm0f2842" path="res://entities/effects/bullet_effects/hit_tower_target_cd_reduce_effect.gd" id="2_eh852"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="3_wspdw"]
 [ext_resource type="Texture2D" uid="uid://b6i3ve5twp0bp" path="res://assets/module_cd_hit_tower_target.svg" id="5_icon"]
 [ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="6_gtj2o"]

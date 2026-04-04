@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_ju217"]
 [ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="2_cuohj"]
-[ext_resource type="Script" uid="uid://b7o0xnpmlg2p0" path="res://entities/effects/bullet_effects/replenish_effect.gd" id="2_kkoxw"]
+[ext_resource type="Script" uid="uid://b7o0xnpmlg2p0" path="res://entities/effects/bullet_effects/hit_tower_target_replenish_effect.gd" id="2_kkoxw"]
 [ext_resource type="Texture2D" uid="uid://c8n2bwtp6s5dd" path="res://assets/supply1.svg" id="5_icon"]
 [ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="6_cuohj"]
 [ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="6_kkoxw"]

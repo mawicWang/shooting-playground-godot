@@ -1,4 +1,4 @@
-class_name ReplenishEffect extends BulletEffect
+class_name HitTowerTargetReplenishEffect extends BulletEffect
 
 ## 子弹击中炮塔时补充弹药
 
