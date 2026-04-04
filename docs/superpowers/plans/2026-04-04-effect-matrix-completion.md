@@ -10,6 +10,48 @@
 
 ---
 
+## PixelLab MCP Reference
+
+> Source: https://api.pixellab.ai/mcp/docs
+
+### Async Workflow
+
+1. Call `mcp__pixellab__create_map_object` → returns **immediately** with an `object_id`
+2. Call `mcp__pixellab__get_map_object(object_id=...)` to poll status
+3. Status values: `completed` / `processing` (includes `eta_seconds`) / `failed`
+4. When `completed`, response contains **Base64 PNG image data** inline (no separate download needed)
+
+### create_map_object Parameters (for module icons)
+
+| Parameter | Value used in this plan |
+|-----------|------------------------|
+| `width` | `32` |
+| `height` | `32` |
+| `view` | `"side"` |
+| `shading` | `"flat shading"` |
+| `outline` | `"single color outline"` |
+| `detail` | `"low detail"` |
+| `description` | see Task 9 table |
+
+### Saving the PNG
+
+When `get_map_object` returns `status=completed`, extract the base64 string and save:
+
+```bash
+python3 -c "
+import base64, sys
+data = sys.stdin.read().strip()
+with open('assets/modules/FILENAME.png', 'wb') as f:
+    f.write(base64.b64decode(data))
+" <<< "BASE64_STRING_HERE"
+```
+
+### Parallelism
+
+All 14 `create_map_object` calls can be fired in a single message (they return instantly). Then poll all 14 with `get_map_object` — wait until all are `completed` before saving.
+
+---
+
 ## File Map
 
 ### Part 1 – Renames (file moves + class_name changes)
@@ -903,13 +945,13 @@ git commit -m "docs: update effects.md, modules.md, effect-matrix.md with new cl
 
 **Files:** (none created yet — just job IDs returned)
 
-Call `mcp__pixellab__create_map_object` for each module. All 14 can be fired in parallel (each returns a job_id immediately; generation takes ~15-30s async).
+Call `mcp__pixellab__create_map_object` for each module. All 14 can be fired in parallel in a single message (each returns an `object_id` immediately; see PixelLab MCP Reference above).
 
 Parameters for all calls: `width=32`, `height=32`, `view="side"`, `shading="flat shading"`, `outline="single color outline"`, `detail="low detail"`
 
-- [ ] **Step 1: Fire 14 async generation jobs**
+- [ ] **Step 1: Fire 14 async generation jobs (all in one message)**
 
-Call `mcp__pixellab__create_map_object` with these descriptions. Record every `job_id` returned:
+Call `mcp__pixellab__create_map_object` 14 times in parallel. Record every `object_id` returned:
 
 | # | description | save as |
 |---|-------------|---------|
@@ -942,9 +984,9 @@ Call `mcp__pixellab__create_map_object` with these descriptions. Record every `j
 mkdir -p assets/modules
 ```
 
-- [ ] **Step 2: Retrieve each job result**
+- [ ] **Step 2: Poll all 14 results**
 
-For each job_id from Task 9, call `mcp__pixellab__get_map_object` with that job_id. When status is `completed`, the response contains the image data as base64.
+For each `object_id` from Task 9, call `mcp__pixellab__get_map_object(object_id=...)`. Poll all 14 in parallel in one message. If any show `processing`, wait and retry that subset. When all 14 show `status=completed`, proceed — the response contains the image data as base64 inline.
 
 - [ ] **Step 3: Save each result as PNG**
 
