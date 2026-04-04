@@ -11,6 +11,7 @@
 | [`content/towers.md`](content/towers.md) | 4 座塔的完整规格（firing_rate、炮管数、初始弹药、命名规则） |
 | [`content/modules.md`](content/modules.md) | 14 个模块的完整规格，分 3 类（COMPUTATIONAL / LOGICAL / SPECIAL），含预期行为、测试位置 |
 | [`content/effects.md`](content/effects.md) | 效果系统接口文档（BulletEffect / TowerEffect / FireEffect），含 MockTower 接口和新增效果流程 |
+| [`content/effect-matrix.md`](content/effect-matrix.md) | 触发时机 × 触发效果矩阵，标注已实现（✅）与未实现（❌）组合 |
 
 ## 测试文档（`tests/`）
 
