@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="FlyingModule" load_steps=3 format=3 uid="uid://dm4x7nqpv8f3c"]
 
 [ext_resource type="Script" uid="uid://dsvs0qjkg0rvo" path="res://entities/modules/flying_module.gd" id="1_flying"]
-[ext_resource type="Texture2D" uid="uid://cuc4yjc2miops" path="res://assets/TODO.svg" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://PLACEHOLDER_icon_fly" path="res://assets/modules/flying.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_flying")

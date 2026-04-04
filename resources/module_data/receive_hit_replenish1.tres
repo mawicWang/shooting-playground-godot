@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_be"]
 [ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="3_fe"]
 [ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="4_sm"]
-[ext_resource type="Texture2D" uid="uid://cuc4yjc2miops" path="res://assets/TODO.svg" id="5_icon"]
+[ext_resource type="Texture2D" uid="uid://PLACEHOLDER_icon_rhr1" path="res://assets/modules/replenish1.png" id="5_icon"]
 [ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="6_te"]
 [ext_resource type="Script" path="res://entities/effects/tower_effects/receive_hit_self_replenish_effect.gd" id="7_effect"]
 
