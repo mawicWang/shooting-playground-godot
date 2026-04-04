@@ -71,7 +71,7 @@
 ### cd_on_hit_enemy — 击敌减CD
 - **File:** `resources/module_data/cd_on_hit_enemy.tres`
 - **Slot color:** Yellow `Color(1, 0.8, 0.1, 1)`
-- **Effect type:** `BulletEffect` → `CdReduceOnEnemyEffect`
+- **Effect type:** `BulletEffect` → `HitEnemySelfCdReduceEffect`
 - **Trigger:** `on_hit_enemy(bullet_data, enemy)`
 - **Target:** `bullet_data.transmission_chain[0]` (source tower)
 - **Action:** `source.reduce_cooldown(0.5)`
@@ -81,7 +81,7 @@
 ### cd_on_hit_tower_self — 连接自减CD
 - **File:** `resources/module_data/cd_on_hit_tower_self.tres`
 - **Slot color:** Light blue `Color(0.3, 0.8, 1, 1)`
-- **Effect type:** `BulletEffect` → `CdReduceOnHitTowerEffect`
+- **Effect type:** `BulletEffect` → `HitTowerSelfCdReduceEffect`
 - **Trigger:** `on_hit_tower(bullet_data, hit_tower)`
 - **Target:** `bullet_data.transmission_chain[0]` (SOURCE tower gets CD reduction, not the hit tower)
 - **Action:** `source.reduce_cooldown(0.5)`
@@ -91,7 +91,7 @@
 ### cd_on_hit_tower_target — 连接减CD
 - **File:** `resources/module_data/cd_on_hit_tower_target.tres`
 - **Slot color:** Purple `Color(0.5, 0.3, 1, 1)`
-- **Effect type:** `BulletEffect` → `CdReduceTargetTowerEffect`
+- **Effect type:** `BulletEffect` → `HitTowerTargetCdReduceEffect`
 - **Trigger:** `on_hit_tower(bullet_data, hit_tower)`
 - **Target:** `hit_tower` (TARGET tower gets CD reduction, not the source)
 - **Action:** `hit_tower.reduce_cooldown(0.5)`
@@ -101,7 +101,7 @@
 ### cd_on_receive_hit — 受击减CD
 - **File:** `resources/module_data/cd_on_receive_hit.tres`
 - **Slot color:** Pink `Color(1, 0.4, 0.8, 1)`
-- **Effect type:** `TowerEffect` → `CdReduceOnReceiveTowerEffect`
+- **Effect type:** `TowerEffect` → `ReceiveHitSelfCdReduceEffect`
 - **Trigger:** `on_receive_bullet_hit(bullet_data, tower)` — called on the RECEIVING tower
 - **Action:** `tower.reduce_cooldown(0.5)`
 - **Expected:** `tower.reduce_cooldown_calls[-1] == 0.5`
@@ -110,7 +110,7 @@
 ### replenish1 — 补充+1
 - **File:** `resources/module_data/replenish1.tres`
 - **Slot color:** Green `Color(0.2, 0.85, 0.45, 1)`
-- **Effect type:** `BulletEffect` → `ReplenishEffect`
+- **Effect type:** `BulletEffect` → `HitTowerTargetReplenishEffect`
 - **Trigger:** `on_hit_tower(bullet_data, hit_tower)`
 - **Action:** `hit_tower.add_ammo(1)`
 - **Expected:** `target.ammo == initial + 1`; no effect on source
@@ -119,7 +119,7 @@
 ### replenish2 — 补充+2
 - **File:** `resources/module_data/replenish2.tres`
 - **Slot color:** Teal-blue `Color(0.1, 0.65, 0.95, 1)`
-- **Effect type:** `BulletEffect` → `ReplenishEffect`
+- **Effect type:** `BulletEffect` → `HitTowerTargetReplenishEffect`
 - **Trigger:** `on_hit_tower(bullet_data, hit_tower)`
 - **Action:** `hit_tower.add_ammo(2)`
 - **Expected:** `target.ammo == initial + 2`; infinite-ammo tower (`ammo == -1`) unaffected
@@ -128,7 +128,7 @@
 ### speed_boost — 击杀加速
 - **File:** `resources/module_data/speed_boost.tres`
 - **Slot color:** Orange-red `Color(1, 0.4, 0.1, 1)`
-- **Effect type:** `BulletEffect` → `KillBoostEffect`
+- **Effect type:** `BulletEffect` → `KillEnemySelfSpeedBoostEffect`
 - **Trigger:** `on_killed_enemy(bullet_data, enemy)`
 - **Target:** `bullet_data.transmission_chain[0]` (source tower)
 - **Action:** `source.apply_speed_boost(1.0)`
@@ -138,12 +138,102 @@
 ### hit_speed_boost — 击中加速
 - **File:** `resources/module_data/hit_speed_boost.tres`
 - **Slot color:** Yellow `Color(1, 0.85, 0.1, 1)`
-- **Effect type:** `BulletEffect` → `HitSpeedBoostEffect`
+- **Effect type:** `BulletEffect` → `HitTowerTargetSpeedBoostEffect`
 - **Trigger:** `on_hit_tower(bullet_data, hit_tower)`
 - **Target:** `hit_tower` (TARGET tower gets boosted, not source)
 - **Action:** `hit_tower.apply_speed_boost(1.0)`
 - **Expected:** `target.speed_boost_calls[-1] == 1.0`; source.speed_boost_calls is empty
 - **Test:** `ModuleBehaviorTest.test_hit_speed_boost_*`
+
+### hit_enemy_replenish1 — 击敌补1弹
+- **File:** `resources/module_data/hit_enemy_replenish1.tres`
+- **Slot color:** Green `Color(0.2, 0.85, 0.45, 1)`
+- **Effect type:** `BulletEffect` → `HitEnemySelfReplenishEffect`
+- **Trigger:** `on_hit_enemy(bullet_data, enemy)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.add_ammo(1)`
+- **Expected:** `source.ammo_added == 1`
+- **Test:** (pending)
+
+### hit_enemy_replenish2 — 击敌补2弹
+- **File:** `resources/module_data/hit_enemy_replenish2.tres`
+- **Slot color:** Teal `Color(0.1, 0.65, 0.95, 1)`
+- **Effect type:** `BulletEffect` → `HitEnemySelfReplenishEffect`
+- **Trigger:** `on_hit_enemy(bullet_data, enemy)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.add_ammo(2)`
+- **Expected:** `source.ammo_added == 2`
+- **Test:** (pending)
+
+### hit_enemy_speed_boost — 击敌加速
+- **File:** `resources/module_data/hit_enemy_speed_boost.tres`
+- **Slot color:** Yellow `Color(1, 0.85, 0.1, 1)`
+- **Effect type:** `BulletEffect` → `HitEnemySelfSpeedBoostEffect`
+- **Trigger:** `on_hit_enemy(bullet_data, enemy)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.apply_speed_boost(1.0)`
+- **Expected:** `source.speed_boost_calls[-1] == 1.0`
+- **Test:** (pending)
+
+### receive_hit_replenish1 — 受击补1弹
+- **File:** `resources/module_data/receive_hit_replenish1.tres`
+- **Slot color:** Green `Color(0.2, 0.85, 0.45, 1)`
+- **Effect type:** `TowerEffect` → `ReceiveHitSelfReplenishEffect`
+- **Trigger:** `on_receive_bullet_hit(bullet_data, tower)`
+- **Target:** `tower` (self)
+- **Action:** `tower.add_ammo(1)`
+- **Expected:** `tower.ammo_added == 1`
+- **Test:** (pending)
+
+### receive_hit_replenish2 — 受击补2弹
+- **File:** `resources/module_data/receive_hit_replenish2.tres`
+- **Slot color:** Teal `Color(0.1, 0.65, 0.95, 1)`
+- **Effect type:** `TowerEffect` → `ReceiveHitSelfReplenishEffect`
+- **Trigger:** `on_receive_bullet_hit(bullet_data, tower)`
+- **Target:** `tower` (self)
+- **Action:** `tower.add_ammo(2)`
+- **Expected:** `tower.ammo_added == 2`
+- **Test:** (pending)
+
+### receive_hit_speed_boost — 受击加速
+- **File:** `resources/module_data/receive_hit_speed_boost.tres`
+- **Slot color:** Yellow `Color(1, 0.85, 0.1, 1)`
+- **Effect type:** `TowerEffect` → `ReceiveHitSelfSpeedBoostEffect`
+- **Trigger:** `on_receive_bullet_hit(bullet_data, tower)`
+- **Target:** `tower` (self)
+- **Action:** `tower.apply_speed_boost(1.0)`
+- **Expected:** `tower.speed_boost_calls[-1] == 1.0`
+- **Test:** (pending)
+
+### deal_damage_cd_reduce — 伤害减CD
+- **File:** `resources/module_data/deal_damage_cd_reduce.tres`
+- **Slot color:** Pink `Color(1, 0.4, 0.8, 1)`
+- **Effect type:** `BulletEffect` → `DealDamageSelfCdReduceEffect`
+- **Trigger:** `on_deal_damage(bullet_data, target, damage)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.reduce_cooldown(0.5)`
+- **Expected:** `source.reduce_cooldown_calls[-1] == 0.5`
+- **Test:** (pending)
+
+### deal_damage_replenish1 — 伤害补1弹
+- **File:** `resources/module_data/deal_damage_replenish1.tres`
+- **Slot color:** Green `Color(0.2, 0.85, 0.45, 1)`
+- **Effect type:** `BulletEffect` → `DealDamageSelfReplenishEffect`
+- **Trigger:** `on_deal_damage(bullet_data, target, damage)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.add_ammo(1)`
+- **Expected:** `source.ammo_added == 1`
+- **Test:** (pending)
+
+### deal_damage_speed_boost — 伤害加速
+- **File:** `resources/module_data/deal_damage_speed_boost.tres`
+- **Slot color:** Yellow `Color(1, 0.85, 0.1, 1)`
+- **Effect type:** `BulletEffect` → `DealDamageSelfSpeedBoostEffect`
+- **Trigger:** `on_deal_damage(bullet_data, target, damage)`
+- **Target:** `bullet_data.transmission_chain[0]` (source tower)
+- **Action:** `source.apply_speed_boost(1.0)`
+- **Expected:** `source.speed_boost_calls[-1] == 1.0`
+- **Test:** (pending)
 
 ---
 

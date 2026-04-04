@@ -57,15 +57,27 @@ func apply(tower: Node, bd: BulletData) -> void
 
 ## Concrete Effect Implementations
 
+Naming convention: `{Trigger}{Target}{Effect}Effect`
+- **Trigger**: `HitTower`, `HitEnemy`, `KillEnemy`, `ReceiveHit`, `DealDamage`
+- **Target**: `Self` = source tower (`transmission_chain[0]`) or self (TowerEffect); `Target` = the hit tower
+- **Effect**: `CdReduce`, `Replenish`, `SpeedBoost`
+
 | Class | File | Trigger method | What it calls |
 |-------|------|---------------|---------------|
-| `CdReduceOnEnemyEffect` | `bullet_effects/cd_reduce_on_enemy_effect.gd` | `on_hit_enemy` | `source.reduce_cooldown(reduction)` |
-| `CdReduceOnHitTowerEffect` | `bullet_effects/cd_reduce_on_hit_tower_effect.gd` | `on_hit_tower` | `source.reduce_cooldown(reduction)` |
-| `CdReduceTargetTowerEffect` | `bullet_effects/cd_reduce_target_tower_effect.gd` | `on_hit_tower` | `hit_tower.reduce_cooldown(reduction)` |
-| `CdReduceOnReceiveTowerEffect` | `tower_effects/cd_reduce_on_receive_tower_effect.gd` | `on_receive_bullet_hit` | `tower.reduce_cooldown(reduction)` |
-| `ReplenishEffect` | `bullet_effects/replenish_effect.gd` | `on_hit_tower` | `tower.add_ammo(ammo_amount)` |
-| `HitSpeedBoostEffect` | `bullet_effects/hit_speed_boost_effect.gd` | `on_hit_tower` | `hit_tower.apply_speed_boost(duration)` |
-| `KillBoostEffect` | `bullet_effects/kill_boost_effect.gd` | `on_killed_enemy` | `source.apply_speed_boost(boost_duration)` |
+| `HitTowerSelfCdReduceEffect` | `bullet_effects/hit_tower_self_cd_reduce_effect.gd` | `on_hit_tower` | `source.reduce_cooldown(reduction)` |
+| `HitTowerTargetCdReduceEffect` | `bullet_effects/hit_tower_target_cd_reduce_effect.gd` | `on_hit_tower` | `hit_tower.reduce_cooldown(reduction)` |
+| `HitTowerTargetReplenishEffect` | `bullet_effects/hit_tower_target_replenish_effect.gd` | `on_hit_tower` | `tower.add_ammo(ammo_amount)` |
+| `HitTowerTargetSpeedBoostEffect` | `bullet_effects/hit_tower_target_speed_boost_effect.gd` | `on_hit_tower` | `hit_tower.apply_speed_boost(duration)` |
+| `HitEnemySelfCdReduceEffect` | `bullet_effects/hit_enemy_self_cd_reduce_effect.gd` | `on_hit_enemy` | `source.reduce_cooldown(reduction)` |
+| `HitEnemySelfReplenishEffect` | `bullet_effects/hit_enemy_self_replenish_effect.gd` | `on_hit_enemy` | `source.add_ammo(ammo_amount)` |
+| `HitEnemySelfSpeedBoostEffect` | `bullet_effects/hit_enemy_self_speed_boost_effect.gd` | `on_hit_enemy` | `source.apply_speed_boost(duration)` |
+| `KillEnemySelfSpeedBoostEffect` | `bullet_effects/kill_enemy_self_speed_boost_effect.gd` | `on_killed_enemy` | `source.apply_speed_boost(boost_duration)` |
+| `ReceiveHitSelfCdReduceEffect` | `tower_effects/receive_hit_self_cd_reduce_effect.gd` | `on_receive_bullet_hit` | `tower.reduce_cooldown(reduction)` |
+| `ReceiveHitSelfReplenishEffect` | `tower_effects/receive_hit_self_replenish_effect.gd` | `on_receive_bullet_hit` | `tower.add_ammo(ammo_amount)` |
+| `ReceiveHitSelfSpeedBoostEffect` | `tower_effects/receive_hit_self_speed_boost_effect.gd` | `on_receive_bullet_hit` | `tower.apply_speed_boost(duration)` |
+| `DealDamageSelfCdReduceEffect` | `bullet_effects/deal_damage_self_cd_reduce_effect.gd` | `on_deal_damage` | `source.reduce_cooldown(reduction)` |
+| `DealDamageSelfReplenishEffect` | `bullet_effects/deal_damage_self_replenish_effect.gd` | `on_deal_damage` | `source.add_ammo(ammo_amount)` |
+| `DealDamageSelfSpeedBoostEffect` | `bullet_effects/deal_damage_self_speed_boost_effect.gd` | `on_deal_damage` | `source.apply_speed_boost(duration)` |
 
 ---
 
