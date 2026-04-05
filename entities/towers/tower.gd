@@ -442,15 +442,14 @@ func _do_fire() -> void:
 	bd.effect_contribution_counts = ammo_item.effect_contribution_counts.duplicate()
 	bd.tower_effect_trigger_counts = ammo_item.tower_effect_trigger_counts.duplicate()
 
-	# 检查本 tower 是否还能贡献 bullet_effects
+	# 检查本 tower 是否还能贡献 bullet_effects 和基础弹药传递
 	var contrib_count = bd.effect_contribution_counts.get(entity_id, 0)
 	if contrib_count < bullet_effect_max_chain:
 		bd.effects.append_array(bullet_effects)
 		bd.effect_contribution_counts[entity_id] = contrib_count + 1
-
-	# default_replenish：无条件追加，不计入 contribution（基础传递机制）
-	var default_replenish := HitTowerTargetReplenishEffect.new()
-	bd.effects.append(default_replenish)
+		# default_replenish 也受链次数限制，与 bullet_effects 共享同一计数
+		var default_replenish := HitTowerTargetReplenishEffect.new()
+		bd.effects.append(default_replenish)
 
 	# 设置子弹碰撞层以反映飞行/反空状态
 	if is_flying:

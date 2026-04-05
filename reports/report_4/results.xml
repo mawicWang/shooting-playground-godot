@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2026-04-05" name="report_4" tests="3" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="DevModeRespawnTest" package="tests/gdunit" timestamp="2026-04-05T06:46:34" hostname="localhost" tests="3" failures="0" errors="0" skipped="0" flaky="0" time="0.173">
+		<testcase name="test_dev_mode_no_all_enemies_defeated_signal" classname="DevModeRespawnTest" time="0.040">
+		</testcase>
+		<testcase name="test_dev_mode_enemy_respawns_after_death" classname="DevModeRespawnTest" time="0.048">
+		</testcase>
+		<testcase name="test_normal_mode_all_enemies_defeated_signal" classname="DevModeRespawnTest" time="0.035">
+		</testcase>
+	</testsuite>
+</testsuites>

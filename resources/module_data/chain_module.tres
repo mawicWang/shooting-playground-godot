@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ChainModule" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ChainModule" load_steps=7 format=3 uid="uid://bhi4g7i5ymjhx"]
 
 [ext_resource type="Script" uid="uid://chqjf7ki1rg8a" path="res://entities/modules/chain_module.gd" id="1_chain"]
 [ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_lnxmg"]
