@@ -189,26 +189,6 @@ func get_current_wave() -> int:
 func get_pending_enemy_data() -> Array:
 	return _pending_enemy_data
 
-## 收集所有已部署炮塔当前世界空间炮管方向（归一化到4个基本方向）
-func _get_covered_directions() -> Array:
-	var covered: Array = []
-	for cell in _grid_container.get_children():
-		if not cell.has_method("get_deployed_tower"):
-			continue
-		var tower = cell.get_deployed_tower()
-		if not is_instance_valid(tower):
-			continue
-		var rotation_rad := deg_to_rad(float(tower.current_rotation_index) * 90.0)
-		var barrel_dirs: PackedVector2Array
-		if tower.data and tower.data.barrel_directions.size() > 0:
-			barrel_dirs = tower.data.barrel_directions
-		else:
-			barrel_dirs = PackedVector2Array([Vector2(0, -1)])
-		for local_dir in barrel_dirs:
-			var world_dir: Vector2 = local_dir.rotated(rotation_rad)
-			covered.append(_snap_cardinal(world_dir))
-	return covered
-
 ## 将任意向量吸附到最近的4个基本方向之一
 func _snap_cardinal(dir: Vector2) -> Vector2:
 	if abs(dir.x) >= abs(dir.y):
@@ -216,16 +196,111 @@ func _snap_cardinal(dir: Vector2) -> Vector2:
 	else:
 		return Vector2(0, sign(dir.y))
 
-## 根据覆盖方向集合，为每个 active warning 设置 danger 状态
+## 根据行/列和炮弹遮挡，为每个 active warning 设置 danger 状态
 func _apply_danger_to_warnings() -> void:
 	if not is_instance_valid(_enemy_manager):
 		return
-	var covered := _get_covered_directions()
+
+	var grid_rect := _grid_container.get_global_rect()
+	if grid_rect.size == Vector2.ZERO:
+		return
+
+	var cells := _grid_container.get_children()
+	var cols: int = int(round(grid_rect.size.x / CELL_SIZE))
+	var rows: int = int(round(grid_rect.size.y / CELL_SIZE))
+
+	# 构建二维炮塔地图 tower_grid[row][col]
+	var tower_grid: Array = []
+	for r in range(rows):
+		tower_grid.append([])
+		for c in range(cols):
+			tower_grid[r].append(null)
+	for i in range(cells.size()):
+		var cell = cells[i]
+		if not cell.has_method("get_deployed_tower"):
+			continue
+		var tower = cell.get_deployed_tower()
+		if not is_instance_valid(tower):
+			continue
+		var r: int = i / cols
+		var c: int = i % cols
+		if r < rows and c < cols:
+			tower_grid[r][c] = tower
+
 	for warning in _enemy_manager.active_warnings:
 		if not is_instance_valid(warning):
 			continue
-		# 敌人从 warning.direction 方向移动过来
-		# 炮塔需指向 -warning.direction 才能覆盖该方向
 		var needed_dir: Vector2 = -(warning.direction as Vector2)
-		var is_covered: bool = needed_dir in covered
+		var is_covered := false
+
+		if abs(needed_dir.x) > 0:
+			# 左右方向：检查同行
+			var warning_row: int = int((warning.global_position.y - grid_rect.position.y) / CELL_SIZE)
+			if warning_row >= 0 and warning_row < rows:
+				is_covered = _row_has_unblocked_barrel(tower_grid, warning_row, cols, needed_dir)
+		else:
+			# 上下方向：检查同列
+			var warning_col: int = int((warning.global_position.x - grid_rect.position.x) / CELL_SIZE)
+			if warning_col >= 0 and warning_col < cols:
+				is_covered = _col_has_unblocked_barrel(tower_grid, rows, warning_col, needed_dir)
+
 		warning.set_danger(not is_covered)
+
+## 检查某行是否有炮管朝 needed_dir 且炮弹路径无其他炮塔遮挡
+func _row_has_unblocked_barrel(tower_grid: Array, row: int, cols: int, needed_dir: Vector2) -> bool:
+	var step: int = int(needed_dir.x)  # +1=右, -1=左
+	for c in range(cols):
+		var tower = tower_grid[row][c]
+		if tower == null or not _tower_has_barrel(tower, needed_dir):
+			continue
+		# 检查该炮塔到边缘方向是否有其他炮塔遮挡
+		var blocked := false
+		if step > 0:
+			for cc in range(c + 1, cols):
+				if tower_grid[row][cc] != null:
+					blocked = true
+					break
+		else:
+			for cc in range(0, c):
+				if tower_grid[row][cc] != null:
+					blocked = true
+					break
+		if not blocked:
+			return true
+	return false
+
+## 检查某列是否有炮管朝 needed_dir 且炮弹路径无其他炮塔遮挡
+func _col_has_unblocked_barrel(tower_grid: Array, rows: int, col: int, needed_dir: Vector2) -> bool:
+	var step: int = int(needed_dir.y)  # -1=上, +1=下
+	for r in range(rows):
+		var tower = tower_grid[r][col]
+		if tower == null or not _tower_has_barrel(tower, needed_dir):
+			continue
+		var blocked := false
+		if step < 0:
+			for rr in range(0, r):
+				if tower_grid[rr][col] != null:
+					blocked = true
+					break
+		else:
+			for rr in range(r + 1, rows):
+				if tower_grid[rr][col] != null:
+					blocked = true
+					break
+		if not blocked:
+			return true
+	return false
+
+## 检查炮塔是否有炮管朝向 dir（世界空间）
+func _tower_has_barrel(tower: Node, dir: Vector2) -> bool:
+	var rotation_rad := deg_to_rad(float(tower.current_rotation_index) * 90.0)
+	var barrel_dirs: PackedVector2Array
+	if tower.data and tower.data.barrel_directions.size() > 0:
+		barrel_dirs = tower.data.barrel_directions
+	else:
+		barrel_dirs = PackedVector2Array([Vector2(0, -1)])
+	for local_dir in barrel_dirs:
+		var world_dir: Vector2 = local_dir.rotated(rotation_rad)
+		if _snap_cardinal(world_dir) == dir:
+			return true
+	return false
