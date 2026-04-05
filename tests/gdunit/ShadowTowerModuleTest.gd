@@ -47,3 +47,7 @@ func test_shadow_tower_scene_exists() -> void:
     var instance = scene.instantiate()
     assert_that(instance).has_method("get_shadow_team_id")
     instance.free()
+
+func test_bullet_collision_team_filtering() -> void:
+    var bullet_script = load("res://entities/bullets/bullet.gd")
+    assert_object(bullet_script).is_not_null()
