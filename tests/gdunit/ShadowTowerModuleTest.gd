@@ -29,3 +29,13 @@ func test_shadow_tower_module_resource_exists() -> void:
     assert_str(module.description).contains("5")
     assert_that(module.slot_color).is_equal(Color(0.2, 0.2, 0.8, 1))
     assert_int(module.fire_effects.size()).is_equal(1)
+
+func test_shadow_tower_script_exists() -> void:
+    var script = load("res://entities/towers/shadow_tower.gd")
+    assert_object(script).is_not_null()
+    # Check it extends tower.gd by looking at instance
+    var tower = Node2D.new()
+    tower.set_script(script)
+    assert_that(tower).has_method("get_shadow_team_id")
+    assert_int(tower.get_shadow_team_id()).is_equal(-1)
+    tower.free()
