@@ -17,6 +17,9 @@ var pending_enemies: Array = []
 # 普通模式：传入已占用的位置键，生成时跳过这些位置
 var excluded_pos_keys: Array = []
 
+# Dev mode: stores the single spawn position for infinite respawn
+var dev_spawn_info: Dictionary = {}
+
 func _ready():
 	pass
 
@@ -163,15 +166,19 @@ func spawn_enemies_from_data(enemy_data: Array):
 		var enemy = ENEMY_SCENE.instantiate()
 		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 		enemy.set_direction(enemy_info["direction"])
-		
+
 		# 连接碰撞信号
 		enemy.enemy_hit.connect(_on_enemy_hit)
 		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-		
+
 		# 添加到场景
 		get_tree().root.add_child(enemy)
 		active_enemies.append(enemy)
-	
+
+	# Dev mode: store the first spawn position for infinite respawn
+	if GameState.is_dev_mode() and enemy_data.size() > 0:
+		dev_spawn_info = enemy_data[0].duplicate()
+
 
 # 普通模式：为已有敌人数据补充显示警告（不重新生成位置）
 func show_warnings_for_existing(enemy_data: Array):
@@ -243,7 +250,17 @@ func _on_enemy_destroyed(enemy: CharacterBody2D):
 	if enemy in active_enemies:
 		active_enemies.erase(enemy)
 		GameState.add_coins(1)  # 每击杀一个敌人获得 1 金币（×难度系数，当前固定为1）
-		if active_enemies.size() == 0:
+
+		if GameState.is_dev_mode() and GameState.is_running() and not dev_spawn_info.is_empty():
+			# Dev mode: immediately respawn a new enemy at the same position
+			var new_enemy = ENEMY_SCENE.instantiate()
+			new_enemy.set_grid_aligned_position(dev_spawn_info["spawn_pos"])
+			new_enemy.set_direction(dev_spawn_info["direction"])
+			new_enemy.enemy_hit.connect(_on_enemy_hit)
+			new_enemy.enemy_destroyed.connect(_on_enemy_destroyed)
+			get_tree().root.add_child(new_enemy)
+			active_enemies.append(new_enemy)
+		elif active_enemies.size() == 0:
 			all_enemies_defeated.emit()
 
 func _exit_tree():
