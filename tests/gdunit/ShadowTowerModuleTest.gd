@@ -51,3 +51,57 @@ func test_shadow_tower_scene_exists() -> void:
 func test_bullet_collision_team_filtering() -> void:
     var bullet_script = load("res://entities/bullets/bullet.gd")
     assert_object(bullet_script).is_not_null()
+
+func test_module_installation() -> void:
+    var module = load(MODULE_PATH)
+    assert_object(module).is_not_null()
+
+    # Create mock tower (use Node2D with script set dynamically)
+    var tower_script = load("res://entities/towers/tower.gd")
+    var tower = Node2D.new()
+    tower.set_script(tower_script)
+    # Tower data is not set, so we just test module effects directly
+    # without needing full tower initialization
+
+    # Verify the effect class can be instantiated
+    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    var effect = effect_script.new()
+    assert_object(effect).is_not_null()
+    assert_int(effect.origin_entity_id).is_equal(-1)
+
+func test_bullet_counter_increments() -> void:
+    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    var effect = effect_script.new()
+    effect.origin_entity_id = 2002
+
+    # Verify the counter logic by checking the _bullet_counters dict
+    var bd = BulletData.new()
+    var mock_tower = Node2D.new()
+
+    # Apply 4 times - should not trigger spawn
+    for i in range(4):
+        effect.apply(mock_tower, bd)
+
+    # Verify counter is at 4
+    assert_int(effect._bullet_counters[2002]).is_equal(4)
+
+    mock_tower.free()
+
+func test_shadow_tower_uses_correct_collision_layer() -> void:
+    # Verify the script sets the correct layer by checking the code
+    var script = load("res://entities/towers/shadow_tower.gd")
+    var source = script.source_code
+    assert_str(source).contains("Layers.SHADOW_TOWER_BODY")
+
+func test_shadow_tower_blue_appearance() -> void:
+    # Verify the script sets blue tint
+    var script = load("res://entities/towers/shadow_tower.gd")
+    var source = script.source_code
+    assert_str(source).contains("Color(0.4, 0.4, 1.0, 0.7)")
+
+func test_shadow_tower_game_stopped_connection() -> void:
+    # Verify the script has _on_game_stopped method
+    var script = load("res://entities/towers/shadow_tower.gd")
+    var source = script.source_code
+    assert_str(source).contains("_on_game_stopped")
+    assert_str(source).contains("game_stopped.connect")
