@@ -73,10 +73,8 @@ func _reset_all_tower_ammo():
     for cell in _grid_container.get_children():
         if cell.has_method("get_deployed_tower"):
             var tower = cell.get_deployed_tower()
-            if is_instance_valid(tower) and tower.get("data") and tower.data:
-                tower.ammo = tower.data.initial_ammo
-                if tower.has_method("_update_ammo_label"):
-                    tower._update_ammo_label()
+            if is_instance_valid(tower) and tower.has_method("reset_ammo"):
+                tower.reset_ammo()
 
 func _create_dead_zones():
     if is_instance_valid(_dead_zone_manager):
@@ -111,6 +109,7 @@ func prepare_enemy_warnings():
     add_child(_enemy_manager)
 
     _enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
+    _enemy_manager.current_wave = current_wave
 
     var new_enemy_count = current_wave + 1  # 第N关 = N个敌人
 
@@ -143,6 +142,7 @@ func prepare_enemy_warnings():
         _pending_enemy_data = _enemy_manager.prepare_enemies()
 
     _accumulated_enemy_data = _pending_enemy_data.duplicate()
+    _apply_danger_to_warnings()
 
 func _create_enemy_manager():
     if is_instance_valid(_enemy_manager):
@@ -183,3 +183,44 @@ func get_current_wave() -> int:
 
 func get_pending_enemy_data() -> Array:
     return _pending_enemy_data
+
+## 收集所有已部署炮塔当前世界空间炮管方向（归一化到4个基本方向）
+func _get_covered_directions() -> Array:
+    var covered: Array = []
+    for cell in _grid_container.get_children():
+        if not cell.has_method("get_deployed_tower"):
+            continue
+        var tower = cell.get_deployed_tower()
+        if not is_instance_valid(tower):
+            continue
+        var rotation_rad := deg_to_rad(float(tower.current_rotation_index) * 90.0)
+        var barrel_dirs: PackedVector2Array
+        if tower.data and tower.data.barrel_directions.size() > 0:
+            barrel_dirs = tower.data.barrel_directions
+        else:
+            barrel_dirs = PackedVector2Array([Vector2(0, -1)])
+        for local_dir in barrel_dirs:
+            var world_dir: Vector2 = local_dir.rotated(rotation_rad)
+            covered.append(_snap_cardinal(world_dir))
+    return covered
+
+## 将任意向量吸附到最近的4个基本方向之一
+func _snap_cardinal(dir: Vector2) -> Vector2:
+    if abs(dir.x) >= abs(dir.y):
+        return Vector2(sign(dir.x), 0)
+    else:
+        return Vector2(0, sign(dir.y))
+
+## 根据覆盖方向集合，为每个 active warning 设置 danger 状态
+func _apply_danger_to_warnings() -> void:
+    if not is_instance_valid(_enemy_manager):
+        return
+    var covered := _get_covered_directions()
+    for warning in _enemy_manager.active_warnings:
+        if not is_instance_valid(warning):
+            continue
+        # 敌人从 warning.direction 方向移动过来
+        # 炮塔需指向 -warning.direction 才能覆盖该方向
+        var needed_dir := -warning.direction
+        var is_covered := needed_dir in covered
+        warning.set_danger(not is_covered)
