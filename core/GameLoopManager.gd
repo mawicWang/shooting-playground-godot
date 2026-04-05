@@ -28,6 +28,11 @@ func setup(grid_container: Control):
 	SignalBus.game_started.connect(_on_game_started)
 	SignalBus.game_stopped.connect(_on_game_stopped)
 
+func _process(_delta: float) -> void:
+	# 部署阶段实时更新警告危险状态（炮塔旋转/移动时同步）
+	if GameState.is_deployment() and is_instance_valid(_enemy_manager):
+		_apply_danger_to_warnings()
+
 func start_game():
 	GameState.start_game()
 
