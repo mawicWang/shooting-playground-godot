@@ -597,6 +597,16 @@ func _create_reward_popup():
 
 func _update_button_style():
 	var is_running = GameState.is_running()
+	var is_dev = GameState.is_dev_mode()
+
+	# Dev mode running: show stop button, hide start button
+	if is_dev and is_running:
+		start_stop_button.visible = false
+		_debug_stop_button.visible = true
+		return
+
+	# All other states: hide stop button
+	_debug_stop_button.visible = false
 	start_stop_button.visible = not is_running
 	if not is_running:
 		var has_staging: bool = is_instance_valid(_staging_icon) and _staging_icon.visible
