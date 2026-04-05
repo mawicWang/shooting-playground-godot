@@ -20,3 +20,12 @@ func test_bullet_data_has_shadow_team_id_field() -> void:
 func test_spawn_shadow_tower_effect_class_exists() -> void:
     var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
     assert_object(effect_script).is_not_null()
+
+func test_shadow_tower_module_resource_exists() -> void:
+    var module = load(MODULE_PATH)
+    assert_object(module).is_not_null()
+    assert_str(module.module_name).is_equal("幻影炮塔")
+    assert_int(module.category).is_equal(2)  # SPECIAL
+    assert_str(module.description).contains("5")
+    assert_that(module.slot_color).is_equal(Color(0.2, 0.2, 0.8, 1))
+    assert_int(module.fire_effects.size()).is_equal(1)
