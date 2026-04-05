@@ -9,6 +9,7 @@ var transmission_chain: Array = []
 ## 效果列表（Array[BulletEffect]），子弹携带，各触发时机依次调用
 var effects: Array = []
 var tower_body_mask: int = 32   ## 子弹 Hitbox 碰撞遮罩（默认 TOWER_BODY 层，FlyingModule 可扩展为 32|64）
+var shadow_team_id: int = -1    ## -1 = 普通子弹，≥0 = 影子团队ID
 
 ## 本子弹所在链上各 tower 的 bullet_effects 已贡献次数（{int → int}）
 var effect_contribution_counts: Dictionary = {}

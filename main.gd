@@ -46,6 +46,8 @@ const _DEV_ALL_MODULES := [
 	preload("res://resources/module_data/deal_damage_cd_reduce.tres"),
 	preload("res://resources/module_data/deal_damage_replenish1.tres"),
 	preload("res://resources/module_data/deal_damage_speed_boost.tres"),
+	preload("res://resources/module_data/chain_module.tres"),
+	preload("res://resources/module_data/shadow_tower_module.tres"),
 ]
 
 @onready var game_content = $GameContent

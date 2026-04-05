@@ -46,6 +46,18 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	var parent = other_area.get_parent()
 	if not is_instance_valid(parent) or not parent.is_in_group("towers"):
 		return
+
+	# 团队过滤逻辑
+	if data and data.shadow_team_id >= 0:
+		# 影子子弹：只击中同团队的影子炮塔
+		if not parent.has_method("get_shadow_team_id"):
+			return  # 不是影子炮塔
+		if parent.get_shadow_team_id() != data.shadow_team_id:
+			return  # 不同团队
+	elif parent.has_method("get_shadow_team_id"):
+		# 普通子弹击中影子炮塔：跳过
+		return
+
 	# 不击中自己发射的炮塔（transmission_chain 防止自碰）
 	if data and data.transmission_chain.has(parent):
 		return

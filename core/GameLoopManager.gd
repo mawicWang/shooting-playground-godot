@@ -114,7 +114,6 @@ func prepare_enemy_warnings():
 	add_child(_enemy_manager)
 
 	_enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
-	_enemy_manager.current_wave = current_wave
 
 	var new_enemy_count = current_wave + 1  # 第N关 = N个敌人
 

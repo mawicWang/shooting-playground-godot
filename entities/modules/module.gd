@@ -20,6 +20,8 @@ enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
 
 func on_install(tower: Node) -> void:
 	tower.fire_effects.append_array(fire_effects)
+	for e in fire_effects:
+		e.on_module_install(tower)
 	tower.tower_effects.append_array(tower_effects)
 	tower.bullet_effects.append_array(bullet_effects)
 	for entry in stat_modifiers:
