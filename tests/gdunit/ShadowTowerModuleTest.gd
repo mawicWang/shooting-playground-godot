@@ -39,3 +39,11 @@ func test_shadow_tower_script_exists() -> void:
     assert_that(tower).has_method("get_shadow_team_id")
     assert_int(tower.get_shadow_team_id()).is_equal(-1)
     tower.free()
+
+func test_shadow_tower_scene_exists() -> void:
+    var scene = load("res://entities/towers/shadow_tower.tscn")
+    assert_object(scene).is_not_null()
+
+    var instance = scene.instantiate()
+    assert_that(instance).has_method("get_shadow_team_id")
+    instance.free()

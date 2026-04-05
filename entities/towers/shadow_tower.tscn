@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgxlm2e4o8cts"]
+
+[ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1000.svg" id="1_k1sas"]
+[ext_resource type="Script" path="res://entities/towers/shadow_tower.gd" id="2_shadow_script"]
+
+[node name="ShadowTower" type="Node2D"]
+script = ExtResource("2_shadow_script")
+
+[node name="TowerVisual" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="TowerVisual"]
+texture = ExtResource("1_k1sas")
+
+[node name="FireTimer" type="Timer" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
