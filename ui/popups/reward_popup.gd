@@ -34,6 +34,7 @@ const REWARD_POOL: Array = [
 	preload("res://resources/module_data/deal_damage_cd_reduce.tres"),
 	preload("res://resources/module_data/deal_damage_replenish1.tres"),
 	preload("res://resources/module_data/deal_damage_speed_boost.tres"),
+	preload("res://resources/module_data/chain_module.tres"),
 ]
 const FALLBACK_MODULE_TEX = preload("res://assets/bullet.svg")
 

@@ -21,8 +21,12 @@ var fire_effects: Array[FireEffect] = []
 var tower_effects: Array[TowerEffect] = []
 var bullet_effects: Array[BulletEffect] = []
 
-## 弹药系统：-1 = 无限，≥0 = 有限弹药
+## 弹药系统：-1 = 无限弹药；0 = 有限弹药（由 ammo_queue 管理）
 var ammo: int = 0
+var ammo_queue: Array = []   # Array[AmmoItem]
+var ammo_cursor: int = 0
+var bullet_effect_max_chain: int = 1   # 本 tower 的 bullet_effects 在链上最多触发次数
+var tower_effect_max_chain: int = 1    # 本 tower 的 tower_effects 在链上最多触发次数
 var _ammo_label: Label = null
 
 ## 炮塔实体 Hitbox（供子弹碰撞检测）
@@ -77,6 +81,8 @@ func _ready():
 	set_process(false)  # 默认关闭，start_firing() 时启用
 
 func _apply_data():
+	ammo_queue.clear()
+	ammo_cursor = 0
 	var base_cd := 1.0 / maxf(data.firing_rate if data else 1.0, 0.01)
 	_cd_stat           = StatAttribute.new(base_cd)
 	_bullet_speed_stat = StatAttribute.new(200.0)
@@ -88,6 +94,11 @@ func _apply_data():
 		ammo = data.initial_ammo
 	else:
 		ammo = 3
+	# 有限弹药：初始化队列（无限弹药跳过，_do_fire 会即时创建空 AmmoItem）
+	if ammo >= 0:
+		for _i in range(ammo):
+			ammo_queue.append(AmmoItem.new())
+		ammo = 0  # 有限弹药由队列管理，ammo 只保留 -1（无限）标志位
 	_update_ammo_label()
 
 func _get_effective_cd() -> float:
@@ -254,22 +265,44 @@ func get_module_count() -> int:
 # ── 弹药系统 ─────────────────────────────────────────────────
 
 func has_ammo() -> bool:
-	return ammo == -1 or ammo > 0
+	return ammo == -1 or ammo_cursor < ammo_queue.size()
+
+func ammo_count() -> int:
+	if ammo == -1:
+		return -1
+	return ammo_queue.size() - ammo_cursor
 
 func consume_ammo() -> void:
 	if ammo == -1:
 		return
-	ammo = max(0, ammo - 1)
+	ammo_cursor += 1
+	# 定期清理已消费项，防止长时间运行后内存堆积
+	if ammo_cursor > 200:
+		ammo_queue = ammo_queue.slice(ammo_cursor)
+		ammo_cursor = 0
 	_update_ammo_label()
 
+## 全新弹药（空链）：初始弹药、击杀敌人奖励等来源
 func add_ammo(amount: int) -> void:
 	if ammo == -1:
 		return
-	ammo += amount
+	for _i in range(amount):
+		ammo_queue.append(AmmoItem.new())
 	_update_ammo_label()
 	# CD 已归零且正在开火阶段：重启 process，下一帧统一检查并发射
-	# 注意：不在此直接调用 _do_fire()，避免多 effect 顺序执行时
-	# 第一次补充触发开炮消耗弹药，导致后续补充效果被抵消
+	if _is_firing and _cooldown_remaining <= 0.0:
+		set_process(true)
+
+## 链式弹药：继承当前子弹的链追踪状态，用于炮塔间弹药传递
+func add_ammo_from_chain(amount: int, bullet_data: BulletData) -> void:
+	if ammo == -1:
+		return
+	for _i in range(amount):
+		var item := AmmoItem.new()
+		item.effect_contribution_counts = bullet_data.effect_contribution_counts.duplicate()
+		item.tower_effect_trigger_counts = bullet_data.tower_effect_trigger_counts.duplicate()
+		ammo_queue.append(item)
+	_update_ammo_label()
 	if _is_firing and _cooldown_remaining <= 0.0:
 		set_process(true)
 
@@ -310,7 +343,7 @@ func _create_ammo_label() -> void:
 func _update_ammo_label() -> void:
 	if not is_instance_valid(_ammo_label):
 		return
-	_ammo_label.text = "∞" if ammo == -1 else str(ammo)
+	_ammo_label.text = "∞" if ammo == -1 else str(ammo_count())
 
 func _create_cd_label() -> void:
 	_cd_label = Label.new()
@@ -387,7 +420,14 @@ func on_bullet_hit(bullet_data: BulletData) -> void:
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
 func _do_fire() -> void:
+	# 取当前弹药项（无限弹药每次创建空 AmmoItem，保持全新链）
+	var ammo_item: AmmoItem
+	if ammo == -1:
+		ammo_item = AmmoItem.new()
+	else:
+		ammo_item = ammo_queue[ammo_cursor]
 	consume_ammo()
+
 	# 额外弹药消耗（由 ammo_extra_stat 驱动，如重弹头模块）
 	var extra := int(_ammo_extra_stat.get_value())
 	for _i in range(extra):
@@ -396,18 +436,27 @@ func _do_fire() -> void:
 	var bd := BulletData.new()
 	bd.attack = _bullet_attack_stat.get_value()
 	bd.speed  = _bullet_speed_stat.get_value()
-	bd.transmission_chain = [self]
-	# 默认补充+1：每发子弹击中炮塔时恢复 1 弹药（相当于内置补充+1模块）
+	bd.transmission_chain = [self]  # 仅防自碰，与链计数无关
+
+	# 从弹药项继承链追踪状态
+	bd.effect_contribution_counts = ammo_item.effect_contribution_counts.duplicate()
+	bd.tower_effect_trigger_counts = ammo_item.tower_effect_trigger_counts.duplicate()
+
+	# 检查本 tower 是否还能贡献 bullet_effects
+	var contrib_count = bd.effect_contribution_counts.get(entity_id, 0)
+	if contrib_count < bullet_effect_max_chain:
+		bd.effects.append_array(bullet_effects)
+		bd.effect_contribution_counts[entity_id] = contrib_count + 1
+
+	# default_replenish：无条件追加，不计入 contribution（基础传递机制）
 	var default_replenish := HitTowerTargetReplenishEffect.new()
 	bd.effects.append(default_replenish)
-	bd.effects.append_array(bullet_effects)
 
 	# 设置子弹碰撞层以反映飞行/反空状态
 	if is_flying:
-		bd.tower_body_mask = Layers.AIR_TOWER_BODY  # flying bullets only hit air towers
+		bd.tower_body_mask = Layers.AIR_TOWER_BODY
 	elif has_anti_air:
-		bd.tower_body_mask = Layers.TOWER_BODY | Layers.AIR_TOWER_BODY  # hits both
-	# else: default tower_body_mask = 32 (TOWER_BODY) from BulletData
+		bd.tower_body_mask = Layers.TOWER_BODY | Layers.AIR_TOWER_BODY
 
 	var cd := _get_effective_cd()
 	_cooldown_remaining = cd

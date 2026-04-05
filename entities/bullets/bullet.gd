@@ -56,19 +56,32 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	var impact := BulletImpact.new()
 	get_tree().root.add_child(impact)
 	impact.spawn(global_position, BulletImpact.COLORS_TOWER)
-	# 记录弹药基线（on_hit_tower 和 tower_effects 都可能补弹，统一在此捕获）
-	var ammo_before: int = parent.ammo if parent.get("ammo") != null else -1
-	# 1. 触发 on_hit_tower 效果（子弹侧）
+
+	# 受击动画：每次击中都播，不受 chain 限制
+	parent.play_hit_effect()
+
+	# 记录弹药基线（用于命中后弹药回复浮动数字）
+	var ammo_before: int = parent.ammo_count() if parent.has_method("ammo_count") else -1
+
+	# 1. 触发 BulletEffect.on_hit_tower（子弹侧，顺序不变）
 	if data:
 		for effect in data.effects:
 			effect.on_hit_tower(data, parent)
-	# 2. 触发炮塔被击中（炮塔侧，内部触发 tower_effects.on_receive_bullet_hit）
-	parent.on_bullet_hit(data)
+
+	# 2. TowerEffect：检查目标 tower 是否还有触发次数
+	if data and parent.get("entity_id") != null and parent.get("tower_effect_max_chain") != null:
+		var te_count = data.tower_effect_trigger_counts.get(parent.entity_id, 0)
+		if te_count < parent.tower_effect_max_chain:
+			data.tower_effect_trigger_counts[parent.entity_id] = te_count + 1
+			for te in parent.tower_effects:
+				te.on_receive_bullet_hit(data, parent)
+
 	# 3. 弹药回复浮动数字（在所有效果跑完后统一显示）
-	var ammo_after: int = parent.ammo if parent.get("ammo") != null else -1
+	var ammo_after: int = parent.ammo_count() if parent.has_method("ammo_count") else -1
 	if ammo_before != -1 and ammo_after != -1 and ammo_after > ammo_before:
 		var an := AmmoNumber.new()
 		get_tree().root.add_child(an)
 		an.show_ammo(parent.global_position, ammo_after - ammo_before)
+
 	# 4. 延迟回收，避免在物理回调中直接修改场景树
 	BulletPool.release.call_deferred(self)

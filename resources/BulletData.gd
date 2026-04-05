@@ -10,6 +10,11 @@ var transmission_chain: Array = []
 var effects: Array = []
 var tower_body_mask: int = 32   ## 子弹 Hitbox 碰撞遮罩（默认 TOWER_BODY 层，FlyingModule 可扩展为 32|64）
 
+## 本子弹所在链上各 tower 的 bullet_effects 已贡献次数（{int → int}）
+var effect_contribution_counts: Dictionary = {}
+## 本子弹所在链上各 tower 的 tower_effects 已触发次数（{int → int}）
+var tower_effect_trigger_counts: Dictionary = {}
+
 func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	var copy := BulletData.new()
 	copy.attack = attack
@@ -20,6 +25,8 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	copy.transmission_chain = transmission_chain.duplicate()
 	copy.effects = effects.duplicate()
 	copy.tower_body_mask = tower_body_mask
+	copy.effect_contribution_counts = effect_contribution_counts.duplicate()
+	copy.tower_effect_trigger_counts = tower_effect_trigger_counts.duplicate()
 	for key in mods:
 		copy.set(key, mods[key])
 	return copy
