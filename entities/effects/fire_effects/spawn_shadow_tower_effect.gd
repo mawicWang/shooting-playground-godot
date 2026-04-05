@@ -77,7 +77,36 @@ func _get_adjacent_empty_cells(parent_cell: Node, tower: Node) -> Array[Node]:
 
 	return empty_cells
 
-func _spawn_shadow_at_cell(_parent_tower: Node, _target_cell: Node) -> void:
-	# 此方法将在后续任务中实现（需要 shadow_tower 场景）
-	# 暂时留空
-	pass
+func _spawn_shadow_at_cell(parent_tower: Node, target_cell: Node) -> void:
+	# 加载影子炮塔场景
+	var shadow_scene := load("res://entities/towers/shadow_tower.tscn")
+	if not shadow_scene:
+		push_error("Failed to load shadow tower scene")
+		return
+
+	var shadow_tower: Node = shadow_scene.instantiate()
+
+	# 复制炮塔数据
+	if parent_tower.has_method("get_tower_data") or parent_tower.data:
+		shadow_tower.data = parent_tower.data
+
+	# 设置影子团队ID
+	shadow_tower.shadow_team_id = origin_entity_id
+
+	# 复制所有模块
+	for module: Module in parent_tower.modules:
+		shadow_tower.install_module(module.duplicate())
+
+	# 设置方向
+	if parent_tower.has_method("set_initial_direction"):
+		shadow_tower.set_initial_direction(parent_tower.current_rotation_index)
+
+	# 放置到目标单元格
+	target_cell.add_child(shadow_tower)
+
+	# 如果游戏正在运行，启动开火
+	if GameState.is_running() and shadow_tower.has_method("start_firing"):
+		shadow_tower.start_firing()
+
+	# 设置 entity_id（影子炮塔不需要 source_icon）
+	shadow_tower.entity_id = GameState.generate_entity_id()
