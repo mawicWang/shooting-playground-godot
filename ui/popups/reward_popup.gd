@@ -25,6 +25,15 @@ const REWARD_POOL: Array = [
 	preload("res://resources/module_data/flying.tres"),
 	preload("res://resources/module_data/anti_air.tres"),
 	preload("res://resources/module_data/hit_speed_boost.tres"),
+	preload("res://resources/module_data/hit_enemy_replenish1.tres"),
+	preload("res://resources/module_data/hit_enemy_replenish2.tres"),
+	preload("res://resources/module_data/hit_enemy_speed_boost.tres"),
+	preload("res://resources/module_data/receive_hit_replenish1.tres"),
+	preload("res://resources/module_data/receive_hit_replenish2.tres"),
+	preload("res://resources/module_data/receive_hit_speed_boost.tres"),
+	preload("res://resources/module_data/deal_damage_cd_reduce.tres"),
+	preload("res://resources/module_data/deal_damage_replenish1.tres"),
+	preload("res://resources/module_data/deal_damage_speed_boost.tres"),
 ]
 const FALLBACK_MODULE_TEX = preload("res://assets/bullet.svg")
 
