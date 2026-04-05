@@ -6,6 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Prefer simple, minimal solutions first. Do not over-engineer. If a random offset works, don't build a candidate-list system. Avoid adding unrequested features like screen shake.
 
+## Godot MCP
+
+When available, prefer using the Godot MCP tools over manual file editing for scene and project operations. Key tools:
+
+- `mcp__godot__get_project_info` — inspect project structure
+- `mcp__godot__create_scene` — create new .tscn scenes
+- `mcp__godot__add_node` — add nodes to scene trees
+- `mcp__godot__save_scene` — save modified scenes
+- `mcp__godot__load_sprite` — attach sprites/textures to nodes
+- `mcp__godot__run_project` / `mcp__godot__stop_project` — run/stop the game
+- `mcp__godot__get_debug_output` — read runtime logs
+- `mcp__godot__get_uid` / `mcp__godot__update_project_uids` — manage resource UIDs
+
+Use MCP tools first for scene tree manipulation (adding/removing nodes, setting properties). Fall back to direct file editing only when MCP tools cannot accomplish the task.
+
+## Pixellab MCP
+API Doc: @https://api.pixellab.ai/v2/llms.txt
+MCP Doc: @https://api.pixellab.ai/mcp/docs
+
 ## Project Overview
 
 A Godot 4.4+ tower defense game prototype ("shooting playground") with drag-and-drop tower placement, 4-directional tower rotation, wave-based enemy combat, coin economy, wave reward system, module/relic system, and responsive Web/mobile layout.
