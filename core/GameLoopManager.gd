@@ -114,7 +114,12 @@ func prepare_enemy_warnings():
 
     var new_enemy_count = current_wave + 1  # 第N关 = N个敌人
 
-    if GameState.game_mode == GameState.GameMode.NORMAL and _accumulated_enemy_data.size() > 0:
+    if GameState.is_dev_mode():
+        # Dev mode: always 1 enemy, fully random position, no accumulation
+        _enemy_manager.excluded_pos_keys = []
+        _enemy_manager.enemy_count = 1
+        _pending_enemy_data = _enemy_manager.prepare_enemies()
+    elif GameState.game_mode == GameState.GameMode.NORMAL and _accumulated_enemy_data.size() > 0:
         # 普通模式：保留上一波敌人位置，只新增差额
         _pending_enemy_data = _accumulated_enemy_data.duplicate()
         var additional_count = new_enemy_count - _accumulated_enemy_data.size()
