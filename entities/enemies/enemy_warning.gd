@@ -6,6 +6,7 @@ const ANIMATION_AMPLITUDE = 8.0  # 上下移动幅度（像素）
 var direction: Vector2 = Vector2.ZERO
 var base_position: Vector2 = Vector2.ZERO
 var time_accumulator: float = 0.0  # 时间累积器
+var _danger_material: ShaderMaterial = null
 
 func _ready():
 	# 强制朝上，不随方向旋转
@@ -25,3 +26,13 @@ func set_direction(dir: Vector2):
 func set_grid_aligned_position(pos: Vector2):
 	base_position = pos
 	position = pos
+
+func set_danger(is_danger: bool) -> void:
+	var sprite := $Sprite2D
+	if is_danger:
+		if _danger_material == null:
+			_danger_material = ShaderMaterial.new()
+			_danger_material.shader = load("res://entities/enemies/enemy_warning_danger.gdshader")
+		sprite.material = _danger_material
+	else:
+		sprite.material = null
