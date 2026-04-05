@@ -68,3 +68,7 @@ Thumbs.db
 /enemy_shader.gdshader
 /enemy_shader.gdshader.uid
 /removal_zone.gd
+
+# Worktrees for isolated development
+# ----------------------
+.worktrees/
