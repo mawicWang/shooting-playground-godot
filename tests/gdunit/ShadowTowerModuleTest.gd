@@ -16,3 +16,7 @@ func test_bullet_data_has_shadow_team_id_field() -> void:
     # Should be settable
     bd.shadow_team_id = 123
     assert_int(bd.shadow_team_id).is_equal(123)
+
+func test_spawn_shadow_tower_effect_class_exists() -> void:
+    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    assert_object(effect_script).is_not_null()
