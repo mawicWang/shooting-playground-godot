@@ -47,6 +47,10 @@ func _do_fire() -> void:
 	bd.shadow_team_id = shadow_team_id
 	bd.tower_body_mask = Layers.SHADOW_TOWER_BODY  # 只检测影子炮塔
 
+	# 触发 FireEffect（开火时效果，如影子炮塔生成）
+	for effect in fire_effects:
+		effect.apply(self, bd)
+
 	# 从弹药项继承链追踪状态
 	bd.effect_contribution_counts = ammo_item.effect_contribution_counts.duplicate()
 	bd.tower_effect_trigger_counts = ammo_item.tower_effect_trigger_counts.duplicate()

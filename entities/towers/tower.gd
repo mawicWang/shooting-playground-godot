@@ -181,7 +181,8 @@ func _set_rotation_clockwise(degrees: float):
 
 func set_initial_direction(direction_index: int):
 	current_rotation_index = direction_index % 4
-	_tower_visual.rotation_degrees = current_rotation_index * 90.0
+	if is_instance_valid(_tower_visual):
+		_tower_visual.rotation_degrees = current_rotation_index * 90.0
 
 func _on_rotation_complete():
 	is_rotating = false
@@ -437,6 +438,10 @@ func _do_fire() -> void:
 	bd.attack = _bullet_attack_stat.get_value()
 	bd.speed  = _bullet_speed_stat.get_value()
 	bd.transmission_chain = [self]  # 仅防自碰，与链计数无关
+
+	# 触发 FireEffect（开火时效果，如影子炮塔生成）
+	for effect in fire_effects:
+		effect.apply(self, bd)
 
 	# 从弹药项继承链追踪状态
 	bd.effect_contribution_counts = ammo_item.effect_contribution_counts.duplicate()

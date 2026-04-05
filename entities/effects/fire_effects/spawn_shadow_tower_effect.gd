@@ -6,6 +6,9 @@ var _bullet_counters: Dictionary = {}  # origin_entity_id -> count
 ## 起源炮塔的 entity_id（安装时设置）
 var origin_entity_id: int = -1
 
+func on_module_install(tower: Node) -> void:
+	origin_entity_id = tower.entity_id
+
 func apply(tower: Node, _bd: BulletData) -> void:
 	# 初始化计数器（如果需要）
 	if not _bullet_counters.has(origin_entity_id):
