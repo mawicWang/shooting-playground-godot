@@ -8,6 +8,7 @@ const TOWER_SCENE := "res://entities/towers/tower.tscn"
 const BULLET_SCENE := "res://entities/bullets/bullet.tscn"
 const ENEMY_SCENE := "res://entities/enemies/enemy.tscn"
 const ENEMY_WARNING_SCENE := "res://entities/enemies/enemy_warning.tscn"
+const SHIELD_ENEMY_SCENE := "res://entities/enemies/shield_enemy.tscn"
 const GAME_OVER_POPUP_SCENE := "res://ui/popups/game_over_popup.tscn"
 
 # ========== Autoloads ==========

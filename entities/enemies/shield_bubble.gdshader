@@ -5,7 +5,7 @@ uniform float pulse_min : hint_range(0.0, 1.0) = 0.3;
 uniform float pulse_max : hint_range(0.0, 1.0) = 0.7;
 uniform float layer_intensity : hint_range(0.0, 1.0) = 1.0;
 uniform vec4 shield_color : source_color = vec4(0.3, 0.5, 1.0, 0.5);
-instance uniform float ripple_time = -1.0;
+uniform float ripple_time = -1.0;
 
 void fragment() {
 	vec2 centered = UV - vec2(0.5);
