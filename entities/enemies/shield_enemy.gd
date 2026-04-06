@@ -45,7 +45,8 @@ func take_damage(amount: float, bullet_data: BulletData = null) -> void:
 func _break_shield() -> void:
 	_is_stunned = true
 	_shield_bubble.play_break()
-	var effect := ShieldBreakEffect.new()
+	var ShieldBreakEffectScript := preload("res://entities/enemies/shield_break_effect.gd")
+	var effect := ShieldBreakEffectScript.new()
 	get_tree().root.add_child(effect)
 	effect.play(global_position)
 	speed = 0.0
