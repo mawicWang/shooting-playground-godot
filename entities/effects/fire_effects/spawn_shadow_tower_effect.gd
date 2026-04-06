@@ -81,7 +81,6 @@ func _get_adjacent_empty_cells(parent_cell: Node, tower: Node) -> Array[Node]:
 	return empty_cells
 
 func _spawn_shadow_at_cell(parent_tower: Node, target_cell: Node) -> void:
-	# 加载影子炮塔场景
 	var shadow_scene := load("res://entities/towers/shadow_tower.tscn")
 	if not shadow_scene:
 		push_error("Failed to load shadow tower scene")
@@ -89,27 +88,35 @@ func _spawn_shadow_at_cell(parent_tower: Node, target_cell: Node) -> void:
 
 	var shadow_tower: Node = shadow_scene.instantiate()
 
-	# 复制炮塔数据
-	if parent_tower.has_method("get_tower_data") or parent_tower.data:
-		shadow_tower.data = parent_tower.data
-
-	# 设置影子团队ID
+	# 在 add_child 前设置 data 和 entity_id，确保 _ready()/_apply_data() 和 on_module_install 都能拿到正确值
+	shadow_tower.data = parent_tower.data
 	shadow_tower.shadow_team_id = origin_entity_id
+	shadow_tower.entity_id = GameState.generate_entity_id()
 
-	# 复制所有模块
-	for module: Module in parent_tower.modules:
-		shadow_tower.install_module(module.duplicate())
-
-	# 设置方向
-	if parent_tower.has_method("set_initial_direction"):
-		shadow_tower.set_initial_direction(parent_tower.current_rotation_index)
-
-	# 放置到目标单元格
+	# add_child 触发 _ready() 和 _apply_data()，精灵纹理已就绪
 	target_cell.add_child(shadow_tower)
 
-	# 如果游戏正在运行，启动开火
-	if GameState.is_running() and shadow_tower.has_method("start_firing"):
-		shadow_tower.start_firing()
+	# 修正位置和缩放（必须在 add_child 后，cell.size 和纹理才可用）
+	target_cell._setup_tower_visuals(shadow_tower)
 
-	# 设置 entity_id（影子炮塔不需要 source_icon）
-	shadow_tower.entity_id = GameState.generate_entity_id()
+	# 标记格子已占用，防止重复生成
+	target_cell.is_occupied = true
+	target_cell.tower_node = shadow_tower
+
+	# 安装模块，跳过含有 SpawnShadowTowerEffect 的模块（防止影子炮塔递归生成，
+	# 同时避免 on_module_install 覆写共享 effect 的 origin_entity_id）
+	for module: Module in parent_tower.modules:
+		var skip := false
+		for e in module.fire_effects:
+			if e is SpawnShadowTowerEffect:
+				skip = true
+				break
+		if not skip:
+			shadow_tower.install_module(module)
+
+	# 方向跟随本体
+	shadow_tower.set_initial_direction(parent_tower.current_rotation_index)
+
+	# 游戏运行中则立即开火
+	if GameState.is_running():
+		shadow_tower.start_firing()

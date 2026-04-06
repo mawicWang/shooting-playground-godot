@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2026-04-05" name="report_6" tests="1" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="ShadowTowerModuleTest" package="tests/gdunit" timestamp="2026-04-05T09:34:30" hostname="localhost" tests="1" failures="0" errors="1" skipped="0" flaky="0" time="0.048">
+		<testcase name="test_shadow_tower_body_layer_constant_exists" classname="ShadowTowerModuleTest" time="0.028">
+			<error message="ERROR: res://tests/gdunit/ShadowTowerModuleTest.gd:5" type="ABORT">
+<![CDATA[
+Godot Runtime Error !
+	'at: test_shadow_tower_body_layer_constant_exists (res://tests/gdunit/ShadowTowerModuleTest.gd:5)'
+Error: 'Invalid access to property or key 'SHADOW_TOWER_BODY' on a base object of type 'Node (Layers.gd)'.'
+]]>
+			</error>
+		</testcase>
+	</testsuite>
+</testsuites>

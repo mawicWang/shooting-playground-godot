@@ -5,10 +5,18 @@ var shadow_team_id: int = -1
 
 func _ready() -> void:
 	super._ready()
-	# 设置半透明蓝色外观
-	modulate = Color(0.4, 0.4, 1.0, 0.7)
-	# 监听游戏结束信号进行清理
+	# 深色半透明影子外观
+	modulate = Color(0.15, 0.15, 0.2, 0.65)
 	SignalBus.game_stopped.connect(_on_game_stopped)
+	SignalBus.wave_completed.connect(_on_wave_completed)
+
+## 覆盖弹药初始化：影子炮塔始终无限弹药
+func _apply_data() -> void:
+	super._apply_data()
+	ammo = -1
+	ammo_queue.clear()
+	ammo_cursor = 0
+	_update_ammo_label()
 
 ## 获取影子团队ID（供子弹碰撞检测使用）
 func get_shadow_team_id() -> int:
@@ -90,6 +98,15 @@ func _do_fire() -> void:
 
 	EventManager.notify_bullet_fired(bd, self)
 
-## 游戏结束时清理影子炮塔
-func _on_game_stopped() -> void:
+func _cleanup() -> void:
+	# 清理父格子的占用状态，然后移除自身
+	var parent_cell = get_parent()
+	if is_instance_valid(parent_cell) and parent_cell.has_method("remove_tower_reference"):
+		parent_cell.remove_tower_reference()
 	queue_free()
+
+func _on_game_stopped() -> void:
+	_cleanup()
+
+func _on_wave_completed(_wave_number: int) -> void:
+	_cleanup()

@@ -1,0 +1,42 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/strong_enemy.gd" id="1_strong_script"]
+[ext_resource type="Texture2D" path="res://assets/strong_enemy.png" id="2_strong_tex"]
+[ext_resource type="Shader" uid="uid://byspx7q3ltaqk" path="res://entities/enemies/enemy_shader.gdshader" id="3_enemy_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_strong"]
+noise_type = 3
+frequency = 0.05
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_strong"]
+width = 64
+height = 64
+seamless = true
+noise = SubResource("FastNoiseLite_strong")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_strong"]
+shader = ExtResource("3_enemy_shader")
+shader_parameter/shake_amplitude = 22.049
+shader_parameter/shake_fps = 2.0
+shader_parameter/rot_amplitude = 30.0
+shader_parameter/shake_noise_tex = SubResource("NoiseTexture2D_strong")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_strong"]
+size = Vector2(40, 40)
+
+[node name="StrongEnemy" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_strong_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_strong")
+texture = ExtResource("2_strong_tex")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 31
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_strong")
