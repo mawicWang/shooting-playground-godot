@@ -1,7 +1,7 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=8 format=3 uid="uid://dkt7npu843g1k"]
 
-[ext_resource type="Script" path="res://entities/enemies/strong_enemy.gd" id="1_strong_script"]
-[ext_resource type="Texture2D" path="res://assets/strong_enemy.png" id="2_strong_tex"]
+[ext_resource type="Script" uid="uid://cgsxda5u7cay7" path="res://entities/enemies/strong_enemy.gd" id="1_strong_script"]
+[ext_resource type="Texture2D" uid="uid://c6ye1c544qp1q" path="res://assets/strong_enemy.png" id="2_strong_tex"]
 [ext_resource type="Shader" uid="uid://byspx7q3ltaqk" path="res://entities/enemies/enemy_shader.gdshader" id="3_enemy_shader"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_strong"]

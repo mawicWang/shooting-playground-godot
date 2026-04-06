@@ -1,8 +1,8 @@
 extends Node2D
 
-const ENEMY_SCENE = preload("res://entities/enemies/enemy.tscn")
 const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
 var enemy_count: int = 1  # 当前波次的敌人数量（由外部设置）
+var current_wave: int = 1   # 当前波次（影响敌人生成权重）
 const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
 const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
 
@@ -22,6 +22,10 @@ var dev_spawn_info: Dictionary = {}
 
 func _ready():
 	pass
+
+## 根据当前波次权重，随机选择敌人场景
+func _pick_enemy_scene() -> PackedScene:
+	return EnemySpawnPicker.pick(current_wave)
 
 func set_grid_info(rect: Rect2, cell_size: float):
 	grid_rect = rect
@@ -138,7 +142,7 @@ func spawn_enemies():
 	
 	# 根据预存的信息生成敌人
 	for enemy_info in pending_enemies:
-		var enemy = ENEMY_SCENE.instantiate()
+		var enemy = _pick_enemy_scene().instantiate()
 		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 		enemy.set_direction(enemy_info["direction"])
 		
@@ -163,7 +167,7 @@ func spawn_enemies_from_data(enemy_data: Array):
 	
 	# 根据传入的数据生成敌人
 	for enemy_info in enemy_data:
-		var enemy = ENEMY_SCENE.instantiate()
+		var enemy = _pick_enemy_scene().instantiate()
 		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 		enemy.set_direction(enemy_info["direction"])
 
@@ -253,7 +257,7 @@ func _on_enemy_destroyed(enemy: CharacterBody2D):
 
 		if GameState.is_dev_mode() and GameState.is_running() and not dev_spawn_info.is_empty():
 			# Dev mode: immediately respawn a new enemy at the same position
-			var new_enemy = ENEMY_SCENE.instantiate()
+			var new_enemy = EnemySpawnPicker.pick_for_dev().instantiate()
 			new_enemy.set_grid_aligned_position(dev_spawn_info["spawn_pos"])
 			new_enemy.set_direction(dev_spawn_info["direction"])
 			new_enemy.enemy_hit.connect(_on_enemy_hit)

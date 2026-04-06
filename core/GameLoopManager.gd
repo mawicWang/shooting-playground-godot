@@ -116,6 +116,7 @@ func prepare_enemy_warnings():
 	_enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
 
 	var new_enemy_count = current_wave + 1  # 第N关 = N个敌人
+	_enemy_manager.current_wave = current_wave  # 同步波次给敌人生成权重
 
 	if GameState.is_dev_mode():
 		# Dev mode: always 1 enemy, fully random position, no accumulation

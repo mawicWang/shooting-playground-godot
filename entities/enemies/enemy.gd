@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
-const SPEED = 30.0
 const MAX_HEALTH := 3.0
 
+var speed: float = 30.0
 var direction = Vector2.ZERO
 var grid_cell_size = 80.0  # 网格单元大小，与grid一致
 var max_health: float = MAX_HEALTH
@@ -35,7 +35,7 @@ func _ready():
 	_health_bar.update(current_health, max_health)
 
 func _physics_process(delta):
-	global_position += direction * SPEED * delta
+	global_position += direction * speed * delta
 	if _knockback_velocity != Vector2.ZERO:
 		global_position += _knockback_velocity * delta
 		_knockback_velocity = _knockback_velocity.lerp(Vector2.ZERO, _knockback_decay * delta)
