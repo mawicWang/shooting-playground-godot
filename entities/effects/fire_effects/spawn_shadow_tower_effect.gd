@@ -27,7 +27,6 @@ func apply(tower: Node, _bd: BulletData) -> void:
 		tower_gen = tower.get_meta("shadow_generation")
 	var tower_eid: int = tower.entity_id if tower.has_method("get_entity_id") or "entity_id" in tower else -1
 	if tower_gen > 0:
-		print("[SHADOW_COUNT] SKIP gen=%s tower_eid=%s (non-gen0 tower firing)" % [tower_gen, tower_eid])
 		return
 	# 初始化计数器（如果需要）
 	if not _bullet_counters.has(origin_entity_id):
@@ -37,11 +36,8 @@ func apply(tower: Node, _bd: BulletData) -> void:
 	_bullet_counters[origin_entity_id] += 1
 	var count: int = _bullet_counters[origin_entity_id]
 
-	print("[SHADOW_COUNT] tower_eid=%s origin=%s count=%s (mod5=%s)" % [tower_eid, origin_entity_id, count, count % 5])
-
 	# 每5发触发一次
 	if count % 5 == 0:
-		print("[SHADOW_COUNT] TRIGGER spawn for tower_eid=%s" % tower_eid)
 		_try_spawn_shadow(tower)
 
 func _try_spawn_shadow(parent_tower: Node) -> void:
@@ -55,18 +51,15 @@ func _try_spawn_shadow(parent_tower: Node) -> void:
 	# 获取父炮塔所在单元格
 	var parent_cell: Node = _find_parent_cell(parent_tower)
 	if not parent_cell:
-		print("[SHADOW_SPAWN] FAIL: parent_cell NOT FOUND for tower_eid=%s" % parent_tower.entity_id)
 		return
 
 	# 获取相邻空单元格
 	var empty_cells: Array[Node] = _get_adjacent_empty_cells(parent_cell, parent_tower)
 	if empty_cells.is_empty():
-		print("[SHADOW_SPAWN] FAIL: NO empty cells around parent_cell index=%s" % parent_cell.get_meta("index"))
 		return
 
 	# 随机选择一个并生成影子炮塔
 	var target_cell: Node = empty_cells.pick_random()
-	print("[SHADOW_SPAWN] SUCCESS: picking cell index=%s from %d candidates" % [target_cell.get_meta("index"), empty_cells.size()])
 	_spawn_shadow_at_cell(parent_tower, target_cell)
 
 func _find_parent_cell(tower: Node) -> Node:
@@ -121,7 +114,6 @@ func _get_adjacent_empty_cells(parent_cell: Node, tower: Node) -> Array[Node]:
 func _spawn_shadow_at_cell(parent_tower: Node, target_cell: Node) -> void:
 	# 二次检查：防止多塔同时开火时快照过期导致的重复占用
 	if target_cell.is_occupied:
-		print("[SHADOW_SPAWN] ABORT: cell index=%s already occupied (stale snapshot)" % target_cell.get_meta("index"))
 		return
 
 	var shadow_scene := load("res://entities/towers/shadow_tower.tscn")

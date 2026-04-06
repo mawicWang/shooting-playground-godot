@@ -63,6 +63,7 @@ signal module_uninstalled(index: int)
 enum Direction { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 }
 var current_rotation_index: int = Direction.UP
 var is_rotating: bool = false
+var _hit_tween: Tween = null
 const ROTATION_DURATION: float = 0.15
 
 func _ready():
@@ -365,13 +366,15 @@ func _create_cd_label() -> void:
 
 ## 果冻弹性受击动画
 func play_hit_effect() -> void:
-	var base_scale = sprite.scale
 	var target_scale = (FlyingModule.FLYING_SCALE_MULTIPLIER * Vector2.ONE) if is_flying else Vector2.ONE
-	
-	var tween := create_tween()
-	tween.tween_property(sprite, "scale", base_scale * Vector2(1.3, 0.75), 0.05)
-	tween.tween_property(sprite, "scale", base_scale * Vector2(0.85, 1.2), 0.09)
-	tween.tween_property(sprite, "scale", target_scale, 0.12)
+
+	if _hit_tween and _hit_tween.is_valid():
+		_hit_tween.kill()
+
+	_hit_tween = create_tween()
+	_hit_tween.tween_property(sprite, "scale", target_scale * Vector2(1.3, 0.75), 0.05)
+	_hit_tween.tween_property(sprite, "scale", target_scale * Vector2(0.85, 1.2), 0.09)
+	_hit_tween.tween_property(sprite, "scale", target_scale, 0.12)
 
 ## 减少当前剩余 CD。
 ## 若减少量不足以归零，直接缩短剩余 CD；
