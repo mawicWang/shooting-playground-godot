@@ -13,13 +13,13 @@ func _ready():
 	_setup_shield_visuals()
 
 func _setup_shield_visuals() -> void:
-	var ShieldBubble := preload("res://entities/enemies/shield_bubble.gd")
-	_shield_bubble = ShieldBubble.new()
+	var BubbleScript := preload("res://entities/enemies/shield_bubble.gd")
+	_shield_bubble = BubbleScript.new()
 	add_child(_shield_bubble)
 	_shield_bubble.setup(max_shield_layers)
 
-	var ShieldBar := preload("res://ui/hud/shield_bar.gd")
-	_shield_bar = ShieldBar.new()
+	var BarScript := preload("res://ui/hud/shield_bar.gd")
+	_shield_bar = BarScript.new()
 	add_child(_shield_bar)
 	_shield_bar.update(shield_layers, max_shield_layers)
 
