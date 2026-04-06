@@ -1,7 +1,9 @@
 extends "res://entities/towers/tower.gd"
 
-## 影子团队ID（起源炮塔的 entity_id）
+## 影子团队ID(起源炮塔的 entity_id)
 var shadow_team_id: int = -1
+## 生成深度(0 = 普通炮塔,1 = 第一代影子,2 = 第二代...)
+var shadow_generation: int = 0
 
 func _ready() -> void:
 	super._ready()
@@ -10,7 +12,7 @@ func _ready() -> void:
 	SignalBus.game_stopped.connect(_on_game_stopped)
 	SignalBus.wave_completed.connect(_on_wave_completed)
 
-## 覆盖弹药初始化：影子炮塔始终无限弹药
+## 覆盖弹药初始化:影子炮塔始终无限弹药
 func _apply_data() -> void:
 	super._apply_data()
 	ammo = -1
@@ -18,11 +20,11 @@ func _apply_data() -> void:
 	ammo_cursor = 0
 	_update_ammo_label()
 
-## 获取影子团队ID（供子弹碰撞检测使用）
+## 获取影子团队ID(供子弹碰撞检测使用)
 func get_shadow_team_id() -> int:
 	return shadow_team_id
 
-## 覆盖炮塔体设置：使用 SHADOW_TOWER_BODY 层
+## 覆盖炮塔体设置:使用 SHADOW_TOWER_BODY 层
 func _setup_tower_body() -> void:
 	_tower_body = Area2D.new()
 	_tower_body.name = "TowerBody"
@@ -33,7 +35,7 @@ func _setup_tower_body() -> void:
 	add_child(_tower_body)
 	call_deferred("_init_tower_body_shape")
 
-## 覆盖开火逻辑：设置子弹的 shadow_team_id 和碰撞遮罩
+## 覆盖开火逻辑:设置子弹的 shadow_team_id 和碰撞遮罩
 func _do_fire() -> void:
 	# 取当前弹药项（无限弹药每次创建空 AmmoItem，保持全新链）
 	var ammo_item: AmmoItem
@@ -68,7 +70,7 @@ func _do_fire() -> void:
 	if contrib_count < bullet_effect_max_chain:
 		bd.effects.append_array(bullet_effects)
 		bd.effect_contribution_counts[entity_id] = contrib_count + 1
-		# default_replenish 也受链次数限制，与 bullet_effects 共享同一计数
+		# default_replenish 也受链次数限制,与 bullet_effects 共享同一计数
 		var default_replenish := HitTowerTargetReplenishEffect.new()
 		bd.effects.append(default_replenish)
 
@@ -99,7 +101,7 @@ func _do_fire() -> void:
 	EventManager.notify_bullet_fired(bd, self)
 
 func _cleanup() -> void:
-	# 清理父格子的占用状态，然后移除自身
+	# 清理父格子的占用状态,然后移除自身
 	var parent_cell = get_parent()
 	if is_instance_valid(parent_cell) and parent_cell.has_method("remove_tower_reference"):
 		parent_cell.remove_tower_reference()

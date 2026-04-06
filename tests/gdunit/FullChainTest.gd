@@ -23,6 +23,9 @@ class TestTower extends Node:
 		add_ammo_calls.append(amount)
 		ammo += amount
 
+	func add_ammo_from_chain(amount: int, _bullet_data: BulletData) -> void:
+		add_ammo(amount)
+
 	func install_module(module: Module) -> void:
 		# 模拟模块安装：直接添加 effects（不做 duplicate）
 		for effect in module.bullet_effects:

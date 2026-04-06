@@ -156,12 +156,12 @@ func test_tower_ammo_decreases() -> void:
 
 	await await_idle_frame()
 
-	var initial_ammo: int = tower.ammo
+	var initial_ammo: int = tower.ammo_count()
 
 	tower.start_firing()
 	await get_tree().create_timer(2.0).timeout
 
-	var final_ammo: int = tower.ammo
+	var final_ammo: int = tower.ammo_count()
 	print("Ammo: ", initial_ammo, " -> ", final_ammo)
 	assert_int(final_ammo).is_less(initial_ammo)
 

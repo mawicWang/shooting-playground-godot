@@ -26,6 +26,7 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	copy.transmission_chain = transmission_chain.duplicate()
 	copy.effects = effects.duplicate()
 	copy.tower_body_mask = tower_body_mask
+	copy.shadow_team_id = shadow_team_id
 	copy.effect_contribution_counts = effect_contribution_counts.duplicate()
 	copy.tower_effect_trigger_counts = tower_effect_trigger_counts.duplicate()
 	for key in mods:

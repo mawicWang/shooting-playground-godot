@@ -125,6 +125,9 @@ func add_ammo(amount: int) -> void:
 	ammo += amount
 	ammo_added += amount
 
+func add_ammo_from_chain(amount: int, _bullet_data: BulletData) -> void:
+	add_ammo(amount)
+
 func reduce_cooldown(amount: float) -> void:
 	reduce_cooldown_calls.append(amount)
 	# 这里可以模拟 CD 减少，但 MockTower 没有实际的 CD 计时器

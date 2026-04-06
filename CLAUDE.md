@@ -180,6 +180,8 @@ When implementing visual/UI changes in Godot, always consider: z-index layering,
 
 When fixing bugs, check the full call chain. Especially for Godot signals and collision callbacks — code may be bypassed if the collision is handled in a parent/pool class rather than the expected script.
 
+When locating bugs, add `print()` logs to observe actual runtime behavior rather than relying on static code analysis. Runtime behavior often diverges from what the code appears to do.
+
 ## Resource Paths
 All scene/script paths are centralized in `autoload/Paths.gd`. Use these constants instead of hardcoded strings.
 

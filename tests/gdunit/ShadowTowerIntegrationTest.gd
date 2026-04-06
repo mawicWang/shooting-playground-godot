@@ -51,3 +51,30 @@ func test_layers_shadow_tower_body_value() -> void:
 	assert_int(Layers.SHADOW_TOWER_BODY).is_equal(128)
 	assert_int(Layers.SHADOW_TOWER_BODY & Layers.TOWER_BODY).is_equal(0)
 	assert_int(Layers.SHADOW_TOWER_BODY & Layers.AIR_TOWER_BODY).is_equal(0)
+
+func test_duplicate_with_mods_preserves_shadow_team_id() -> void:
+	"""Root cause fix: duplicate_with_mods MUST copy shadow_team_id.
+	
+	Before fix: shadow_tower fired with shadow_team_id=1,
+	but after duplicate_with_mods() the bullet had shadow_team_id=-1,
+	causing collision filter to treat it as a normal bullet and block it.
+	"""
+	var original := BulletData.new()
+	original.shadow_team_id = 42
+	original.tower_body_mask = Layers.SHADOW_TOWER_BODY
+	original.attack = 5.0
+	original.speed = 300.0
+
+	var copy := original.duplicate_with_mods({})
+
+	assert_int(copy.shadow_team_id).describes(
+		"duplicate_with_mods must preserve shadow_team_id (root cause of shadow tower collision bug)"
+	).is_equal(42)
+	assert_int(copy.tower_body_mask).is_equal(Layers.SHADOW_TOWER_BODY)
+	assert_float(copy.attack).is_equal(5.0)
+	assert_float(copy.speed).is_equal(300.0)
+
+	# Also verify default value is preserved
+	var default_bd := BulletData.new()
+	var default_copy := default_bd.duplicate_with_mods({})
+	assert_int(default_copy.shadow_team_id).is_equal(-1)
