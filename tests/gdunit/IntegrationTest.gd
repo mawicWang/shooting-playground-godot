@@ -11,9 +11,13 @@ const TestTowerData := preload("res://resources/simple_emitter.tres")
 var _nodes_to_free: Array[Node] = []
 
 
+var _saved_time_scale: float = 1.0
+
 func before_test() -> void:
 	BulletPool.clear_pool()
 	_nodes_to_free.clear()
+	_saved_time_scale = Engine.time_scale
+	Engine.time_scale = 10.0
 
 
 func after_test() -> void:
@@ -21,6 +25,7 @@ func after_test() -> void:
 		if is_instance_valid(node):
 			node.queue_free()
 	_nodes_to_free.clear()
+	Engine.time_scale = _saved_time_scale
 
 
 func _add_child(node: Node) -> Node:

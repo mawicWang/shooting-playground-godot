@@ -308,6 +308,21 @@ func add_ammo_from_chain(amount: int, bullet_data: BulletData) -> void:
 	if _is_firing and _cooldown_remaining <= 0.0:
 		set_process(true)
 
+## 重置弹药到初始状态（波次切换时调用）
+func reset_ammo() -> void:
+	_ammo_extra_stat   = StatAttribute.new(0.0)
+	if data:
+		ammo = data.initial_ammo
+	else:
+		ammo = 3
+	ammo_queue.clear()
+	ammo_cursor = 0
+	if ammo >= 0:
+		for _i in range(ammo):
+			ammo_queue.append(AmmoItem.new())
+		ammo = 0  # 有限弹药由队列管理
+	_update_ammo_label()
+
 func _create_cd_overlay() -> void:
 	_cd_overlay = CooldownOverlayScript.new()
 	_cd_overlay.name = "CooldownOverlay"
