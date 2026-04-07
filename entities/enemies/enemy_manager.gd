@@ -20,12 +20,41 @@ var excluded_pos_keys: Array = []
 # Dev mode: stores the single spawn position for infinite respawn
 var dev_spawn_info: Dictionary = {}
 
+# 延迟生成的敌人计数（防止 all_enemies_defeated 提前触发）
+var _pending_delayed_count: int = 0
+
 func _ready():
 	pass
 
 ## 根据当前波次权重，随机选择敌人场景
 func _pick_enemy_scene() -> PackedScene:
 	return EnemySpawnPicker.pick(current_wave)
+
+## 根据 enemy_info 加载敌人场景（优先使用存储的路径，兼容旧数据）
+func _load_enemy_scene(enemy_info: Dictionary) -> PackedScene:
+	if enemy_info.has("enemy_scene_path") and enemy_info["enemy_scene_path"] != "":
+		return load(enemy_info["enemy_scene_path"])
+	return _pick_enemy_scene()
+
+## 延迟生成敌人
+func _spawn_delayed(scene: PackedScene, enemy_info: Dictionary, delay: float):
+	# 先增加计数，确保 all_enemies_defeated 不会提前触发
+	_pending_delayed_count += 1
+	var timer = get_tree().create_timer(delay)
+	timer.timeout.connect(func():
+		_pending_delayed_count -= 1
+		if not is_instance_valid(self) or not GameState.is_running():
+			if _pending_delayed_count <= 0 and active_enemies.size() == 0:
+				all_enemies_defeated.emit()
+			return
+		var enemy = scene.instantiate()
+		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
+		enemy.set_direction(enemy_info["direction"])
+		enemy.enemy_hit.connect(_on_enemy_hit)
+		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
+		get_tree().root.add_child(enemy)
+		active_enemies.append(enemy)
+	)
 
 func set_grid_info(rect: Rect2, cell_size: float):
 	grid_rect = rect
@@ -61,74 +90,107 @@ func prepare_enemies() -> Array:
 	for key in excluded_pos_keys:
 		used_positions[key] = true
 	
+	# 计算总共有多少个独立位置
+	var total_positions = (cols + rows) * 2  # 上cols + 下cols + 左rows + 右rows
+	var unique_excluded = {}
+	for key in excluded_pos_keys:
+		unique_excluded[key] = true
+	var available_unique = total_positions - unique_excluded.size()
+
 	# 随机选择要生成的行/列
 	var spawned_count = 0
 	var attempts = 0
 	var max_attempts = enemy_count * 10
+	# 当独立位置用完时，允许重复位置
+	var allow_duplicate = available_unique <= 0
 
 	while spawned_count < enemy_count and attempts < max_attempts:
 		attempts += 1
-		
+
 		var direction = directions[randi() % directions.size()]
-		
+
 		var spawn_pos = Vector2.ZERO
 		var warning_pos = Vector2.ZERO
 		var pos_key = ""
 		var col = 0
 		var row = 0
-		
+
 		if direction == Vector2(0, 1):  # 从上往下
 			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, -SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y - WARNING_DISTANCE)
 			pos_key = "top_" + str(col)
-			
+
 		elif direction == Vector2(0, -1):  # 从下往上
 			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(x, viewport_size.y + SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + WARNING_DISTANCE)
 			pos_key = "bottom_" + str(col)
-			
+
 		elif direction == Vector2(1, 0):  # 从左往右
 			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(-SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x - WARNING_DISTANCE, y)
 			pos_key = "left_" + str(row)
-			
+
 		elif direction == Vector2(-1, 0):  # 从右往左
 			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
 			spawn_pos = Vector2(viewport_size.x + SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x + grid_rect.size.x + WARNING_DISTANCE, y)
 			pos_key = "right_" + str(row)
-		
+
 		# 检查这个位置是否已被使用
-		if used_positions.has(pos_key):
+		if not allow_duplicate and used_positions.has(pos_key):
 			continue
-		
+
 		# 标记位置为已使用
-		used_positions[pos_key] = true
-		
-		# 保存敌人信息
+		if not used_positions.has(pos_key):
+			used_positions[pos_key] = true
+
+		# 计算该位置上第几个敌人（用于延迟生成）
+		var spawn_delay = 0.0
+		var pos_count = 0
+		for existing in pending_enemies:
+			if existing["pos_key"] == pos_key:
+				pos_count += 1
+		# 也要统计 excluded 中同位置的（已有的累积敌人）
+		for key in excluded_pos_keys:
+			if key == pos_key:
+				pos_count += 1
+		if pos_count > 0:
+			spawn_delay = pos_count * 2.0  # 每多一个敌人延迟2秒
+
+		# 保存敌人信息（含场景路径，保证跨波次敌人类型不变）
+		var enemy_scene = _pick_enemy_scene()
 		var enemy_info = {
 			"spawn_pos": spawn_pos,
 			"warning_pos": warning_pos,
 			"direction": direction,
-			"pos_key": pos_key
+			"pos_key": pos_key,
+			"enemy_scene_path": enemy_scene.resource_path,
+			"spawn_delay": spawn_delay
 		}
 		pending_enemies.append(enemy_info)
-		
-		# 创建警告图标
-		var warning = WARNING_SCENE.instantiate()
-		warning.set_grid_aligned_position(warning_pos)
-		warning.set_direction(direction)
-		get_tree().root.add_child(warning)
-		active_warnings.append(warning)
-		
+
+		# 创建警告图标（重复位置不重复创建警告）
+		if pos_count == 0:
+			var warning = WARNING_SCENE.instantiate()
+			warning.set_grid_aligned_position(warning_pos)
+			warning.set_direction(direction)
+			get_tree().root.add_child(warning)
+			active_warnings.append(warning)
+
 		spawned_count += 1
+
+		# 当刚好用完所有独立位置时，切换为允许重复
+		if not allow_duplicate:
+			available_unique -= 1
+			if available_unique <= 0:
+				allow_duplicate = true
 
 	return pending_enemies.duplicate()
 
@@ -136,24 +198,25 @@ func prepare_enemies() -> Array:
 func spawn_enemies():
 	# 清除警告
 	clear_warnings()
-	
+
 	# 清除现有敌人
 	clear_enemies()
-	
+
 	# 根据预存的信息生成敌人
 	for enemy_info in pending_enemies:
-		var enemy = _pick_enemy_scene().instantiate()
-		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
-		enemy.set_direction(enemy_info["direction"])
-		
-		# 连接碰撞信号
-		enemy.enemy_hit.connect(_on_enemy_hit)
-		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-		
-		# 添加到场景
-		get_tree().root.add_child(enemy)
-		active_enemies.append(enemy)
-	
+		var scene = _load_enemy_scene(enemy_info)
+		var delay = enemy_info.get("spawn_delay", 0.0)
+		if delay > 0.0:
+			_spawn_delayed(scene, enemy_info, delay)
+		else:
+			var enemy = scene.instantiate()
+			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
+			enemy.set_direction(enemy_info["direction"])
+			enemy.enemy_hit.connect(_on_enemy_hit)
+			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
+			get_tree().root.add_child(enemy)
+			active_enemies.append(enemy)
+
 	# 清空预存信息
 	pending_enemies.clear()
 
@@ -161,32 +224,38 @@ func spawn_enemies():
 func spawn_enemies_from_data(enemy_data: Array):
 	# 清除警告
 	clear_warnings()
-	
+
 	# 清除现有敌人
 	clear_enemies()
-	
+
 	# 根据传入的数据生成敌人
 	for enemy_info in enemy_data:
-		var enemy = _pick_enemy_scene().instantiate()
-		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
-		enemy.set_direction(enemy_info["direction"])
-
-		# 连接碰撞信号
-		enemy.enemy_hit.connect(_on_enemy_hit)
-		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-
-		# 添加到场景
-		get_tree().root.add_child(enemy)
-		active_enemies.append(enemy)
+		var scene = _load_enemy_scene(enemy_info)
+		var delay = enemy_info.get("spawn_delay", 0.0)
+		if delay > 0.0:
+			_spawn_delayed(scene, enemy_info, delay)
+		else:
+			var enemy = scene.instantiate()
+			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
+			enemy.set_direction(enemy_info["direction"])
+			enemy.enemy_hit.connect(_on_enemy_hit)
+			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
+			get_tree().root.add_child(enemy)
+			active_enemies.append(enemy)
 
 	# Dev mode: store the first spawn position for infinite respawn
 	if GameState.is_dev_mode() and enemy_data.size() > 0:
 		dev_spawn_info = enemy_data[0].duplicate()
 
 
-# 普通模式：为已有敌人数据补充显示警告（不重新生成位置）
+# 普通模式：为已有敌人数据补充显示警告（不重新生成位置，同位置只显示一个警告）
 func show_warnings_for_existing(enemy_data: Array):
+	var shown_keys = {}
 	for enemy_info in enemy_data:
+		var key = enemy_info["pos_key"]
+		if shown_keys.has(key):
+			continue
+		shown_keys[key] = true
 		var warning = WARNING_SCENE.instantiate()
 		warning.set_grid_aligned_position(enemy_info["warning_pos"])
 		warning.set_direction(enemy_info["direction"])
@@ -264,7 +333,7 @@ func _on_enemy_destroyed(enemy: CharacterBody2D):
 			new_enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 			get_tree().root.add_child(new_enemy)
 			active_enemies.append(new_enemy)
-		elif active_enemies.size() == 0:
+		elif active_enemies.size() == 0 and _pending_delayed_count <= 0:
 			all_enemies_defeated.emit()
 
 func _exit_tree():
