@@ -13,6 +13,7 @@ const Replenish1Data := preload("res://resources/module_data/replenish1.tres")
 const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
 const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
 const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
+const BattlefieldContainerScript := preload("res://core/battlefield_container.gd")
 
 # 开发者模式用：全量炮塔 & 模块资源
 const _DEV_ALL_TOWERS := [
@@ -57,6 +58,8 @@ const _DEV_ALL_MODULES := [
 @onready var _tower_row = $GameContent/RemovalZonePanel/VBoxContainer/TowerRow
 @onready var _module_row = $GameContent/RemovalZonePanel/VBoxContainer/ModuleRow
 @onready var _deployment_vbox = $GameContent/RemovalZonePanel/VBoxContainer
+@onready var _center_container = $GameContent/CenterContainer
+@onready var _removal_zone_panel = $GameContent/RemovalZonePanel
 
 var _layout_manager: LayoutManager
 var _game_loop: GameLoopManager
@@ -64,6 +67,7 @@ var _effect_manager: EffectManager
 var _game_over_popup: Control
 var _reward_popup: Control
 var _debug_stop_button: Button
+var _battlefield_container: Node2D
 
 @onready var _lives_label: Label = $LivesLabel
 @onready var _coin_label: Label = $CoinLabel
@@ -89,6 +93,13 @@ func _process(_delta: float) -> void:
 		_fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 
 func _setup_managers():
+	# ── BattlefieldContainer：将 GridRoot 移入战场容器 ──
+	_battlefield_container = Node2D.new()
+	_battlefield_container.name = "BattlefieldContainer"
+	_battlefield_container.set_script(BattlefieldContainerScript)
+	_center_container.add_child(_battlefield_container)
+	grid_root.reparent(_battlefield_container)
+
 	_layout_manager = LayoutManager.new()
 	_layout_manager.setup(game_content)
 	add_child(_layout_manager)
@@ -521,12 +532,21 @@ func _on_debug_stop_pressed():
 # ── 游戏状态事件 ──────────────────────────────────────────────
 
 func _on_game_started():
+	# 隐藏部署 UI（Dev 模式除外）
+	if not GameState.is_dev_mode():
+		_removal_zone_panel.visible = false
+	# 触发战场缩放和启用拖拽
+	_battlefield_container.enter_combat()
 	_update_button_style()
 
 func _on_game_stopped():
 	# GAME_OVER 路径：shake 即将由 _on_enemy_breached 启动，不提前 reset
 	if not GameState.is_game_over() and not _effect_manager.is_shaking():
 		_effect_manager.reset_position()
+	# 退出战斗模式：缩放归位、禁用拖拽
+	_battlefield_container.exit_combat()
+	# 显示部署 UI
+	_removal_zone_panel.visible = true
 	_update_button_style()
 
 func _on_light_shake_requested():
