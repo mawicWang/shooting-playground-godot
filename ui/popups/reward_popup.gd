@@ -79,10 +79,26 @@ func _ready():
 	_cards_row.add_theme_constant_override("separation", 24)
 	vbox.add_child(_cards_row)
 
+func _get_weight(reward: Resource) -> int:
+	if reward is TowerData:
+		return 3
+	return 1
+
 func show_rewards():
 	var pool := REWARD_POOL.duplicate()
-	pool.shuffle()
-	var choices := pool.slice(0, min(3, pool.size()))
+	var choices: Array = []
+	for i in min(3, pool.size()):
+		var total_weight := 0
+		for item in pool:
+			total_weight += _get_weight(item)
+		var roll := randi() % total_weight
+		var cumulative := 0
+		for j in pool.size():
+			cumulative += _get_weight(pool[j])
+			if roll < cumulative:
+				choices.append(pool[j])
+				pool.remove_at(j)
+				break
 
 	for child in _cards_row.get_children():
 		child.free()

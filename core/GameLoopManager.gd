@@ -159,6 +159,7 @@ func _create_enemy_manager():
 
 	var grid_rect = _grid_container.get_global_rect()
 	_enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
+	_enemy_manager.current_wave = current_wave
 	_enemy_manager.spawn_enemies_from_data(_pending_enemy_data)
 
 	_enemy_manager.all_enemies_defeated.connect(_on_all_enemies_defeated)

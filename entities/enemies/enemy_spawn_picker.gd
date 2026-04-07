@@ -33,10 +33,14 @@ static func pick(wave: int) -> PackedScene:
 	var base_w = BASE_ENEMY_WEIGHT
 	var total = strong_w + shield_w + base_w
 	var roll = randi() % total
+	print("[ENEMY_PICK] wave=%s base=%s strong=%s shield=%s total=%s roll=%s" % [wave, base_w, strong_w, shield_w, total, roll])
 	if roll < shield_w:
+		print("[ENEMY_PICK] result: SHIELD")
 		return SHIELD_ENEMY_SCENE
 	if roll < shield_w + strong_w:
+		print("[ENEMY_PICK] result: STRONG")
 		return STRONG_ENEMY_SCENE
+	print("[ENEMY_PICK] result: BASE")
 	return ENEMY_SCENE
 
 ## Dev mode：随机返回任意敌人场景（无视波次权重）

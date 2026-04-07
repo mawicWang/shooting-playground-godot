@@ -72,3 +72,5 @@ Thumbs.db
 # Worktrees for isolated development
 # ----------------------
 .worktrees/
+
+/reports
