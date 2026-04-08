@@ -3,108 +3,120 @@ extends Node2D
 # 四个死亡区域（上下左右）
 var zones: Array[Area2D] = []
 
+var _grid_rect: Rect2 = Rect2()
+var _battlefield_cells: int = 12
+var _cell_size: float = 80.0
+
+## 设置战场参数（由 GameLoopManager 调用）
+func setup(grid_rect: Rect2, cell_size: float, battlefield_cells: int) -> void:
+	_grid_rect = grid_rect
+	_cell_size = cell_size
+	_battlefield_cells = battlefield_cells
+
 func _ready():
+	if _grid_rect.size != Vector2.ZERO:
+		_create_zones()
+
+func create_zones_from_setup() -> void:
 	_create_zones()
-	# 监听视窗大小变化
-	get_tree().root.size_changed.connect(_on_viewport_size_changed)
 
 func _create_zones():
-	# 清除旧区域
 	for zone in zones:
 		if is_instance_valid(zone):
 			zone.queue_free()
 	zones.clear()
 
-	var viewport_size = get_viewport_rect().size
-	var viewport_center = viewport_size / 2
+	# 计算战场范围（以 Grid 中心为基准）
+	var grid_center := _grid_rect.get_center()
+	var bf_half := _battlefield_cells * _cell_size / 2.0
+	var margin := 50.0
 
-	var margin = 50.0  # 边距大小（始终为正数）
-	var extend = 100.0  # 向外延伸的距离
+	# 战场边界坐标
+	var bf_top := grid_center.y - bf_half
+	var bf_bottom := grid_center.y + bf_half
+	var bf_left := grid_center.x - bf_half
+	var bf_right := grid_center.x + bf_half
+	var bf_width := bf_right - bf_left
+	var bf_height := bf_bottom - bf_top
 
-	# 上（在屏幕上方外面）
+	# 上（在战场顶部外侧）
 	_create_zone("Top",
-		Vector2(viewport_center.x, -extend + margin/2),
-		Vector2(viewport_size.x + extend * 2, margin))
+		Vector2(grid_center.x, bf_top - margin / 2),
+		Vector2(bf_width + margin * 2, margin))
 
-	# 下（在屏幕下方外面）
+	# 下（在战场底部外侧）
 	_create_zone("Bottom",
-		Vector2(viewport_center.x, viewport_size.y + extend - margin/2),
-		Vector2(viewport_size.x + extend * 2, margin))
+		Vector2(grid_center.x, bf_bottom + margin / 2),
+		Vector2(bf_width + margin * 2, margin))
 
-	# 左（在屏幕左方外面）
+	# 左（在战场左侧外侧）
 	_create_zone("Left",
-		Vector2(-extend + margin/2, viewport_center.y),
-		Vector2(margin, viewport_size.y + extend * 2))
+		Vector2(bf_left - margin / 2, grid_center.y),
+		Vector2(margin, bf_height + margin * 2))
 
-	# 右（在屏幕右方外面）
+	# 右（在战场右侧外侧）
 	_create_zone("Right",
-		Vector2(viewport_size.x + extend - margin/2, viewport_center.y),
-		Vector2(margin, viewport_size.y + extend * 2))
+		Vector2(bf_right + margin / 2, grid_center.y),
+		Vector2(margin, bf_height + margin * 2))
 
-func _create_zone(name: String, position: Vector2, size: Vector2):
+func _create_zone(zone_name: String, pos: Vector2, size: Vector2):
 	var final_size = Vector2(abs(size.x), abs(size.y))
 
 	var area = Area2D.new()
-	area.name = "DeadZone" + name						
-	area.position = position
+	area.name = "DeadZone" + zone_name
+	area.position = pos
 	area.collision_layer = Layers.DEAD_ZONE
-	area.collision_mask = Layers.BULLET  # 检测子弹 Hitbox（Area2D，第3层）
-	area.monitoring = true    # 必须开启才能检测进入的物体
-	area.monitorable = true   # 必须开启才能被检测
-	
-	# 创建碰撞形状
+	area.collision_mask = Layers.BULLET
+	area.monitoring = true
+	area.monitorable = true
+
 	var collision_shape = CollisionShape2D.new()
 	var rectangle = RectangleShape2D.new()
 	rectangle.size = final_size
 	collision_shape.shape = rectangle
-	
-	# 添加调试可视化
-	var debug_visual = _create_debug_visual(size, name)
+
+	var debug_visual = _create_debug_visual(size, zone_name)
 	area.add_child(debug_visual)
-	
+
 	area.add_child(collision_shape)
 	add_child(area)
-	
-	# 连接信号：子弹 Hitbox 是 Area2D，需用 area_entered 而非 body_entered
+
 	area.area_entered.connect(_on_area_entered)
 
 	zones.append(area)
 
-func _create_debug_visual(size: Vector2, name: String) -> Node2D:
+func _create_debug_visual(size: Vector2, zone_name: String) -> Node2D:
 	var visual = Node2D.new()
 	visual.name = "DebugVisual"
-	
-	# 使用 ColorRect 作为背景
+
 	var color_rect = ColorRect.new()
 	color_rect.size = size
-	color_rect.position = -size / 2  # 居中
-	
-	# 根据位置设置不同颜色
+	color_rect.position = -size / 2
+
 	var color: Color
-	match name:
+	match zone_name:
 		"Top":
-			color = Color(1, 0, 0, 0.3)  # 红色
+			color = Color(1, 0, 0, 0.3)
 		"Bottom":
-			color = Color(0, 1, 0, 0.3)  # 绿色
+			color = Color(0, 1, 0, 0.3)
 		"Left":
-			color = Color(0, 0, 1, 0.3)  # 蓝色
+			color = Color(0, 0, 1, 0.3)
 		"Right":
-			color = Color(1, 1, 0, 0.3)  # 黄色
+			color = Color(1, 1, 0, 0.3)
 		_:
-			color = Color(1, 0, 1, 0.3)  # 紫色
-	
+			color = Color(1, 0, 1, 0.3)
+
 	color_rect.color = color
 	visual.add_child(color_rect)
-	
-	# 添加边框
+
 	var border = ReferenceRect.new()
 	border.size = size
 	border.position = -size / 2
-	border.editor_only = false  # 在游戏时也显示
+	border.editor_only = false
 	border.border_color = color.lightened(0.3)
 	border.border_width = 2.0
 	visual.add_child(border)
-	
+
 	return visual
 
 func _on_area_entered(area: Area2D):
@@ -112,11 +124,7 @@ func _on_area_entered(area: Area2D):
 	if is_instance_valid(bullet) and bullet.is_in_group("bullets"):
 		BulletPool.release(bullet)
 
-func _on_viewport_size_changed():
-	_create_zones()
-
 func clear_all():
-	# 清除所有死亡区域（用于游戏停止时）
 	for zone in zones:
 		if is_instance_valid(zone):
 			zone.queue_free()

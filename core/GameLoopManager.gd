@@ -88,10 +88,13 @@ func _create_dead_zones():
 		_dead_zone_manager.queue_free()
 	_dead_zone_manager = DeadZoneManager.new()
 	_dead_zone_manager.name = "DeadZoneManager"
+	var grid_rect := _grid_container.get_global_rect()
+	_dead_zone_manager.setup(grid_rect, CELL_SIZE, _get_battlefield_cells())
 	if is_instance_valid(_battlefield_container):
 		_battlefield_container.add_child(_dead_zone_manager)
 	else:
 		add_child(_dead_zone_manager)
+	_dead_zone_manager.create_zones_from_setup()
 
 func _remove_dead_zones():
 	if is_instance_valid(_dead_zone_manager):
