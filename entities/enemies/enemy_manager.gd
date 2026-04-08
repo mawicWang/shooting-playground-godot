@@ -3,8 +3,8 @@ extends Node2D
 const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
 var enemy_count: int = 1  # 当前波次的敌人数量（由外部设置）
 var current_wave: int = 1   # 当前波次（影响敌人生成权重）
-const SPAWN_MARGIN = 60.0  # 生成位置距离屏幕边缘的距离
-const WARNING_DISTANCE = 60.0  # 警告图标距离grid的距离（大半个cell）
+const SPAWN_MARGIN = 240.0  # 生成位置距离 Grid 边缘的距离（3 个 Cell）
+const WARNING_DISTANCE = 240.0  # 警告图标距离 Grid 边缘的距离（3 个 Cell）
 
 var grid_rect: Rect2 = Rect2()
 var grid_cell_size: float = 80.0
@@ -77,8 +77,6 @@ func prepare_enemies() -> Array:
 		push_error("Grid rect not set!")
 		return []
 	
-	var viewport_size = get_viewport_rect().size
-	
 	# 计算网格的行列数
 	var cols = int(grid_rect.size.x / grid_cell_size)
 	var rows = int(grid_rect.size.y / grid_cell_size)
@@ -124,28 +122,28 @@ func prepare_enemies() -> Array:
 		if direction == Vector2(0, 1):  # 从上往下
 			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
-			spawn_pos = Vector2(x, -SPAWN_MARGIN)
+			spawn_pos = Vector2(x, grid_rect.position.y - SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y - WARNING_DISTANCE)
 			pos_key = "top_" + str(col)
 
 		elif direction == Vector2(0, -1):  # 从下往上
 			col = randi() % cols
 			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
-			spawn_pos = Vector2(x, viewport_size.y + SPAWN_MARGIN)
+			spawn_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + WARNING_DISTANCE)
 			pos_key = "bottom_" + str(col)
 
 		elif direction == Vector2(1, 0):  # 从左往右
 			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
-			spawn_pos = Vector2(-SPAWN_MARGIN, y)
+			spawn_pos = Vector2(grid_rect.position.x - SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x - WARNING_DISTANCE, y)
 			pos_key = "left_" + str(row)
 
 		elif direction == Vector2(-1, 0):  # 从右往左
 			row = randi() % rows
 			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
-			spawn_pos = Vector2(viewport_size.x + SPAWN_MARGIN, y)
+			spawn_pos = Vector2(grid_rect.position.x + grid_rect.size.x + SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x + grid_rect.size.x + WARNING_DISTANCE, y)
 			pos_key = "right_" + str(row)
 
