@@ -14,6 +14,7 @@ signal all_enemies_defeated
 var _grid_container: Control
 var _dead_zone_manager: Node = null
 var _enemy_manager: Node = null
+var _battlefield_container: Node2D = null
 var _pending_enemy_data: Array = []
 # 普通模式：跨波次累积的敌人位置（下一波保留这些并追加新敌人）
 var _accumulated_enemy_data: Array = []
@@ -21,8 +22,9 @@ var _accumulated_enemy_data: Array = []
 ## 已完成的波次数（0 = 还未完成任何波次，下一波是第1关）
 var current_wave: int = 0
 
-func setup(grid_container: Control):
+func setup(grid_container: Control, battlefield_container: Node2D = null):
 	_grid_container = grid_container
+	_battlefield_container = battlefield_container
 
 	# 监听游戏状态变化
 	SignalBus.game_started.connect(_on_game_started)
@@ -86,7 +88,10 @@ func _create_dead_zones():
 		_dead_zone_manager.queue_free()
 	_dead_zone_manager = DeadZoneManager.new()
 	_dead_zone_manager.name = "DeadZoneManager"
-	add_child(_dead_zone_manager)
+	if is_instance_valid(_battlefield_container):
+		_battlefield_container.add_child(_dead_zone_manager)
+	else:
+		add_child(_dead_zone_manager)
 
 func _remove_dead_zones():
 	if is_instance_valid(_dead_zone_manager):
@@ -111,7 +116,11 @@ func prepare_enemy_warnings():
 
 	_enemy_manager = EnemyManager.new()
 	_enemy_manager.name = "EnemyManager"
-	add_child(_enemy_manager)
+	if is_instance_valid(_battlefield_container):
+		_battlefield_container.add_child(_enemy_manager)
+	else:
+		add_child(_enemy_manager)
+	_enemy_manager.spawn_parent = _battlefield_container
 
 	_enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
 
@@ -155,7 +164,11 @@ func _create_enemy_manager():
 
 	_enemy_manager = EnemyManager.new()
 	_enemy_manager.name = "EnemyManager"
-	add_child(_enemy_manager)
+	if is_instance_valid(_battlefield_container):
+		_battlefield_container.add_child(_enemy_manager)
+	else:
+		add_child(_enemy_manager)
+	_enemy_manager.spawn_parent = _battlefield_container
 
 	var grid_rect = _grid_container.get_global_rect()
 	_enemy_manager.set_grid_info(grid_rect, CELL_SIZE)
@@ -189,6 +202,11 @@ func get_current_wave() -> int:
 
 func get_pending_enemy_data() -> Array:
 	return _pending_enemy_data
+
+func _get_battlefield_cells() -> int:
+	if is_instance_valid(_battlefield_container):
+		return _battlefield_container.battlefield_cells
+	return 12
 
 ## 将任意向量吸附到最近的4个基本方向之一
 func _snap_cardinal(dir: Vector2) -> Vector2:

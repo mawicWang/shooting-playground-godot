@@ -10,6 +10,12 @@ var grid_rect: Rect2 = Rect2()
 var grid_cell_size: float = 80.0
 var active_enemies: Array = []
 var active_warnings: Array = []
+var spawn_parent: Node = null  # 敌人和警告的父节点（BattlefieldContainer or root）
+
+func _get_spawn_parent() -> Node:
+	if is_instance_valid(spawn_parent):
+		return spawn_parent
+	return get_tree().root
 
 # 预生成的敌人信息
 var pending_enemies: Array = []
@@ -52,7 +58,7 @@ func _spawn_delayed(scene: PackedScene, enemy_info: Dictionary, delay: float):
 		enemy.set_direction(enemy_info["direction"])
 		enemy.enemy_hit.connect(_on_enemy_hit)
 		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-		get_tree().root.add_child(enemy)
+		_get_spawn_parent().add_child(enemy)
 		active_enemies.append(enemy)
 	)
 
@@ -181,7 +187,7 @@ func prepare_enemies() -> Array:
 			var warning = WARNING_SCENE.instantiate()
 			warning.set_grid_aligned_position(warning_pos)
 			warning.set_direction(direction)
-			get_tree().root.add_child(warning)
+			_get_spawn_parent().add_child(warning)
 			active_warnings.append(warning)
 
 		spawned_count += 1
@@ -214,7 +220,7 @@ func spawn_enemies():
 			enemy.set_direction(enemy_info["direction"])
 			enemy.enemy_hit.connect(_on_enemy_hit)
 			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-			get_tree().root.add_child(enemy)
+			_get_spawn_parent().add_child(enemy)
 			active_enemies.append(enemy)
 
 	# 清空预存信息
@@ -240,7 +246,7 @@ func spawn_enemies_from_data(enemy_data: Array):
 			enemy.set_direction(enemy_info["direction"])
 			enemy.enemy_hit.connect(_on_enemy_hit)
 			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-			get_tree().root.add_child(enemy)
+			_get_spawn_parent().add_child(enemy)
 			active_enemies.append(enemy)
 
 	# Dev mode: store the first spawn position for infinite respawn
@@ -259,7 +265,7 @@ func show_warnings_for_existing(enemy_data: Array):
 		var warning = WARNING_SCENE.instantiate()
 		warning.set_grid_aligned_position(enemy_info["warning_pos"])
 		warning.set_direction(enemy_info["direction"])
-		get_tree().root.add_child(warning)
+		_get_spawn_parent().add_child(warning)
 		active_warnings.append(warning)
 
 func clear_warnings():
@@ -331,7 +337,7 @@ func _on_enemy_destroyed(enemy: CharacterBody2D):
 			new_enemy.set_direction(dev_spawn_info["direction"])
 			new_enemy.enemy_hit.connect(_on_enemy_hit)
 			new_enemy.enemy_destroyed.connect(_on_enemy_destroyed)
-			get_tree().root.add_child(new_enemy)
+			_get_spawn_parent().add_child(new_enemy)
 			active_enemies.append(new_enemy)
 		elif active_enemies.size() == 0 and _pending_delayed_count <= 0:
 			all_enemies_defeated.emit()

@@ -105,7 +105,7 @@ func _setup_managers():
 	add_child(_layout_manager)
 
 	_game_loop = GameLoopManager.new()
-	_game_loop.setup(grid_container)
+	_game_loop.setup(grid_container, _battlefield_container)
 	_game_loop.all_enemies_defeated.connect(_on_all_enemies_defeated)
 	add_child(_game_loop)
 
