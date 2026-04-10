@@ -1,0 +1,58 @@
+<h2>战斗缩放锚点</h2>
+<p class="subtitle">战斗开始时 Grid 缩小 10~20%，缩放以哪个点为中心？</p>
+
+<div class="split">
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">A: 以 Grid 中心缩放</div>
+    <div class="mockup-body" style="position:relative; height:300px; background:#1a1a2e;">
+      <!-- Battlefield area -->
+      <div style="position:absolute; top:20px; left:20px; right:20px; bottom:20px; border:1px dashed rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center;">
+        <span style="position:absolute; top:2px; left:4px; font-size:10px; color:rgba(255,255,255,0.3)">战场范围 12×12</span>
+        <!-- Grid before -->
+        <div style="position:absolute; width:120px; height:120px; border:2px solid rgba(100,200,100,0.3); display:flex; align-items:center; justify-content:center;">
+          <div style="width:100px; height:100px; background:rgba(100,200,100,0.15); border:2px solid rgba(100,200,100,0.6); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(100,200,100,0.6);">
+            原始 Grid
+          </div>
+        </div>
+        <!-- Grid after (smaller, same center) -->
+        <div style="position:absolute; width:84px; height:84px; border:2px solid rgba(100,150,255,0.8); display:flex; align-items:center; justify-content:center;">
+          <div style="width:70px; height:70px; background:rgba(100,150,255,0.2); border:2px solid rgba(100,150,255,0.6); display:flex; align-items:center; justify-content:center; font-size:10px; color:rgba(100,150,255,0.8);">
+            缩放后
+          </div>
+        </div>
+        <!-- Center dot -->
+        <div style="position:absolute; width:8px; height:8px; background:#ff6b6b; border-radius:50%;"></div>
+      </div>
+      <div style="position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:11px; color:rgba(255,255,255,0.5);">Grid 向中心收缩，上下留出更多空间</div>
+    </div>
+  </div>
+
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">B: 以屏幕中心缩放</div>
+    <div class="mockup-body" style="position:relative; height:300px; background:#1a1a2e;">
+      <div style="position:absolute; top:20px; left:20px; right:20px; bottom:20px; border:1px dashed rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center;">
+        <span style="position:absolute; top:2px; left:4px; font-size:10px; color:rgba(255,255,255,0.3)">战场范围 12×12</span>
+        <!-- Grid before (slightly above center to show offset) -->
+        <div style="position:absolute; top:60px; width:120px; height:120px; border:2px solid rgba(100,200,100,0.3); display:flex; align-items:center; justify-content:center;">
+          <div style="width:100px; height:100px; background:rgba(100,200,100,0.15); border:2px solid rgba(100,200,100,0.6); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(100,200,100,0.6);">
+            原始 Grid
+          </div>
+        </div>
+        <!-- Grid after (smaller, shifted toward screen center) -->
+        <div style="position:absolute; top:72px; width:84px; height:84px; border:2px solid rgba(100,150,255,0.8); display:flex; align-items:center; justify-content:center;">
+          <div style="width:70px; height:70px; background:rgba(100,150,255,0.2); border:2px solid rgba(100,150,255,0.6); display:flex; align-items:center; justify-content:center; font-size:10px; color:rgba(100,150,255,0.8);">
+            缩放后
+          </div>
+        </div>
+        <!-- Screen center dot -->
+        <div style="position:absolute; width:8px; height:8px; background:#ff6b6b; border-radius:50%;"></div>
+        <span style="position:absolute; bottom:60px; font-size:10px; color:#ff6b6b;">屏幕中心</span>
+      </div>
+      <div style="position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:11px; color:rgba(255,255,255,0.5);">整个战场容器向屏幕中心收缩</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+  <p><strong>推荐 A（Grid 中心）</strong>— 因为 BattlefieldContainer 用 Node2D，缩放锚点就是容器的 position，设为 Grid 中心最自然，缩放时 Grid 保持居中，四周均匀露出更多战场空间。</p>
+</div>

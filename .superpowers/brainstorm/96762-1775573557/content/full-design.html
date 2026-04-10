@@ -1,0 +1,123 @@
+<h2>完整设计方案</h2>
+<p class="subtitle">战场区域独立化与交互优化 — 总览</p>
+
+<div class="section">
+  <h3>1. 场景树重构</h3>
+  <div class="mockup">
+    <div class="mockup-header">新场景树结构</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.8; padding: 16px;">
+      <div>main (Control)</div>
+      <div style="padding-left:20px">Background</div>
+      <div style="padding-left:20px">GameContent (Control, 720px max)</div>
+      <div style="padding-left:40px">PanelContainer <span style="color:#888">(顶部按钮栏 — 固定)</span></div>
+      <div style="padding-left:40px">RemovalZonePanel <span style="color:#888">(底部部署UI — 战斗时隐藏)</span></div>
+      <div style="padding-left:40px">RelicPanel <span style="color:#888">(固定)</span></div>
+      <div style="padding-left:40px; color:#4a9;">┌ <strong>BattlefieldContainer</strong> (Node2D) — <em>新增</em></div>
+      <div style="padding-left:60px; color:#4a9;">│  逻辑范围: 12×12 Cell (960×960px)，可配置</div>
+      <div style="padding-left:60px; color:#4a9;">│  position = 屏幕中Grid中心点</div>
+      <div style="padding-left:60px; color:#4a9;">│</div>
+      <div style="padding-left:60px; color:#6af;">├── GridRoot → Grid (5×5)</div>
+      <div style="padding-left:60px; color:#f96;">├── EnemyManager <span style="color:#888">(运行时创建)</span></div>
+      <div style="padding-left:60px; color:#f66;">├── Dead Zones ×4 <span style="color:#888">(运行时创建)</span></div>
+      <div style="padding-left:60px; color:#fc6;">└── Bullets <span style="color:#888">(BulletPool 在此容器下生成)</span></div>
+      <div style="padding-left:40px; color:#4a9;">└──────────────────────────────</div>
+      <div style="padding-left:20px">LivesLabel, CoinLabel, FpsLabel <span style="color:#888">(HUD — 固定)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. 战场空间布局</h3>
+  <div class="mockup">
+    <div class="mockup-header">战场范围示意（非等比）</div>
+    <div class="mockup-body" style="position:relative; height:340px; background:#1a1a2e; overflow:hidden;">
+      <!-- Battlefield 12x12 -->
+      <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:300px; height:300px; border:2px dashed rgba(255,255,255,0.3);">
+        <span style="position:absolute; top:-18px; left:0; font-size:11px; color:rgba(255,255,255,0.4)">战场范围 12×12 (960px)</span>
+
+        <!-- Dead Zones -->
+        <div style="position:absolute; top:0; left:0; right:0; height:12px; background:rgba(255,50,50,0.25); border-bottom:1px solid rgba(255,50,50,0.4);"><span style="font-size:9px; color:rgba(255,100,100,0.7); padding-left:4px;">Dead Zone</span></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; height:12px; background:rgba(255,50,50,0.25); border-top:1px solid rgba(255,50,50,0.4);"></div>
+        <div style="position:absolute; top:0; left:0; bottom:0; width:12px; background:rgba(255,50,50,0.25); border-right:1px solid rgba(255,50,50,0.4);"></div>
+        <div style="position:absolute; top:0; right:0; bottom:0; width:12px; background:rgba(255,50,50,0.25); border-left:1px solid rgba(255,50,50,0.4);"></div>
+
+        <!-- Spawn line (~3 cells from grid) -->
+        <div style="position:absolute; top:55px; left:55px; right:55px; bottom:55px; border:1px dotted rgba(255,200,50,0.5);">
+          <span style="position:absolute; top:-16px; left:0; font-size:10px; color:rgba(255,200,50,0.7)">敌人生成线 (距Grid 3 Cell ≈ 240px)</span>
+        </div>
+
+        <!-- Grid 5x5 -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:125px; height:125px; background:rgba(100,200,100,0.15); border:2px solid rgba(100,200,100,0.6); display:flex; align-items:center; justify-content:center;">
+          <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; width:100px; height:100px;">
+            <div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div>
+            <div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.2);"></div>
+            <div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.2);"></div>
+            <div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.3);"></div><div style="background:rgba(100,200,100,0.2);"></div>
+            <div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div><div style="background:rgba(100,200,100,0.2);"></div>
+          </div>
+          <span style="position:absolute; bottom:-18px; font-size:10px; color:rgba(100,200,100,0.7)">Grid 5×5 (400px)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. 交互行为总结</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:16px;">
+      <h4 style="color:#6af; margin-top:0;">部署阶段 (DEPLOYMENT)</h4>
+      <ul style="font-size:13px; line-height:1.8;">
+        <li>Grid 居中，scale = 1.0</li>
+        <li>拖拽平移：<strong>禁用</strong></li>
+        <li>底部部署 UI：<strong>可见</strong></li>
+        <li>BattlefieldContainer position 复位到初始位置</li>
+      </ul>
+    </div>
+    <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:16px;">
+      <h4 style="color:#f96; margin-top:0;">战斗阶段 (RUNNING)</h4>
+      <ul style="font-size:13px; line-height:1.8;">
+        <li>Tween 缩放至 0.8~0.9（可调）</li>
+        <li>缩放锚点：Grid 中心</li>
+        <li>拖拽平移：<strong>启用</strong>，范围限制在战场边界内</li>
+        <li>底部部署 UI：<strong>隐藏</strong>（Dev 模式除外）</li>
+        <li>敌人在距 Grid 3 Cell 处生成</li>
+        <li>Dead Zone 在战场边缘</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. 状态转换时序</h3>
+  <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:16px; font-family:monospace; font-size:12px; line-height:2;">
+    <div style="color:#6af;">── 点击"开始战斗" ──────────────────────</div>
+    <div style="padding-left:20px;">1. 隐藏部署 UI（非 Dev 模式）</div>
+    <div style="padding-left:20px;">2. Tween: BattlefieldContainer.scale → 0.85, 约 0.3s</div>
+    <div style="padding-left:20px;">3. 启用拖拽平移输入</div>
+    <div style="padding-left:20px;">4. 创建 Dead Zone（战场边缘）</div>
+    <div style="padding-left:20px;">5. 生成敌人（距 Grid 3 Cell）</div>
+    <div style="padding-left:20px;">6. 塔开始射击</div>
+    <br>
+    <div style="color:#f96;">── 战斗结束（胜利/失败） ────────────────</div>
+    <div style="padding-left:20px;">1. 停止射击、清除子弹、移除敌人</div>
+    <div style="padding-left:20px;">2. 移除 Dead Zone</div>
+    <div style="padding-left:20px;">3. 禁用拖拽平移</div>
+    <div style="padding-left:20px;">4. Tween: BattlefieldContainer.scale → 1.0, 约 0.3s</div>
+    <div style="padding-left:20px;">5. Tween: BattlefieldContainer.position → 初始位置, 约 0.3s</div>
+    <div style="padding-left:20px;">6. 显示部署 UI</div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px; padding:16px; background:rgba(100,200,100,0.1); border:1px solid rgba(100,200,100,0.3); border-radius:8px;">
+  <h3 style="margin-top:0; color:#4a9;">需要修改的文件</h3>
+  <ul style="font-size:13px; line-height:1.8;">
+    <li><strong>main.tscn</strong> — 新增 BattlefieldContainer Node2D，GridRoot 移入其下</li>
+    <li><strong>新增 core/battlefield_container.gd</strong> — 拖拽平移 + 缩放逻辑</li>
+    <li><strong>main.gd</strong> — 初始化 BattlefieldContainer，战斗时隐藏/显示部署 UI</li>
+    <li><strong>core/GameLoopManager.gd</strong> — 触发缩放/平移启停</li>
+    <li><strong>core/dead_zone_manager.gd</strong> — Dead Zone 定位改为基于战场范围</li>
+    <li><strong>entities/enemies/enemy_manager.gd</strong> — 生成距离改为 3 Cell</li>
+    <li><strong>autoload/SignalBus.gd</strong> — 可能新增 battlefield 相关信号</li>
+  </ul>
+</div>

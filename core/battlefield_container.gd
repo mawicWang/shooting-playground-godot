@@ -25,6 +25,12 @@ func _ready():
 	add_to_group("bullet_layer")
 	_initial_position = position
 
+## 更新"原点"位置（由 main.gd 在 CenterContainer 尺寸变化时调用）
+func set_home_position(pos: Vector2) -> void:
+	_initial_position = pos
+	if not _pan_enabled:
+		position = pos
+
 ## 战场范围的半边长（像素）
 func _get_battlefield_half_extent() -> float:
 	return battlefield_cells * CELL_SIZE / 2.0
@@ -49,8 +55,8 @@ func _input(event: InputEvent) -> void:
 			_is_dragging = false
 
 	elif event is InputEventScreenDrag and _is_dragging:
-		var delta := event.position - _drag_start_pos
-		var new_pos := _container_start_pos + delta / scale
+		var delta: Vector2 = event.position - _drag_start_pos
+		var new_pos: Vector2 = _container_start_pos + delta / scale.x
 		var max_offset := _get_max_pan_offset()
 		new_pos.x = clampf(new_pos.x, _initial_position.x - max_offset.x, _initial_position.x + max_offset.x)
 		new_pos.y = clampf(new_pos.y, _initial_position.y - max_offset.y, _initial_position.y + max_offset.y)
@@ -67,8 +73,8 @@ func _input(event: InputEvent) -> void:
 				_is_dragging = false
 
 	elif event is InputEventMouseMotion and _is_dragging:
-		var delta := event.position - _drag_start_pos
-		var new_pos := _container_start_pos + delta / scale
+		var delta: Vector2 = event.position - _drag_start_pos
+		var new_pos: Vector2 = _container_start_pos + delta / scale.x
 		var max_offset := _get_max_pan_offset()
 		new_pos.x = clampf(new_pos.x, _initial_position.x - max_offset.x, _initial_position.x + max_offset.x)
 		new_pos.y = clampf(new_pos.y, _initial_position.y - max_offset.y, _initial_position.y + max_offset.y)

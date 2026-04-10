@@ -11,13 +11,14 @@ var _danger_material: ShaderMaterial = null
 func _ready():
 	# 强制朝上，不随方向旋转
 	rotation = 0
-	base_position = position
+	if base_position == Vector2.ZERO:
+		base_position = global_position
 
 func _process(delta):
 	# 上下移动动画 - 累积时间确保连续流畅
 	time_accumulator += delta
 	var offset_y = sin(time_accumulator * ANIMATION_SPEED) * ANIMATION_AMPLITUDE
-	position.y = base_position.y + offset_y
+	global_position = Vector2(base_position.x, base_position.y + offset_y)
 
 func set_direction(dir: Vector2):
 	direction = dir
@@ -25,7 +26,7 @@ func set_direction(dir: Vector2):
 
 func set_grid_aligned_position(pos: Vector2):
 	base_position = pos
-	position = pos
+	global_position = pos
 
 func set_danger(is_danger: bool) -> void:
 	var sprite := $Sprite2D

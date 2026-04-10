@@ -1,0 +1,87 @@
+<h2>战场容器架构方案</h2>
+<p class="subtitle">如何将战场（Grid + 敌人 + 子弹 + Dead Zone）从 UI 中隔离出来？</p>
+
+<div class="section">
+  <h3>当前结构</h3>
+  <div class="mockup">
+    <div class="mockup-header">现有场景树 (main.tscn)</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.6; padding: 16px;">
+      <div>main (Control)</div>
+      <div style="padding-left:20px">Background</div>
+      <div style="padding-left:20px"><strong>GameContent</strong> (Control, 720px max)</div>
+      <div style="padding-left:40px">PanelContainer <span style="color:#888">(顶部按钮栏)</span></div>
+      <div style="padding-left:40px">RemovalZonePanel <span style="color:#888">(底部部署UI)</span></div>
+      <div style="padding-left:40px">RelicPanel</div>
+      <div style="padding-left:40px"><strong>CenterContainer</strong></div>
+      <div style="padding-left:60px"><strong>GridRoot</strong> → Grid (5x5 cells)</div>
+      <div style="padding-left:20px">LivesLabel, CoinLabel, FpsLabel <span style="color:#888">(HUD)</span></div>
+      <div style="padding-left:20px; color:#e44"><em>敌人、子弹、Dead Zone 在运行时动态创建，散落在场景中</em></div>
+    </div>
+  </div>
+</div>
+
+<h3>选择方案</h3>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Node2D 战场容器</h3>
+      <p>在 GameContent 下新增一个 <code>Node2D</code> 作为 <strong>BattlefieldContainer</strong>，将 GridRoot、敌人、子弹、Dead Zone 全部作为其子节点。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul>
+          <li>改动 position / scale 直接作用于所有战场元素</li>
+          <li>拖拽平移和缩放只需修改容器的 transform</li>
+          <li>实现最简单</li>
+        </ul></div>
+        <div class="cons"><h4>缺点</h4><ul>
+          <li>Node2D 在 Control 树中混用，可能影响 UI 布局计算</li>
+          <li>需要手动管理容器定位（不能用 anchor）</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>SubViewport + SubViewportContainer</h3>
+      <p>用 SubViewport 渲染战场，通过 SubViewportContainer 嵌入 UI 树。战场在独立的渲染空间。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul>
+          <li>彻底隔离：战场有自己的坐标系和渲染</li>
+          <li>缩放通过 Camera2D 实现，非常自然</li>
+        </ul></div>
+        <div class="cons"><h4>缺点</h4><ul>
+          <li>复杂度高：输入事件需要转发、碰撞跨 Viewport 不共享</li>
+          <li>拖拽塔从 UI 到战场需要跨 Viewport 处理</li>
+          <li>性能开销更大（多一个渲染 pass）</li>
+          <li>改动范围大，风险高</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Control 容器 + 手动 transform</h3>
+      <p>用 <code>Control</code> 节点作为 BattlefieldContainer，保持在 UI 树内，通过修改 <code>position</code> 和 <code>scale</code> 实现平移/缩放。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul>
+          <li>保持在 Control 树中，兼容现有布局系统</li>
+          <li>可以用 anchor 做初始定位</li>
+          <li>平移/缩放通过 transform 实现，和方案 A 类似</li>
+        </ul></div>
+        <div class="cons"><h4>缺点</h4><ul>
+          <li>Control 的 scale 会影响子节点的 size 计算</li>
+          <li>需要设置 <code>clip_contents = true</code> 限制渲染范围</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+  <p><strong>我的推荐：方案 A</strong> — Node2D 容器最简单直接。虽然在 Control 树中混用 Node2D，但 Godot 4 对此支持良好。GridRoot 本身已经用了手动定位，改动最小。</p>
+</div>

@@ -4,7 +4,7 @@ const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
 var enemy_count: int = 1  # 当前波次的敌人数量（由外部设置）
 var current_wave: int = 1   # 当前波次（影响敌人生成权重）
 const SPAWN_MARGIN = 240.0  # 生成位置距离 Grid 边缘的距离（3 个 Cell）
-const WARNING_DISTANCE = 240.0  # 警告图标距离 Grid 边缘的距离（3 个 Cell）
+const WARNING_DISTANCE = 50.0  # 警告图标距离 Grid 边缘的距离（贴近格子）
 
 var grid_rect: Rect2 = Rect2()
 var grid_cell_size: float = 80.0
@@ -54,11 +54,11 @@ func _spawn_delayed(scene: PackedScene, enemy_info: Dictionary, delay: float):
 				all_enemies_defeated.emit()
 			return
 		var enemy = scene.instantiate()
-		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 		enemy.set_direction(enemy_info["direction"])
 		enemy.enemy_hit.connect(_on_enemy_hit)
 		enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 		_get_spawn_parent().add_child(enemy)
+		enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 		active_enemies.append(enemy)
 	)
 
@@ -80,6 +80,9 @@ func prepare_enemies() -> Array:
 	# 计算网格的行列数
 	var cols = int(grid_rect.size.x / grid_cell_size)
 	var rows = int(grid_rect.size.y / grid_cell_size)
+	# 计算实际格子步长（含 GridContainer separation）
+	var cell_step_x: float = grid_cell_size if cols <= 1 else (grid_rect.size.x - grid_cell_size) / float(cols - 1)
+	var cell_step_y: float = grid_cell_size if rows <= 1 else (grid_rect.size.y - grid_cell_size) / float(rows - 1)
 	
 	# 四个方向：上、下、左、右
 	var directions = [
@@ -121,28 +124,28 @@ func prepare_enemies() -> Array:
 
 		if direction == Vector2(0, 1):  # 从上往下
 			col = randi() % cols
-			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
+			var x = grid_rect.position.x + col * cell_step_x + grid_cell_size / 2
 			spawn_pos = Vector2(x, grid_rect.position.y - SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y - WARNING_DISTANCE)
 			pos_key = "top_" + str(col)
 
 		elif direction == Vector2(0, -1):  # 从下往上
 			col = randi() % cols
-			var x = grid_rect.position.x + col * grid_cell_size + grid_cell_size / 2
+			var x = grid_rect.position.x + col * cell_step_x + grid_cell_size / 2
 			spawn_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + WARNING_DISTANCE)
 			pos_key = "bottom_" + str(col)
 
 		elif direction == Vector2(1, 0):  # 从左往右
 			row = randi() % rows
-			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
+			var y = grid_rect.position.y + row * cell_step_y + grid_cell_size / 2
 			spawn_pos = Vector2(grid_rect.position.x - SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x - WARNING_DISTANCE, y)
 			pos_key = "left_" + str(row)
 
 		elif direction == Vector2(-1, 0):  # 从右往左
 			row = randi() % rows
-			var y = grid_rect.position.y + row * grid_cell_size + grid_cell_size / 2
+			var y = grid_rect.position.y + row * cell_step_y + grid_cell_size / 2
 			spawn_pos = Vector2(grid_rect.position.x + grid_rect.size.x + SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x + grid_rect.size.x + WARNING_DISTANCE, y)
 			pos_key = "right_" + str(row)
@@ -183,9 +186,9 @@ func prepare_enemies() -> Array:
 		# 创建警告图标（重复位置不重复创建警告）
 		if pos_count == 0:
 			var warning = WARNING_SCENE.instantiate()
-			warning.set_grid_aligned_position(warning_pos)
 			warning.set_direction(direction)
 			_get_spawn_parent().add_child(warning)
+			warning.set_grid_aligned_position(warning_pos)
 			active_warnings.append(warning)
 
 		spawned_count += 1
@@ -214,11 +217,11 @@ func spawn_enemies():
 			_spawn_delayed(scene, enemy_info, delay)
 		else:
 			var enemy = scene.instantiate()
-			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 			enemy.set_direction(enemy_info["direction"])
 			enemy.enemy_hit.connect(_on_enemy_hit)
 			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 			_get_spawn_parent().add_child(enemy)
+			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 			active_enemies.append(enemy)
 
 	# 清空预存信息
@@ -240,11 +243,11 @@ func spawn_enemies_from_data(enemy_data: Array):
 			_spawn_delayed(scene, enemy_info, delay)
 		else:
 			var enemy = scene.instantiate()
-			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 			enemy.set_direction(enemy_info["direction"])
 			enemy.enemy_hit.connect(_on_enemy_hit)
 			enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 			_get_spawn_parent().add_child(enemy)
+			enemy.set_grid_aligned_position(enemy_info["spawn_pos"])
 			active_enemies.append(enemy)
 
 	# Dev mode: store the first spawn position for infinite respawn
@@ -261,9 +264,9 @@ func show_warnings_for_existing(enemy_data: Array):
 			continue
 		shown_keys[key] = true
 		var warning = WARNING_SCENE.instantiate()
-		warning.set_grid_aligned_position(enemy_info["warning_pos"])
 		warning.set_direction(enemy_info["direction"])
 		_get_spawn_parent().add_child(warning)
+		warning.set_grid_aligned_position(enemy_info["warning_pos"])
 		active_warnings.append(warning)
 
 func clear_warnings():
@@ -331,11 +334,11 @@ func _on_enemy_destroyed(enemy: CharacterBody2D):
 		if GameState.is_dev_mode() and GameState.is_running() and not dev_spawn_info.is_empty():
 			# Dev mode: immediately respawn a new enemy at the same position
 			var new_enemy = EnemySpawnPicker.pick_for_dev().instantiate()
-			new_enemy.set_grid_aligned_position(dev_spawn_info["spawn_pos"])
 			new_enemy.set_direction(dev_spawn_info["direction"])
 			new_enemy.enemy_hit.connect(_on_enemy_hit)
 			new_enemy.enemy_destroyed.connect(_on_enemy_destroyed)
 			_get_spawn_parent().add_child(new_enemy)
+			new_enemy.set_grid_aligned_position(dev_spawn_info["spawn_pos"])
 			active_enemies.append(new_enemy)
 		elif active_enemies.size() == 0 and _pending_delayed_count <= 0:
 			all_enemies_defeated.emit()

@@ -108,6 +108,14 @@ func prepare_enemy_warnings():
 		return
 
 	var grid_rect = _grid_container.get_global_rect()
+	# 修正战场容器的缩放影响（prepare_enemy_warnings 可能在 exit_combat 补间期间被调用）
+	if is_instance_valid(_battlefield_container) and not _battlefield_container.scale.is_equal_approx(Vector2.ONE):
+		var bc_scale: float = _battlefield_container.scale.x
+		var bc_gpos: Vector2 = _battlefield_container.global_position
+		grid_rect = Rect2(
+			bc_gpos + (grid_rect.position - bc_gpos) / bc_scale,
+			grid_rect.size / bc_scale
+		)
 	if grid_rect.size == Vector2.ZERO:
 		# Grid 还没准备好，延迟重试
 		await get_tree().create_timer(0.1).timeout

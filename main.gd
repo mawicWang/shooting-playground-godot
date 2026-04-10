@@ -99,6 +99,12 @@ func _setup_managers():
 	_battlefield_container.set_script(BattlefieldContainerScript)
 	_center_container.add_child(_battlefield_container)
 	grid_root.reparent(_battlefield_container)
+	# GridRoot 原本由 CenterContainer 布局；迁到 Node2D 后需手动对齐到战场原点。
+	grid_root.position = Vector2.ZERO
+	# CenterContainer 是 720×0 的 Control（经 LayoutManager 布局），其 (0,0) 在左边缘。
+	# Node2D 不参与 Container 布局，需手动对齐到 CenterContainer 中心。
+	_center_container.resized.connect(_sync_battlefield_position)
+	call_deferred("_sync_battlefield_position")
 
 	_layout_manager = LayoutManager.new()
 	_layout_manager.setup(game_content)
@@ -112,6 +118,13 @@ func _setup_managers():
 	_effect_manager = EffectManager.new()
 	_effect_manager.setup(game_content)
 	add_child(_effect_manager)
+
+func _sync_battlefield_position() -> void:
+	if not is_instance_valid(_battlefield_container):
+		return
+	_battlefield_container.position = Vector2(_center_container.size.x / 2.0, 0.0)
+	if _battlefield_container.has_method("set_home_position"):
+		_battlefield_container.set_home_position(_battlefield_container.position)
 
 func _setup_signals():
 	SignalBus.game_started.connect(_on_game_started)

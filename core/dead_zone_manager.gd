@@ -64,7 +64,6 @@ func _create_zone(zone_name: String, pos: Vector2, size: Vector2):
 
 	var area = Area2D.new()
 	area.name = "DeadZone" + zone_name
-	area.position = pos
 	area.collision_layer = Layers.DEAD_ZONE
 	area.collision_mask = Layers.BULLET
 	area.monitoring = true
@@ -80,6 +79,7 @@ func _create_zone(zone_name: String, pos: Vector2, size: Vector2):
 
 	area.add_child(collision_shape)
 	add_child(area)
+	area.global_position = pos
 
 	area.area_entered.connect(_on_area_entered)
 
