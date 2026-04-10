@@ -455,6 +455,7 @@ func _do_fire() -> void:
 	var bd := BulletData.new()
 	bd.attack = _bullet_attack_stat.get_value()
 	bd.speed  = _bullet_speed_stat.get_value()
+	bd.color  = Color(randf(), randf(), randf())
 	bd.transmission_chain = [self]  # 仅防自碰，与链计数无关
 
 	# 触发 FireEffect（开火时效果，如影子炮塔生成）

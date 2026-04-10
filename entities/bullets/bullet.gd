@@ -34,6 +34,8 @@ func reset() -> void:
 	set_physics_process(true)
 	if data and has_node("Hitbox"):
 		$Hitbox.collision_mask = data.tower_body_mask
+	if data and has_node("Sprite2D") and $Sprite2D.material:
+		$Sprite2D.material.set_shader_parameter("color", data.color)
 
 func set_direction(dir: Vector2) -> void:
 	direction = dir.normalized()
