@@ -7,3 +7,5 @@ class_name TowerData extends Resource
 @export var barrel_directions: PackedVector2Array = PackedVector2Array([Vector2(0, -1)])
 ## 初始弹药数量。-1 表示无限；0 或正整数为有限弹药。
 @export var initial_ammo: int = 3
+## 自定义炮塔场景。null 时使用默认 tower.tscn。
+@export var scene: PackedScene

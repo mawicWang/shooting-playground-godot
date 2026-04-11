@@ -296,13 +296,15 @@ func add_ammo(amount: int) -> void:
 		set_process(true)
 
 ## 链式弹药：继承当前子弹的链追踪状态，用于炮塔间弹药传递
-func add_ammo_from_chain(amount: int, bullet_data: BulletData) -> void:
+## override_bullet_type >= 0 时覆盖弹药类型（用于 NOT Tower 等翻转场景）
+func add_ammo_from_chain(amount: int, bullet_data: BulletData, override_bullet_type: int = -1) -> void:
 	if ammo == -1:
 		return
 	for _i in range(amount):
 		var item := AmmoItem.new()
 		item.effect_contribution_counts = bullet_data.effect_contribution_counts.duplicate()
 		item.tower_effect_trigger_counts = bullet_data.tower_effect_trigger_counts.duplicate()
+		item.bullet_type = override_bullet_type if override_bullet_type >= 0 else bullet_data.bullet_type
 		ammo_queue.append(item)
 	_update_ammo_label()
 	if _is_firing and _cooldown_remaining <= 0.0:
@@ -430,11 +432,15 @@ func reduce_cooldown(amount: float) -> void:
 	_current_full_cooldown = cycle
 	_update_cd_overlay()
 
-## 被子弹击中时调用（由 bullet.gd 负责调用）。触发 tower_effects。
+## 被子弹击中时调用（由 bullet.gd 负责调用）。
+## play_hit_effect() 由 bullet.gd 在调用前统一执行，不在此重复。
 func on_bullet_hit(bullet_data: BulletData) -> void:
-	play_hit_effect()
-	for te in tower_effects:
-		te.on_receive_bullet_hit(bullet_data, self)
+	# 链次数检查：限制本 tower 的 tower_effects 在同一子弹链上的触发次数
+	var te_count = bullet_data.tower_effect_trigger_counts.get(entity_id, 0)
+	if te_count < tower_effect_max_chain:
+		bullet_data.tower_effect_trigger_counts[entity_id] = te_count + 1
+		for te in tower_effects:
+			te.on_receive_bullet_hit(bullet_data, self)
 
 # ── 开火逻辑 ─────────────────────────────────────────────────
 
@@ -455,7 +461,8 @@ func _do_fire() -> void:
 	var bd := BulletData.new()
 	bd.attack = _bullet_attack_stat.get_value()
 	bd.speed  = _bullet_speed_stat.get_value()
-	bd.color  = Color(randf(), randf(), randf())
+	bd.bullet_type = ammo_item.bullet_type
+	bd.color = Color.BLUE if bd.bullet_type == 0 else Color.RED
 	bd.transmission_chain = [self]  # 仅防自碰，与链计数无关
 
 	# 触发 FireEffect（开火时效果，如影子炮塔生成）

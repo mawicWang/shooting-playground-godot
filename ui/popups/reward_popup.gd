@@ -11,6 +11,7 @@ const REWARD_POOL: Array = [
 	preload("res://resources/tower1100.tres"),
 	preload("res://resources/tower1110.tres"),
 	preload("res://resources/tower1111.tres"),
+	preload("res://resources/not_tower.tres"),
 	preload("res://resources/module_data/accelerator.tres"),
 	preload("res://resources/module_data/multiplier.tres"),
 	preload("res://resources/module_data/replenish1.tres"),

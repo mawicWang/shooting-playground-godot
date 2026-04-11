@@ -22,6 +22,7 @@ const _DEV_ALL_TOWERS := [
 	preload("res://resources/tower1100.tres"),
 	preload("res://resources/tower1110.tres"),
 	preload("res://resources/tower1111.tres"),
+	preload("res://resources/not_tower.tres"),
 ]
 const _DEV_ALL_MODULES := [
 	preload("res://resources/module_data/accelerator.tres"),

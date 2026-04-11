@@ -7,3 +7,6 @@ var effect_contribution_counts: Dictionary = {}
 ## {tower_entity_id (int) → tower_effects 已触发次数 (int)}
 ## bullet.gd 击中炮塔时检查此计数，决定是否触发 tower_effects。
 var tower_effect_trigger_counts: Dictionary = {}
+
+## 子弹内在属性类型（0=蓝，1=红，未来可扩展）
+var bullet_type: int = 0

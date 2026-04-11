@@ -289,7 +289,7 @@ func _drop_data(_at_position, data):
 	else:
 		# Dragging a new tower from the store (TowerData-driven)
 		var td: TowerData = data["tower_data"]
-		var tower_scene = preload("res://entities/towers/tower.tscn")
+		var tower_scene = td.scene if td.scene else preload("res://entities/towers/tower.tscn")
 		tower = tower_scene.instantiate()
 		tower.data = td
 		tower.entity_id = data.get("entity_id", -1)
@@ -333,7 +333,7 @@ func get_deployed_tower():
 func place_tower_data(td: TowerData, direction_index: int = 0) -> void:
 	if is_occupied:
 		return
-	var tower_scene = preload("res://entities/towers/tower.tscn")
+	var tower_scene = td.scene if td.scene else preload("res://entities/towers/tower.tscn")
 	var tower = tower_scene.instantiate()
 	tower.data = td
 	add_child(tower)

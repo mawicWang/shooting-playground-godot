@@ -8,11 +8,23 @@
 ## Quick Reference
 
 | File | 名称 | firing_rate | 炮管数 | barrel_directions | initial_ammo |
-|------|------|------------|--------|-------------------|-------------|
+|------|------|------------|--------|-------------------|--------------|
 | `tower1010.tres` | 双向炮 | 1.0 | 2 | (0,-1), (0,1) | 10 |
 | `tower1100.tres` | 直角炮 | 1.0 | 2 | (0,-1), (1,0) | 3 |
 | `tower1110.tres` | 三向炮 | 1.0 | 3 | (0,-1), (1,0), (0,1) | 3 |
 | `tower1111.tres` | 四向炮 | 1.0 | 4 | (0,-1), (1,0), (0,1), (-1,0) | 0 |
+| `not_tower.tres` | NOT 塔 | 1.0 | 1 | (0,-1) | 3 |
+
+## Special Towers
+
+### NOT Tower (`not_tower.tres`)
+
+逻辑非门塔，击中时翻转子弹属性类型（0↔1）。
+
+- **行为**: 任意子弹击中后，`bullet_type` 翻转（0=蓝 → 1=红，1=红 → 0=蓝）
+- **弹药**: 翻转后的子弹作为弹药进入队列，发射时颜色跟随类型
+- **视觉**: 紫色外观（modulate = 0.6, 0.2, 0.8）
+- **脚本**: `entities/towers/not_tower.gd` 继承 `tower.gd`，重写 `on_bullet_hit()`
 
 ## Invariants (enforced by TowerDataTest)
 

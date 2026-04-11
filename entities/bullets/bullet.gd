@@ -13,6 +13,9 @@ func _ready():
 	$Hitbox.monitoring = true
 	$Hitbox.monitorable = true
 	$Hitbox.area_entered.connect(_on_hitbox_area_entered)
+	# 每颗子弹独立一份材质，避免共享 ShaderMaterial 导致颜色互相污染
+	if has_node("Sprite2D") and $Sprite2D.material:
+		$Sprite2D.material = $Sprite2D.material.duplicate()
 
 func _physics_process(delta):
 	var speed := data.speed if data else 200.0
@@ -82,13 +85,9 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 		for effect in data.effects:
 			effect.on_hit_tower(data, parent)
 
-	# 2. TowerEffect：检查目标 tower 是否还有触发次数
-	if data and parent.get("entity_id") != null and parent.get("tower_effect_max_chain") != null:
-		var te_count = data.tower_effect_trigger_counts.get(parent.entity_id, 0)
-		if te_count < parent.tower_effect_max_chain:
-			data.tower_effect_trigger_counts[parent.entity_id] = te_count + 1
-			for te in parent.tower_effects:
-				te.on_receive_bullet_hit(data, parent)
+	# 2. 派发到 tower，让各塔自行处理击中逻辑（tower_effects、弹药翻转等）
+	if data and parent.has_method("on_bullet_hit"):
+		parent.on_bullet_hit(data)
 
 	# 3. 弹药回复浮动数字（在所有效果跑完后统一显示）
 	var ammo_after: int = parent.ammo_count() if parent.has_method("ammo_count") else -1

@@ -8,9 +8,10 @@ var knockback_decay: float = 25.0
 var transmission_chain: Array = []
 ## 效果列表（Array[BulletEffect]），子弹携带，各触发时机依次调用
 var effects: Array = []
-var color: Color = Color.WHITE  ## 子弹颜色，通过 Sprite2D.modulate 应用
+var bullet_type: int = 0        ## 子弹内在属性类型（0=蓝，1=红，未来可扩展）
+var color: Color = Color.BLUE   ## 子弹颜色，通过 Sprite2D.modulate 应用（根据 bullet_type 设置）
 var tower_body_mask: int = 32   ## 子弹 Hitbox 碰撞遮罩（默认 TOWER_BODY 层，FlyingModule 可扩展为 32|64）
-var shadow_team_id: int = -1    ## -1 = 普通子弹，≥0 = 影子团队ID
+var shadow_team_id: int = -1    ## -1 = 普通子弹，≥0 = 影子团队 ID
 
 ## 本子弹所在链上各 tower 的 bullet_effects 已贡献次数（{int → int}）
 var effect_contribution_counts: Dictionary = {}
@@ -26,6 +27,7 @@ func duplicate_with_mods(mods: Dictionary) -> BulletData:
 	copy.knockback_decay = knockback_decay
 	copy.transmission_chain = transmission_chain.duplicate()
 	copy.effects = effects.duplicate()
+	copy.bullet_type = bullet_type
 	copy.color = color
 	copy.tower_body_mask = tower_body_mask
 	copy.shadow_team_id = shadow_team_id
