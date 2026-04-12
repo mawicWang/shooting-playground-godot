@@ -35,6 +35,7 @@ func _make_tower(variant: TowerData.Variant, entity_id: int) -> Node2D:
 	td.sprite = load("res://assets/tower1000.svg")
 	td.firing_rate = 1.0
 	td.barrel_directions = PackedVector2Array([Vector2(0, -1)])
+	td.initial_ammo = -1  # 无限弹药，避免触发弹药耗尽信号干扰测试
 	td.variant = variant
 	var tower: Node2D = TowerScene.instantiate()
 	tower.data = td
@@ -165,7 +166,10 @@ func test_tower_with_null_data_is_not_filtered() -> void:
 	var tower_body := tower.get_node_or_null("TowerBody") as Area2D
 	assert_object(tower_body).is_not_null()
 
-	# variant filter is skipped when parent.data == null, so the normal hit path runs
+	# Direct invariant: variant filter guard `parent.data != null` short-circuits to false,
+	# so execution falls through to the normal hit path and _pending_release is set.
+	# Note: this also tests that downstream guards in _on_hitbox_area_entered handle null
+	# tower data safely; if those ever change this assertion may need revisiting.
 	bullet._on_hitbox_area_entered(tower_body)
 	assert_bool(bullet._pending_release) \
 		.override_failure_message("null-data tower should not be filtered — bullet should be consumed") \
