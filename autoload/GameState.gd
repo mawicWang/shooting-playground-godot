@@ -107,18 +107,3 @@ func is_game_over() -> bool:
 
 func can_drag() -> bool:
 	return current_state == State.DEPLOYMENT
-
-# 配置标志系统
-var config_flags := {
-	# 是否在开发者模式中显示所有炮塔变体
-	"enable_dev_mode_all_variants": true,
-	# 是否在开发者模式中包含TRUE变体
-	"include_true_variants_in_dev": true,
-}
-
-func set_config_flag(flag_name: String, value: bool) -> void:
-	if config_flags.has(flag_name):
-		config_flags[flag_name] = value
-
-func get_config_flag(flag_name: String) -> bool:
-	return config_flags.get(flag_name, false)
