@@ -15,6 +15,7 @@
 | [`content/shadow-tower.md`](content/shadow-tower.md) | 影子炮塔系统完整参考：碰撞层、team 隔离、共享 Effect 陷阱、生成深度控制、生命周期 |
 | [`content/shield-enemy.md`](content/shield-enemy.md) | 护盾敌人系统：多层护盾机制、视觉组件（气泡/护盾条/破碎特效）、生成权重、测试覆盖 |
 | [`content/variants.md`](content/variants.md) | 炮塔变体系统：Variant 枚举、子弹过滤规则、VariantPalette 着色器配置 |
+| [`content/item-pool.md`](content/item-pool.md) | Item Pool — unified tower/module registry; how to add new items |
 
 ## 测试文档（`tests/`）
 
