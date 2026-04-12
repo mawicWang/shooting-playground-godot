@@ -89,6 +89,7 @@ func test_all_towers_have_variant_field() -> void:
 	for path in paths:
 		var td := load(path) as TowerData
 		if td == null:
+			assert_object(td).override_failure_message("Failed to load: %s" % path).is_not_null()
 			continue
 		# Variant must be a valid enum value: 0 (FALSE) or 1 (TRUE)
 		assert_bool(td.variant == TowerData.Variant.FALSE or td.variant == TowerData.Variant.TRUE) \
