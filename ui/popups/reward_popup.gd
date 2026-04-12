@@ -5,42 +5,6 @@ extends Control
 
 signal reward_chosen(reward: Resource)
 
-const REWARD_POOL: Array = [
-	preload("res://resources/simple_emitter.tres"),
-	preload("res://resources/tower1010.tres"),
-	preload("res://resources/tower1100.tres"),
-	preload("res://resources/tower1110.tres"),
-	preload("res://resources/tower1111.tres"),
-	preload("res://resources/not_tower.tres"),
-	preload("res://resources/tower1010_true.tres"),
-	preload("res://resources/tower1100_true.tres"),
-	preload("res://resources/tower1110_true.tres"),
-	preload("res://resources/module_data/accelerator.tres"),
-	preload("res://resources/module_data/multiplier.tres"),
-	preload("res://resources/module_data/replenish1.tres"),
-	preload("res://resources/module_data/replenish2.tres"),
-	preload("res://resources/module_data/rate_boost.tres"),
-	preload("res://resources/module_data/heavy_ammo.tres"),
-	preload("res://resources/module_data/cd_on_hit_enemy.tres"),
-	preload("res://resources/module_data/cd_on_hit_tower_self.tres"),
-	preload("res://resources/module_data/cd_on_hit_tower_target.tres"),
-	preload("res://resources/module_data/cd_on_receive_hit.tres"),
-	preload("res://resources/module_data/speed_boost.tres"),
-	preload("res://resources/module_data/flying.tres"),
-	preload("res://resources/module_data/anti_air.tres"),
-	preload("res://resources/module_data/hit_speed_boost.tres"),
-	preload("res://resources/module_data/hit_enemy_replenish1.tres"),
-	preload("res://resources/module_data/hit_enemy_replenish2.tres"),
-	preload("res://resources/module_data/hit_enemy_speed_boost.tres"),
-	preload("res://resources/module_data/receive_hit_replenish1.tres"),
-	preload("res://resources/module_data/receive_hit_replenish2.tres"),
-	preload("res://resources/module_data/receive_hit_speed_boost.tres"),
-	preload("res://resources/module_data/deal_damage_cd_reduce.tres"),
-	preload("res://resources/module_data/deal_damage_replenish1.tres"),
-	preload("res://resources/module_data/deal_damage_speed_boost.tres"),
-	preload("res://resources/module_data/chain_module.tres"),
-	preload("res://resources/module_data/shadow_tower_module.tres"),
-]
 const FALLBACK_MODULE_TEX = preload("res://assets/bullet.svg")
 
 var _cards_row: HBoxContainer = null
@@ -89,7 +53,7 @@ func _get_weight(reward: Resource) -> int:
 	return 1
 
 func show_rewards():
-	var pool := REWARD_POOL.duplicate()
+	var pool := ItemPool.normal_pool()
 	var choices: Array = []
 	for i in min(3, pool.size()):
 		var total_weight := 0
