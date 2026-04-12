@@ -2,6 +2,7 @@ extends Node2D
 
 const CooldownOverlayScript = preload("res://entities/towers/cooldown_overlay.gd")
 const _VARIANT_PALETTE = preload("res://resources/variant_palette.tres")
+const _TOWER_TINT_SHADER = preload("res://entities/towers/tower_tint.gdshader")
 
 @export var data: TowerData
 
@@ -109,17 +110,10 @@ func _apply_data():
 func _apply_variant_shader() -> void:
 	if not data or not sprite:
 		return
-	
-	# 确保 sprite 有材质
-	if not sprite.material:
-		var shader = load(Paths.BULLET_COLOR_SHADER)
-		if shader:
-			sprite.material = ShaderMaterial.new()
-			sprite.material.shader = shader
-	
-	# 应用变体颜色
-	if sprite.material and _VARIANT_PALETTE:
-		sprite.material.set_shader_parameter("color", _VARIANT_PALETTE.get_color(data.variant))
+	var mat := ShaderMaterial.new()
+	mat.shader = _TOWER_TINT_SHADER
+	mat.set_shader_parameter("color", _VARIANT_PALETTE.get_color(data.variant))
+	sprite.material = mat
 
 func _get_effective_cd() -> float:
 	return maxf(0.1, _cd_stat.get_value())
