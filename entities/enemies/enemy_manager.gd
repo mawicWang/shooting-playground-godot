@@ -125,6 +125,8 @@ func prepare_enemies() -> Array:
 		if direction == Vector2(0, 1):  # 从上往下
 			col = randi() % cols
 			var x = grid_rect.position.x + col * cell_step_x + grid_cell_size / 2
+			# 四舍五入到整数，避免浮点精度问题
+			x = round(x)
 			spawn_pos = Vector2(x, grid_rect.position.y - SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y - WARNING_DISTANCE)
 			pos_key = "top_" + str(col)
@@ -132,6 +134,8 @@ func prepare_enemies() -> Array:
 		elif direction == Vector2(0, -1):  # 从下往上
 			col = randi() % cols
 			var x = grid_rect.position.x + col * cell_step_x + grid_cell_size / 2
+			# 四舍五入到整数，避免浮点精度问题
+			x = round(x)
 			spawn_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + SPAWN_MARGIN)
 			warning_pos = Vector2(x, grid_rect.position.y + grid_rect.size.y + WARNING_DISTANCE)
 			pos_key = "bottom_" + str(col)
@@ -139,6 +143,8 @@ func prepare_enemies() -> Array:
 		elif direction == Vector2(1, 0):  # 从左往右
 			row = randi() % rows
 			var y = grid_rect.position.y + row * cell_step_y + grid_cell_size / 2
+			# 四舍五入到整数，避免浮点精度问题
+			y = round(y)
 			spawn_pos = Vector2(grid_rect.position.x - SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x - WARNING_DISTANCE, y)
 			pos_key = "left_" + str(row)
@@ -146,6 +152,8 @@ func prepare_enemies() -> Array:
 		elif direction == Vector2(-1, 0):  # 从右往左
 			row = randi() % rows
 			var y = grid_rect.position.y + row * cell_step_y + grid_cell_size / 2
+			# 四舍五入到整数，避免浮点精度问题
+			y = round(y)
 			spawn_pos = Vector2(grid_rect.position.x + grid_rect.size.x + SPAWN_MARGIN, y)
 			warning_pos = Vector2(grid_rect.position.x + grid_rect.size.x + WARNING_DISTANCE, y)
 			pos_key = "right_" + str(row)

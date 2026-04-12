@@ -33,6 +33,7 @@ script = ExtResource("1_shield_script")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_shield")
 texture = ExtResource("2_shield_tex")
+scale = Vector2(0.5, 0.5)
 modulate = Color(0.5, 0.7, 1.0, 1.0)
 
 [node name="Hitbox" type="Area2D" parent="."]
