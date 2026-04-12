@@ -1,5 +1,10 @@
 class_name TowerData extends Resource
 
+enum Variant {
+	FALSE = 0,
+	TRUE = 1,
+}
+
 @export var tower_name: String = ""
 @export var sprite: Texture2D
 @export var icon: Texture2D
@@ -9,3 +14,5 @@ class_name TowerData extends Resource
 @export var initial_ammo: int = 3
 ## 自定义炮塔场景。null 时使用默认 tower.tscn。
 @export var scene: PackedScene
+## 炮塔变体：FALSE（蓝）或 TRUE（红）。子弹必须匹配变体才能击中。
+@export var variant: Variant = Variant.FALSE

@@ -5,6 +5,7 @@ extends Control
 
 const GameOverPopupScene := preload("res://ui/popups/game_over_popup.tscn")
 const RewardPopupScript := preload("res://ui/popups/reward_popup.gd")
+
 const LayoutManager := preload("res://core/LayoutManager.gd")
 const GameLoopManager := preload("res://core/GameLoopManager.gd")
 const EffectManager := preload("res://core/EffectManager.gd")
@@ -18,11 +19,17 @@ const BattlefieldContainerScript := preload("res://core/battlefield_container.gd
 # 开发者模式用：全量炮塔 & 模块资源
 const _DEV_ALL_TOWERS := [
 	preload("res://resources/simple_emitter.tres"),
+	preload("res://resources/simple_emitter_true.tres"),
 	preload("res://resources/tower1010.tres"),
+	preload("res://resources/tower1010_true.tres"),
 	preload("res://resources/tower1100.tres"),
+	preload("res://resources/tower1100_true.tres"),
 	preload("res://resources/tower1110.tres"),
+	preload("res://resources/tower1110_true.tres"),
 	preload("res://resources/tower1111.tres"),
+	preload("res://resources/tower1111_true.tres"),
 	preload("res://resources/not_tower.tres"),
+	preload("res://resources/not_tower_true.tres"),
 ]
 const _DEV_ALL_MODULES := [
 	preload("res://resources/module_data/accelerator.tres"),
@@ -82,6 +89,9 @@ var _module_reserve: HBoxContainer  # 模块行，叠加显示
 var _staging_panel: PanelContainer
 var _staging_content: HBoxContainer
 var _staging_icon: Node = null  # 当前暂存的图标节点（最多 1 个）
+
+# 三选一共享池子
+
 
 func _ready():
 	_setup_managers()
@@ -290,7 +300,19 @@ func _setup_dev_panel() -> void:
 	# ── 炮塔区 ──
 	hbox.add_child(_make_section_label("炮\n塔", Vector2(16, 0), 13, Color(0.8, 0.8, 0.8)))
 
+	# 根据配置标志过滤炮塔
+	var show_all_variants = GameState.get_config_flag("enable_dev_mode_all_variants")
+	var include_true_variants = GameState.get_config_flag("include_true_variants_in_dev")
+	
 	for tower_data in _DEV_ALL_TOWERS:
+		# 如果配置要求不显示所有变体，只显示FALSE变体
+		if not show_all_variants and tower_data.variant == TowerData.Variant.TRUE:
+			continue
+		
+		# 如果配置要求不包含TRUE变体，跳过TRUE变体
+		if not include_true_variants and tower_data.variant == TowerData.Variant.TRUE:
+			continue
+		
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(80, 110)
 		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
@@ -365,13 +387,6 @@ func _create_staging_panel() -> void:
 	game_content.add_child(_staging_panel)
 
 # ── 初始炮塔放置 ──────────────────────────────────────────────
-
-func _prepare_game():
-	_game_loop.prepare_enemy_warnings()
-	if GameState.is_dev_mode():
-		GameState.add_coins(99999)
-		return
-	call_deferred("_try_place_initial_tower")
 
 func _try_place_initial_tower():
 	if grid_container.get_child_count() < 25:
@@ -631,7 +646,7 @@ func _create_reward_popup():
 
 # ── 按钮样式 ──────────────────────────────────────────────────
 
-func _update_button_style():
+func _update_button_style() -> void:
 	var is_running = GameState.is_running()
 	var is_dev = GameState.is_dev_mode()
 
@@ -670,3 +685,16 @@ func _create_button_style(greyed: bool = false) -> Dictionary:
 	pressed.bg_color = base.bg_color.darkened(0.1)
 
 	return {"normal": base, "hover": hover, "pressed": pressed}
+
+
+
+
+
+## 准备游戏
+func _prepare_game():
+	_game_loop.prepare_enemy_warnings()
+	if GameState.is_dev_mode():
+		GameState.add_coins(99999)
+		return
+	
+	call_deferred("_try_place_initial_tower")

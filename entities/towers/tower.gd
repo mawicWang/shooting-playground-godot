@@ -1,6 +1,7 @@
 extends Node2D
 
 const CooldownOverlayScript = preload("res://entities/towers/cooldown_overlay.gd")
+const _VARIANT_PALETTE = preload("res://resources/variant_palette.tres")
 
 @export var data: TowerData
 
@@ -93,6 +94,8 @@ func _apply_data():
 		if data.sprite:
 			sprite.texture = data.sprite
 		ammo = data.initial_ammo
+		# 应用变体着色器
+		_apply_variant_shader()
 	else:
 		ammo = 3
 	# 有限弹药：初始化队列（无限弹药跳过，_do_fire 会即时创建空 AmmoItem）
@@ -101,6 +104,22 @@ func _apply_data():
 			ammo_queue.append(AmmoItem.new())
 		ammo = 0  # 有限弹药由队列管理，ammo 只保留 -1（无限）标志位
 	_update_ammo_label()
+
+## 应用变体着色器颜色
+func _apply_variant_shader() -> void:
+	if not data or not sprite:
+		return
+	
+	# 确保 sprite 有材质
+	if not sprite.material:
+		var shader = load(Paths.BULLET_COLOR_SHADER)
+		if shader:
+			sprite.material = ShaderMaterial.new()
+			sprite.material.shader = shader
+	
+	# 应用变体颜色
+	if sprite.material and _VARIANT_PALETTE:
+		sprite.material.set_shader_parameter("color", _VARIANT_PALETTE.get_color(data.variant))
 
 func _get_effective_cd() -> float:
 	return maxf(0.1, _cd_stat.get_value())

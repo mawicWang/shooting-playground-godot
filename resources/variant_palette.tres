@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="VariantPalette" load_steps=2 format=3 uid="uid://fc856gvcwve4"]
+
+[ext_resource type="Script" uid="uid://bq6q8d4v4q5v" path="res://resources/VariantPalette.gd" id="1_variantpalette"]
+
+[resource]
+script = ExtResource("1_variantpalette")
+false_color = Color(0.2, 0.4, 1.0, 1)
+true_color = Color(1.0, 0.3, 0.3, 1)

@@ -20,7 +20,7 @@ func setup(max_layers: int) -> void:
 	_sprite.texture = tex
 	_sprite.scale = BUBBLE_SIZE / Vector2(64.0, 64.0)
 
-	var shader := load("res://entities/enemies/shield_bubble.gdshader") as Shader
+	var shader := load(Paths.SHIELD_BUBBLE_SHADER) as Shader
 	_material = ShaderMaterial.new()
 	_material.shader = shader
 	_sprite.material = _material

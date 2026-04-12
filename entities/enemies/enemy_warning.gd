@@ -33,7 +33,7 @@ func set_danger(is_danger: bool) -> void:
 	if is_danger:
 		if _danger_material == null:
 			_danger_material = ShaderMaterial.new()
-			_danger_material.shader = load("res://entities/enemies/enemy_warning_danger.gdshader")
+			_danger_material.shader = load(Paths.ENEMY_WARNING_DANGER_SHADER)
 		sprite.material = _danger_material
 	else:
 		sprite.material = null

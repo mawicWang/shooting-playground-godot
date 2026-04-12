@@ -13,3 +13,8 @@ const GAME_OVER_POPUP_SCENE := "res://ui/popups/game_over_popup.tscn"
 
 # ========== Autoloads ==========
 const MAIN_PATH := "/root/main"
+
+# ========== Shaders ==========
+const BULLET_COLOR_SHADER := "res://entities/bullets/bullet_color.gdshader"
+const ENEMY_WARNING_DANGER_SHADER := "res://entities/enemies/enemy_warning_danger.gdshader"
+const SHIELD_BUBBLE_SHADER := "res://entities/enemies/shield_bubble.gdshader"
