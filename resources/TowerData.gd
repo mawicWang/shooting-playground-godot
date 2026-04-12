@@ -16,3 +16,7 @@ enum Variant {
 @export var variant: Variant = Variant.NEGATIVE
 ## 自定义炮塔场景。null 时使用默认 tower.tscn。
 @export var scene: PackedScene
+## 是否出现在普通模式奖励池（三选一弹窗）
+@export var in_normal_pool: bool = true
+## 是否出现在开发者模式侧边栏
+@export var in_dev_pool: bool = true

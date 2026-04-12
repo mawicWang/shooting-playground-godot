@@ -7,6 +7,10 @@ enum Category { COMPUTATIONAL, LOGICAL, SPECIAL }
 @export var description: String = ""
 @export var icon: Texture2D
 @export var slot_color: Color = Color(0.5, 0.5, 0.5)
+## 是否出现在普通模式奖励池（三选一弹窗）
+@export var in_normal_pool: bool = true
+## 是否出现在开发者模式侧边栏
+@export var in_dev_pool: bool = true
 
 ## 安装到炮塔时，自动将 fire_effects 装载进去
 @export var fire_effects: Array[FireEffect] = []
