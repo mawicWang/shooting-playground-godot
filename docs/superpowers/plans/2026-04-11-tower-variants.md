@@ -26,20 +26,20 @@ class_name VariantPaletteTest
 extends GdUnitTestSuite
 
 
-func test_get_color_returns_false_color_for_false_variant() -> void:
+func test_get_color_returns_negative_color_for_false_variant() -> void:
 	var palette := VariantPalette.new()
-	palette.false_color = Color.BLUE
-	palette.true_color = Color.RED
+	palette.negative_color = Color.BLUE
+	palette.positive_color = Color.RED
 
 	var result := palette.get_color(TowerData.Variant.NEGATIVE)
 
 	assert_that(result).is_equal(Color.BLUE)
 
 
-func test_get_color_returns_true_color_for_true_variant() -> void:
+func test_get_color_returns_positive_color_for_true_variant() -> void:
 	var palette := VariantPalette.new()
-	palette.false_color = Color.BLUE
-	palette.true_color = Color.RED
+	palette.negative_color = Color.BLUE
+	palette.positive_color = Color.RED
 
 	var result := palette.get_color(TowerData.Variant.POSITIVE)
 
@@ -49,16 +49,16 @@ func test_get_color_returns_true_color_for_true_variant() -> void:
 func test_default_colors_are_blue_and_red() -> void:
 	var palette := VariantPalette.new()
 
-	assert_that(palette.false_color).is_equal(Color.BLUE)
-	assert_that(palette.true_color).is_equal(Color.RED)
+	assert_that(palette.negative_color).is_equal(Color.BLUE)
+	assert_that(palette.positive_color).is_equal(Color.RED)
 
 
 func test_preloaded_palette_tres_loads() -> void:
 	var palette := load("res://resources/variant_palette.tres") as VariantPalette
 
 	assert_object(palette).is_not_null()
-	assert_that(palette.false_color).is_equal(Color.BLUE)
-	assert_that(palette.true_color).is_equal(Color.RED)
+	assert_that(palette.negative_color).is_equal(Color.BLUE)
+	assert_that(palette.positive_color).is_equal(Color.RED)
 ```
 
 - [ ] **Step 2: Run test — expect failure**
@@ -71,11 +71,11 @@ Expected: FAIL — `VariantPalette` class not found, `TowerData.Variant` not fou
 ```gdscript
 class_name VariantPalette extends Resource
 
-@export var false_color: Color = Color.BLUE
-@export var true_color: Color = Color.RED
+@export var negative_color: Color = Color.BLUE
+@export var positive_color: Color = Color.RED
 
 func get_color(variant: TowerData.Variant) -> Color:
-	return false_color if variant == TowerData.Variant.NEGATIVE else true_color
+	return negative_color if variant == TowerData.Variant.NEGATIVE else positive_color
 ```
 
 Note: `TowerData.Variant` is defined in Task 2. Tests for Task 1 and Task 2 should be run together after both are implemented, or implement Task 2 first if running tests incrementally.
@@ -89,8 +89,8 @@ Note: `TowerData.Variant` is defined in Task 2. Tests for Task 1 and Task 2 shou
 
 [resource]
 script = ExtResource("1_variantpalette")
-false_color = Color(0, 0, 1, 1)
-true_color = Color(1, 0, 0, 1)
+negative_color = Color(0, 0, 1, 1)
+positive_color = Color(1, 0, 0, 1)
 ```
 
 - [ ] **Step 5: Commit**
@@ -660,7 +660,7 @@ The filter runs after the shadow-team filter, before the `transmission_chain` ch
 
 Each tower sprite receives a `ShaderMaterial` using `entities/towers/tower_tint.gdshader`. The tint color comes from `resources/variant_palette.tres` (a `VariantPalette` resource).
 
-To change variant colors, open `resources/variant_palette.tres` in the Godot editor and modify `false_color` / `true_color`. No code changes needed.
+To change variant colors, open `resources/variant_palette.tres` in the Godot editor and modify `negative_color` / `positive_color`. No code changes needed.
 
 | Variant | Default color |
 |---------|--------------|
@@ -673,8 +673,8 @@ To change variant colors, open `resources/variant_palette.tres` in the Godot edi
 
 ```gdscript
 class_name VariantPalette extends Resource
-@export var false_color: Color = Color.BLUE
-@export var true_color: Color = Color.RED
+@export var negative_color: Color = Color.BLUE
+@export var positive_color: Color = Color.RED
 func get_color(variant: TowerData.Variant) -> Color
 ```
 
