@@ -305,12 +305,12 @@ func _setup_dev_panel() -> void:
 	var include_true_variants = GameState.get_config_flag("include_true_variants_in_dev")
 	
 	for tower_data in _DEV_ALL_TOWERS:
-		# 如果配置要求不显示所有变体，只显示FALSE变体
-		if not show_all_variants and tower_data.variant == TowerData.Variant.TRUE:
+		# 如果配置要求不显示所有变体，只显示NEGATIVE变体
+		if not show_all_variants and tower_data.variant == TowerData.Variant.POSITIVE:
 			continue
-		
-		# 如果配置要求不包含TRUE变体，跳过TRUE变体
-		if not include_true_variants and tower_data.variant == TowerData.Variant.TRUE:
+
+		# 如果配置要求不包含POSITIVE变体，跳过POSITIVE变体
+		if not include_true_variants and tower_data.variant == TowerData.Variant.POSITIVE:
 			continue
 		
 		var icon := TextureRect.new()
