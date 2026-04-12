@@ -165,7 +165,8 @@ func test_tower_with_null_data_is_not_filtered() -> void:
 	var tower_body := tower.get_node_or_null("TowerBody") as Area2D
 	assert_object(tower_body).is_not_null()
 
-	# Should not crash; bullet should be consumed (normal hit path)
+	# variant filter is skipped when parent.data == null, so the normal hit path runs
 	bullet._on_hitbox_area_entered(tower_body)
-	# No crash = pass. _pending_release may be true or false depending on null guards elsewhere.
-	assert_bool(true).is_true()
+	assert_bool(bullet._pending_release) \
+		.override_failure_message("null-data tower should not be filtered — bullet should be consumed") \
+		.is_true()
