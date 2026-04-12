@@ -31,7 +31,7 @@ func test_get_color_returns_false_color_for_false_variant() -> void:
 	palette.false_color = Color.BLUE
 	palette.true_color = Color.RED
 
-	var result := palette.get_color(TowerData.Variant.FALSE)
+	var result := palette.get_color(TowerData.Variant.NEGATIVE)
 
 	assert_that(result).is_equal(Color.BLUE)
 
@@ -41,7 +41,7 @@ func test_get_color_returns_true_color_for_true_variant() -> void:
 	palette.false_color = Color.BLUE
 	palette.true_color = Color.RED
 
-	var result := palette.get_color(TowerData.Variant.TRUE)
+	var result := palette.get_color(TowerData.Variant.POSITIVE)
 
 	assert_that(result).is_equal(Color.RED)
 
@@ -75,7 +75,7 @@ class_name VariantPalette extends Resource
 @export var true_color: Color = Color.RED
 
 func get_color(variant: TowerData.Variant) -> Color:
-	return false_color if variant == TowerData.Variant.FALSE else true_color
+	return false_color if variant == TowerData.Variant.NEGATIVE else true_color
 ```
 
 Note: `TowerData.Variant` is defined in Task 2. Tests for Task 1 and Task 2 should be run together after both are implemented, or implement Task 2 first if running tests incrementally.
@@ -127,19 +127,19 @@ func test_all_towers_have_variant_field() -> void:
 		if td == null:
 			continue
 		# Variant must be a valid enum value: 0 (FALSE) or 1 (TRUE)
-		assert_bool(td.variant == TowerData.Variant.FALSE or td.variant == TowerData.Variant.TRUE) \
+		assert_bool(td.variant == TowerData.Variant.NEGATIVE or td.variant == TowerData.Variant.POSITIVE) \
 			.override_failure_message("%s: variant must be FALSE or TRUE" % path) \
 			.is_true()
 
 
 func test_tower_variant_enum_values() -> void:
-	assert_int(TowerData.Variant.FALSE).is_equal(0)
-	assert_int(TowerData.Variant.TRUE).is_equal(1)
+	assert_int(TowerData.Variant.NEGATIVE).is_equal(0)
+	assert_int(TowerData.Variant.POSITIVE).is_equal(1)
 
 
 func test_default_variant_is_false() -> void:
 	var td := TowerData.new()
-	assert_int(td.variant).is_equal(TowerData.Variant.FALSE)
+	assert_int(td.variant).is_equal(TowerData.Variant.NEGATIVE)
 ```
 
 - [ ] **Step 2: Run test — expect failure**
@@ -152,7 +152,7 @@ Expected: FAIL — `TowerData.Variant` not found.
 ```gdscript
 class_name TowerData extends Resource
 
-enum Variant { FALSE = 0, TRUE = 1 }
+enum Variant { NEGATIVE = 0, POSITIVE = 1 }
 
 @export var tower_name: String = ""
 @export var sprite: Texture2D
@@ -162,7 +162,7 @@ enum Variant { FALSE = 0, TRUE = 1 }
 ## 初始弹药数量。-1 表示无限；0 或正整数为有限弹药。
 @export var initial_ammo: int = 3
 ## 炮塔变体标识。子弹 bullet_type 必须与此匹配才能触发交互。
-@export var variant: Variant = Variant.FALSE
+@export var variant: Variant = Variant.NEGATIVE
 ## 自定义炮塔场景。null 时使用默认 tower.tscn。
 @export var scene: PackedScene
 ```
@@ -243,7 +243,7 @@ func test_false_variant_tower_has_shader_material_with_blue_tint() -> void:
 	var td := TowerData.new()
 	td.sprite = load("res://assets/tower1000.svg")
 	td.firing_rate = 1.0
-	td.variant = TowerData.Variant.FALSE
+	td.variant = TowerData.Variant.NEGATIVE
 
 	var tower: Node2D = TowerScene.instantiate()
 	tower.data = td
@@ -263,7 +263,7 @@ func test_true_variant_tower_has_shader_material_with_red_tint() -> void:
 	var td := TowerData.new()
 	td.sprite = load("res://assets/tower1000.svg")
 	td.firing_rate = 1.0
-	td.variant = TowerData.Variant.TRUE
+	td.variant = TowerData.Variant.POSITIVE
 
 	var tower: Node2D = TowerScene.instantiate()
 	tower.data = td
@@ -281,12 +281,12 @@ func test_two_towers_have_independent_materials() -> void:
 	var td_false := TowerData.new()
 	td_false.sprite = load("res://assets/tower1000.svg")
 	td_false.firing_rate = 1.0
-	td_false.variant = TowerData.Variant.FALSE
+	td_false.variant = TowerData.Variant.NEGATIVE
 
 	var td_true := TowerData.new()
 	td_true.sprite = load("res://assets/tower1000.svg")
 	td_true.firing_rate = 1.0
-	td_true.variant = TowerData.Variant.TRUE
+	td_true.variant = TowerData.Variant.POSITIVE
 
 	var tower_a: Node2D = TowerScene.instantiate()
 	tower_a.data = td_false
@@ -442,8 +442,8 @@ func _make_bullet(bullet_type: int) -> Node2D:
 # ── Matching variant: bullet SHOULD interact ─────────────────────
 
 func test_bullet_type_0_hits_false_variant_tower() -> void:
-	"""bullet_type=0 hitting Variant.FALSE tower: _pending_release = true"""
-	var tower := _make_tower(TowerData.Variant.FALSE, 100)
+	"""bullet_type=0 hitting Variant.NEGATIVE tower: _pending_release = true"""
+	var tower := _make_tower(TowerData.Variant.NEGATIVE, 100)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()  # deferred TowerBody shape
@@ -458,13 +458,13 @@ func test_bullet_type_0_hits_false_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=0 SHOULD hit Variant.FALSE tower") \
+		.override_failure_message("bullet_type=0 SHOULD hit Variant.NEGATIVE tower") \
 		.is_true()
 
 
 func test_bullet_type_1_hits_true_variant_tower() -> void:
-	"""bullet_type=1 hitting Variant.TRUE tower: _pending_release = true"""
-	var tower := _make_tower(TowerData.Variant.TRUE, 101)
+	"""bullet_type=1 hitting Variant.POSITIVE tower: _pending_release = true"""
+	var tower := _make_tower(TowerData.Variant.POSITIVE, 101)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
@@ -479,15 +479,15 @@ func test_bullet_type_1_hits_true_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=1 SHOULD hit Variant.TRUE tower") \
+		.override_failure_message("bullet_type=1 SHOULD hit Variant.POSITIVE tower") \
 		.is_true()
 
 
 # ── Non-matching variant: bullet MUST NOT interact ────────────────
 
 func test_bullet_type_1_does_not_hit_false_variant_tower() -> void:
-	"""bullet_type=1 hitting Variant.FALSE tower: filter rejects, bullet continues"""
-	var tower := _make_tower(TowerData.Variant.FALSE, 102)
+	"""bullet_type=1 hitting Variant.NEGATIVE tower: filter rejects, bullet continues"""
+	var tower := _make_tower(TowerData.Variant.NEGATIVE, 102)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
@@ -502,7 +502,7 @@ func test_bullet_type_1_does_not_hit_false_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=1 must NOT hit Variant.FALSE tower") \
+		.override_failure_message("bullet_type=1 must NOT hit Variant.NEGATIVE tower") \
 		.is_false()
 	assert_bool(bullet.visible) \
 		.override_failure_message("Bullet should remain visible after mismatch") \
@@ -513,8 +513,8 @@ func test_bullet_type_1_does_not_hit_false_variant_tower() -> void:
 
 
 func test_bullet_type_0_does_not_hit_true_variant_tower() -> void:
-	"""bullet_type=0 hitting Variant.TRUE tower: filter rejects, bullet continues"""
-	var tower := _make_tower(TowerData.Variant.TRUE, 103)
+	"""bullet_type=0 hitting Variant.POSITIVE tower: filter rejects, bullet continues"""
+	var tower := _make_tower(TowerData.Variant.POSITIVE, 103)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
@@ -529,7 +529,7 @@ func test_bullet_type_0_does_not_hit_true_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=0 must NOT hit Variant.TRUE tower") \
+		.override_failure_message("bullet_type=0 must NOT hit Variant.POSITIVE tower") \
 		.is_false()
 	assert_bool(bullet.visible).is_true()
 	assert_bool(bullet.is_physics_processing()).is_true()
@@ -619,26 +619,26 @@ git commit -m "feat: add bullet variant filter — mismatched bullets pass throu
 
 ## Overview
 
-Each tower has a **variant identity** (`Variant.FALSE = 0` or `Variant.TRUE = 1`). A bullet only interacts with a tower when `bullet_type == tower.data.variant`. Non-matching bullets pass through silently: no hit animation, no BulletEffect, no TowerEffect, no ammo replenishment.
+Each tower has a **variant identity** (`Variant.NEGATIVE = 0` or `Variant.POSITIVE = 1`). A bullet only interacts with a tower when `bullet_type == tower.data.variant`. Non-matching bullets pass through silently: no hit animation, no BulletEffect, no TowerEffect, no ammo replenishment.
 
 ## Variant Enum
 
 Defined in `TowerData.gd`:
 
 ```gdscript
-enum Variant { FALSE = 0, TRUE = 1 }
+enum Variant { NEGATIVE = 0, POSITIVE = 1 }
 ```
 
 Integer values intentionally align with `BulletData.bullet_type` (0 and 1).
 
 ## Assigning Tower Variant
 
-Set `variant` in the tower's `TowerData` resource (`.tres` file). All towers default to `Variant.FALSE`.
+Set `variant` in the tower's `TowerData` resource (`.tres` file). All towers default to `Variant.NEGATIVE`.
 
 Example `.tres` excerpt:
 ```
-variant = 0   # Variant.FALSE
-variant = 1   # Variant.TRUE
+variant = 0   # Variant.NEGATIVE
+variant = 1   # Variant.POSITIVE
 ```
 
 ## Bullet Side
@@ -710,11 +710,11 @@ git commit -m "docs: add tower variant system documentation"
 - [x] Shader applied per-tower (duplicated material) → Task 3
 - [x] Filter in `bullet.gd`: `bullet_type != tower.data.variant` → Task 4
 - [x] Null-data guard → Task 4 test + filter condition
-- [x] All existing `.tres` set to `Variant.FALSE` → Task 2
+- [x] All existing `.tres` set to `Variant.NEGATIVE` → Task 2
 - [x] Tests for all 4 matching/non-matching combinations → Task 4
 - [x] Test: null tower data doesn't crash → Task 4
 - [x] Docs created and indexed → Task 5
 
 **No placeholders:** All steps include complete code.
 
-**Type consistency:** `TowerData.Variant.FALSE/TRUE` used consistently across all tasks. `parent.data.variant` compared directly to `data.bullet_type` (both int-compatible).
+**Type consistency:** `TowerData.Variant.NEGATIVE/TRUE` used consistently across all tasks. `parent.data.variant` compared directly to `data.bullet_type` (both int-compatible).

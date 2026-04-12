@@ -92,16 +92,16 @@ func test_all_towers_have_variant_field() -> void:
 			assert_object(td).override_failure_message("Failed to load: %s" % path).is_not_null()
 			continue
 		# Variant must be a valid enum value: 0 (FALSE) or 1 (TRUE)
-		assert_bool(td.variant == TowerData.Variant.FALSE or td.variant == TowerData.Variant.TRUE) \
+		assert_bool(td.variant == TowerData.Variant.NEGATIVE or td.variant == TowerData.Variant.POSITIVE) \
 			.override_failure_message("%s: variant must be FALSE or TRUE" % path) \
 			.is_true()
 
 
 func test_tower_variant_enum_values() -> void:
-	assert_int(TowerData.Variant.FALSE).is_equal(0)
-	assert_int(TowerData.Variant.TRUE).is_equal(1)
+	assert_int(TowerData.Variant.NEGATIVE).is_equal(0)
+	assert_int(TowerData.Variant.POSITIVE).is_equal(1)
 
 
 func test_default_variant_is_false() -> void:
 	var td := TowerData.new()
-	assert_int(td.variant).is_equal(TowerData.Variant.FALSE)
+	assert_int(td.variant).is_equal(TowerData.Variant.NEGATIVE)
