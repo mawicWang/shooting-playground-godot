@@ -16,48 +16,6 @@ const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd
 const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
 const BattlefieldContainerScript := preload("res://core/battlefield_container.gd")
 
-# 开发者模式用：全量炮塔 & 模块资源
-const _DEV_ALL_TOWERS := [
-	preload("res://resources/simple_emitter.tres"),
-	preload("res://resources/simple_emitter_true.tres"),
-	preload("res://resources/tower1010.tres"),
-	preload("res://resources/tower1010_true.tres"),
-	preload("res://resources/tower1100.tres"),
-	preload("res://resources/tower1100_true.tres"),
-	preload("res://resources/tower1110.tres"),
-	preload("res://resources/tower1110_true.tres"),
-	preload("res://resources/tower1111.tres"),
-	preload("res://resources/tower1111_true.tres"),
-	preload("res://resources/not_tower.tres"),
-	preload("res://resources/not_tower_true.tres"),
-]
-const _DEV_ALL_MODULES := [
-	preload("res://resources/module_data/accelerator.tres"),
-	preload("res://resources/module_data/multiplier.tres"),
-	preload("res://resources/module_data/rate_boost.tres"),
-	preload("res://resources/module_data/replenish1.tres"),
-	preload("res://resources/module_data/replenish2.tres"),
-	preload("res://resources/module_data/heavy_ammo.tres"),
-	preload("res://resources/module_data/cd_on_hit_enemy.tres"),
-	preload("res://resources/module_data/cd_on_hit_tower_self.tres"),
-	preload("res://resources/module_data/cd_on_hit_tower_target.tres"),
-	preload("res://resources/module_data/cd_on_receive_hit.tres"),
-	preload("res://resources/module_data/speed_boost.tres"),
-	preload("res://resources/module_data/flying.tres"),
-	preload("res://resources/module_data/anti_air.tres"),
-	preload("res://resources/module_data/hit_speed_boost.tres"),
-	preload("res://resources/module_data/hit_enemy_replenish1.tres"),
-	preload("res://resources/module_data/hit_enemy_replenish2.tres"),
-	preload("res://resources/module_data/hit_enemy_speed_boost.tres"),
-	preload("res://resources/module_data/receive_hit_replenish1.tres"),
-	preload("res://resources/module_data/receive_hit_replenish2.tres"),
-	preload("res://resources/module_data/receive_hit_speed_boost.tres"),
-	preload("res://resources/module_data/deal_damage_cd_reduce.tres"),
-	preload("res://resources/module_data/deal_damage_replenish1.tres"),
-	preload("res://resources/module_data/deal_damage_speed_boost.tres"),
-	preload("res://resources/module_data/chain_module.tres"),
-	preload("res://resources/module_data/shadow_tower_module.tres"),
-]
 
 @onready var game_content = $GameContent
 @onready var start_stop_button = $GameContent/PanelContainer/StartStopButton
@@ -89,8 +47,6 @@ var _module_reserve: HBoxContainer  # 模块行，叠加显示
 var _staging_panel: PanelContainer
 var _staging_content: HBoxContainer
 var _staging_icon: Node = null  # 当前暂存的图标节点（最多 1 个）
-
-# 三选一共享池子
 
 
 func _ready():
@@ -300,19 +256,7 @@ func _setup_dev_panel() -> void:
 	# ── 炮塔区 ──
 	hbox.add_child(_make_section_label("炮\n塔", Vector2(16, 0), 13, Color(0.8, 0.8, 0.8)))
 
-	# 根据配置标志过滤炮塔
-	var show_all_variants = GameState.get_config_flag("enable_dev_mode_all_variants")
-	var include_true_variants = GameState.get_config_flag("include_true_variants_in_dev")
-	
-	for tower_data in _DEV_ALL_TOWERS:
-		# 如果配置要求不显示所有变体，只显示NEGATIVE变体
-		if not show_all_variants and tower_data.variant == TowerData.Variant.POSITIVE:
-			continue
-
-		# 如果配置要求不包含POSITIVE变体，跳过POSITIVE变体
-		if not include_true_variants and tower_data.variant == TowerData.Variant.POSITIVE:
-			continue
-		
+	for tower_data in ItemPool.dev_towers():
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(80, 110)
 		icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
@@ -330,7 +274,7 @@ func _setup_dev_panel() -> void:
 	# ── 模块区 ──
 	hbox.add_child(_make_section_label("模\n块", Vector2(16, 0), 13, Color(0.8, 0.8, 0.8)))
 
-	for mod_data in _DEV_ALL_MODULES:
+	for mod_data in ItemPool.dev_modules():
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(60, 60)
 		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
