@@ -4,5 +4,6 @@
 
 [resource]
 script = ExtResource("1_variantpalette")
+neutral_color = Color(1, 1, 1, 1)
 negative_color = Color(0, 0, 1, 1)
 positive_color = Color(1, 0, 0, 1)
