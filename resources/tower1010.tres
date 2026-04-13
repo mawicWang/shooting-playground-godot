@@ -11,5 +11,6 @@ icon = ExtResource("2_sprite")
 firing_rate = 1.0
 barrel_directions = PackedVector2Array(0, -1, 0, 1)
 initial_ammo = 10
-
 variant = 0
+in_normal_pool = true
+in_dev_pool = true

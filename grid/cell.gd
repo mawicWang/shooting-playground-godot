@@ -2,7 +2,7 @@
 extends PanelContainer
 
 const COLOR_NORMAL = Color("#F2EAE0")       # 默认色
-const COLOR_OCCUPIED = Color(0, 0.7, 0, 0.8) # 已放置炮塔的绿色
+const COLOR_OCCUPIED = Color(0, 0.7, 0, 0.2) # 已放置炮塔的绿色
 const COLOR_VALID = Color(0, 1, 0, 0.5)      # 拖拽可放置的高亮（半透明绿）
 const COLOR_INVALID = Color(1, 0, 0, 0.5)    # 拖拽不可放置的高亮（半透明红）
 const COLOR_DISABLED = Color(0.5, 0.5, 0.5, 0.5) # 禁用状态的颜色
