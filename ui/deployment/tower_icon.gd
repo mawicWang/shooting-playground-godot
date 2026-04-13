@@ -1,7 +1,6 @@
 # tower_icon.gd
 extends TextureRect
 
-const _TOWER_TINT_SHADER := preload("res://entities/towers/tower_tint.gdshader")
 const _VARIANT_PALETTE := preload("res://resources/variant_palette.tres")
 
 @export var tower_data: TowerData = preload("res://resources/simple_emitter.tres")
@@ -65,12 +64,17 @@ func _ready():
 		_add_ammo_badge()
 
 func _apply_variant_tint() -> void:
-	if not tower_data:
+	if not tower_data or tower_data.variant == TowerData.Variant.NEUTRAL:
 		return
-	var mat := ShaderMaterial.new()
-	mat.shader = _TOWER_TINT_SHADER
-	mat.set_shader_parameter("color", _VARIANT_PALETTE.get_color(tower_data.variant))
-	self.material = mat
+	# Multiply blending is invisible on dark/colored sprites — use a semi-transparent
+	# ColorRect overlay instead, which shows the variant color regardless of icon appearance.
+	var overlay := ColorRect.new()
+	var c := _VARIANT_PALETTE.get_color(tower_data.variant)
+	c.a = 0.45
+	overlay.color = c
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
 
 func _add_ammo_badge() -> void:
 	if not tower_data:
