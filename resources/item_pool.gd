@@ -45,7 +45,7 @@ const ALL_ITEMS: Array = [
 
 ## 普通模式奖励池：三选一弹窗可选的全部条目。
 static func normal_pool() -> Array:
-	return ALL_ITEMS.filter(func(r): return r.in_normal_pool)
+	return ALL_ITEMS.filter(func(r): return (r is TowerData or r is Module) and r.in_normal_pool)
 
 ## 开发者模式侧边栏中显示的炮塔。
 static func dev_towers() -> Array:

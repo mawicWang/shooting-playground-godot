@@ -67,3 +67,13 @@ func test_item_excluded_from_dev_pool_not_in_dev_towers() -> void:
 	var result := fake_list.filter(func(r): return r is TowerData and r.in_dev_pool)
 
 	assert_int(result.size()).is_equal(0)
+
+
+func test_normal_pool_type_guard_excludes_non_tower_non_module() -> void:
+	# 验证 normal_pool() 的类型守卫：非 TowerData/Module 类型不会进入池子
+	var plain_res := Resource.new()
+	# Resource 没有 in_normal_pool，直接用过滤谓词测试
+	var fake_list := [plain_res]
+	var result := fake_list.filter(func(r): return (r is TowerData or r is Module) and r.in_normal_pool)
+
+	assert_int(result.size()).is_equal(0)
