@@ -82,3 +82,22 @@ func test_two_towers_have_independent_materials() -> void:
 
 	assert_bool(sprite_a.material == sprite_b.material) \
 		.override_failure_message("Two towers must not share a ShaderMaterial instance").is_false()
+
+
+func test_neutral_variant_tower_has_shader_material_with_white_tint() -> void:
+	var td := TowerData.new()
+	td.sprite = load("res://assets/tower1000.svg")
+	td.firing_rate = 1.0
+	td.variant = TowerData.Variant.NEUTRAL
+
+	var tower: Node2D = TowerScene.instantiate()
+	tower.data = td
+	_add_child(tower)
+	await await_idle_frame()
+
+	var sprite: Sprite2D = tower.get_node("TowerVisual/Sprite2D")
+	assert_object(sprite.material).is_not_null()
+	assert_bool(sprite.material is ShaderMaterial).is_true()
+	var mat := sprite.material as ShaderMaterial
+	var color := mat.get_shader_parameter("color") as Color
+	assert_that(color).is_equal(Color.WHITE)
