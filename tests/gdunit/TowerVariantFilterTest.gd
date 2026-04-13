@@ -43,8 +43,8 @@ func _make_tower(variant: TowerData.Variant, entity_id: int) -> Node2D:
 	return tower
 
 
-## Creates a bullet with the given bullet_type. Does NOT include the target in transmission_chain.
-func _make_bullet(bullet_type: int) -> Node2D:
+## Creates a bullet with the given bullet_type.
+func _make_bullet(bullet_type: TowerData.Variant) -> Node2D:
 	var bullet: Node2D = BulletScene.instantiate()
 	var bd := BulletData.new()
 	bd.bullet_type = bullet_type
@@ -58,13 +58,13 @@ func _make_bullet(bullet_type: int) -> Node2D:
 
 # ── Matching variant: bullet SHOULD interact ─────────────────────
 
-func test_bullet_type_0_hits_negative_variant_tower() -> void:
+func test_negative_bullet_hits_negative_tower() -> void:
 	var tower := _make_tower(TowerData.Variant.NEGATIVE, 100)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()  # deferred TowerBody shape
 
-	var bullet := _make_bullet(0)
+	var bullet := _make_bullet(TowerData.Variant.NEGATIVE)
 	_add_child(bullet)
 	bullet.reset()
 	await await_idle_frame()
@@ -74,17 +74,17 @@ func test_bullet_type_0_hits_negative_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=0 SHOULD hit Variant.NEGATIVE tower") \
+		.override_failure_message("NEGATIVE bullet SHOULD hit NEGATIVE tower") \
 		.is_true()
 
 
-func test_bullet_type_1_hits_positive_variant_tower() -> void:
+func test_positive_bullet_hits_positive_tower() -> void:
 	var tower := _make_tower(TowerData.Variant.POSITIVE, 101)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
 
-	var bullet := _make_bullet(1)
+	var bullet := _make_bullet(TowerData.Variant.POSITIVE)
 	_add_child(bullet)
 	bullet.reset()
 	await await_idle_frame()
@@ -94,19 +94,19 @@ func test_bullet_type_1_hits_positive_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=1 SHOULD hit Variant.POSITIVE tower") \
+		.override_failure_message("POSITIVE bullet SHOULD hit POSITIVE tower") \
 		.is_true()
 
 
 # ── Non-matching variant: bullet MUST NOT interact ────────────────
 
-func test_bullet_type_1_does_not_hit_negative_variant_tower() -> void:
+func test_positive_bullet_does_not_hit_negative_tower() -> void:
 	var tower := _make_tower(TowerData.Variant.NEGATIVE, 102)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
 
-	var bullet := _make_bullet(1)
+	var bullet := _make_bullet(TowerData.Variant.POSITIVE)
 	_add_child(bullet)
 	bullet.reset()
 	await await_idle_frame()
@@ -116,7 +116,7 @@ func test_bullet_type_1_does_not_hit_negative_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=1 must NOT hit Variant.NEGATIVE tower") \
+		.override_failure_message("POSITIVE bullet must NOT hit NEGATIVE tower") \
 		.is_false()
 	assert_bool(bullet.visible) \
 		.override_failure_message("Bullet should remain visible after mismatch") \
@@ -126,13 +126,13 @@ func test_bullet_type_1_does_not_hit_negative_variant_tower() -> void:
 		.is_true()
 
 
-func test_bullet_type_0_does_not_hit_positive_variant_tower() -> void:
+func test_negative_bullet_does_not_hit_positive_tower() -> void:
 	var tower := _make_tower(TowerData.Variant.POSITIVE, 103)
 	_add_child(tower)
 	await await_idle_frame()
 	await await_idle_frame()
 
-	var bullet := _make_bullet(0)
+	var bullet := _make_bullet(TowerData.Variant.NEGATIVE)
 	_add_child(bullet)
 	bullet.reset()
 	await await_idle_frame()
@@ -142,10 +142,52 @@ func test_bullet_type_0_does_not_hit_positive_variant_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	assert_bool(bullet._pending_release) \
-		.override_failure_message("bullet_type=0 must NOT hit Variant.POSITIVE tower") \
+		.override_failure_message("NEGATIVE bullet must NOT hit POSITIVE tower") \
 		.is_false()
 	assert_bool(bullet.visible).is_true()
 	assert_bool(bullet.is_physics_processing()).is_true()
+
+
+# ── NEUTRAL variant: accepts all bullet types ─────────────────────
+
+func test_negative_bullet_hits_neutral_tower() -> void:
+	var tower := _make_tower(TowerData.Variant.NEUTRAL, 200)
+	_add_child(tower)
+	await await_idle_frame()
+	await await_idle_frame()
+
+	var bullet := _make_bullet(TowerData.Variant.NEGATIVE)
+	_add_child(bullet)
+	bullet.reset()
+	await await_idle_frame()
+
+	var tower_body := tower.get_node_or_null("TowerBody") as Area2D
+	assert_object(tower_body).is_not_null()
+	bullet._on_hitbox_area_entered(tower_body)
+
+	assert_bool(bullet._pending_release) \
+		.override_failure_message("NEGATIVE bullet SHOULD hit NEUTRAL tower") \
+		.is_true()
+
+
+func test_positive_bullet_hits_neutral_tower() -> void:
+	var tower := _make_tower(TowerData.Variant.NEUTRAL, 201)
+	_add_child(tower)
+	await await_idle_frame()
+	await await_idle_frame()
+
+	var bullet := _make_bullet(TowerData.Variant.POSITIVE)
+	_add_child(bullet)
+	bullet.reset()
+	await await_idle_frame()
+
+	var tower_body := tower.get_node_or_null("TowerBody") as Area2D
+	assert_object(tower_body).is_not_null()
+	bullet._on_hitbox_area_entered(tower_body)
+
+	assert_bool(bullet._pending_release) \
+		.override_failure_message("POSITIVE bullet SHOULD hit NEUTRAL tower") \
+		.is_true()
 
 
 # ── Null data guard ───────────────────────────────────────────────
@@ -158,7 +200,7 @@ func test_tower_with_null_data_is_not_filtered() -> void:
 	await await_idle_frame()
 	await await_idle_frame()
 
-	var bullet := _make_bullet(0)
+	var bullet := _make_bullet(TowerData.Variant.NEGATIVE)
 	_add_child(bullet)
 	bullet.reset()
 	await await_idle_frame()
@@ -166,10 +208,6 @@ func test_tower_with_null_data_is_not_filtered() -> void:
 	var tower_body := tower.get_node_or_null("TowerBody") as Area2D
 	assert_object(tower_body).is_not_null()
 
-	# Direct invariant: variant filter guard `parent.data != null` short-circuits to false,
-	# so execution falls through to the normal hit path and _pending_release is set.
-	# Note: this also tests that downstream guards in _on_hitbox_area_entered handle null
-	# tower data safely; if those ever change this assertion may need revisiting.
 	bullet._on_hitbox_area_entered(tower_body)
 	assert_bool(bullet._pending_release) \
 		.override_failure_message("null-data tower should not be filtered — bullet should be consumed") \

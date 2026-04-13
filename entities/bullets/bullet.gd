@@ -63,8 +63,10 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 		# 普通子弹击中影子炮塔：跳过
 		return
 
-	# Variant filter: bullet type must match tower variant; mismatched bullets pass through
-	if data and parent.data != null and data.bullet_type != parent.data.variant:
+	# Variant filter: NEUTRAL towers accept all bullets; NEGATIVE/POSITIVE only accept matching polarity
+	if data and parent.data != null \
+			and parent.data.variant != TowerData.Variant.NEUTRAL \
+			and data.bullet_type != parent.data.variant:
 		return
 
 	# 不击中自己发射的炮塔（transmission_chain 防止自碰）
