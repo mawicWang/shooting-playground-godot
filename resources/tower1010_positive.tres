@@ -1,16 +1,14 @@
-[gd_resource type="Resource" script_class="TowerData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="TowerData" load_steps=3 format=3 uid="uid://ce6evg6qlqv4r"]
 
 [ext_resource type="Script" uid="uid://ch3f0r75qtmfc" path="res://resources/TowerData.gd" id="1_towerdata"]
 [ext_resource type="Texture2D" uid="uid://dtmrgentliip0" path="res://assets/tower1010.svg" id="2_sprite"]
-[ext_resource type="PackedScene" uid="uid://not_tower_scene" path="res://entities/towers/not_tower.tscn" id="3_scene"]
 
 [resource]
 script = ExtResource("1_towerdata")
-tower_name = "NOT 塔 (TRUE)"
+tower_name = "双向炮 (POSITIVE)"
 sprite = ExtResource("2_sprite")
 icon = ExtResource("2_sprite")
 firing_rate = 1.0
-barrel_directions = PackedVector2Array(0, -1)
-initial_ammo = 3
-scene = ExtResource("3_scene")
-variant = 1
+barrel_directions = PackedVector2Array(0, -1, 0, 1)
+initial_ammo = 10
+variant = 2
