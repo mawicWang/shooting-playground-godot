@@ -101,8 +101,14 @@ func _apply_data():
 		ammo = 3
 	# 有限弹药：初始化队列（无限弹药跳过，_do_fire 会即时创建空 AmmoItem）
 	if ammo >= 0:
+		# NEUTRAL → NEGATIVE; NEGATIVE/POSITIVE → match tower variant
+		var initial_type: TowerData.Variant = TowerData.Variant.NEGATIVE
+		if data and data.variant != TowerData.Variant.NEUTRAL:
+			initial_type = data.variant
 		for _i in range(ammo):
-			ammo_queue.append(AmmoItem.new())
+			var item := AmmoItem.new()
+			item.bullet_type = initial_type
+			ammo_queue.append(item)
 		ammo = 0  # 有限弹药由队列管理，ammo 只保留 -1（无限）标志位
 	_update_ammo_label()
 
@@ -333,8 +339,13 @@ func reset_ammo() -> void:
 	ammo_queue.clear()
 	ammo_cursor = 0
 	if ammo >= 0:
+		var initial_type: TowerData.Variant = TowerData.Variant.NEGATIVE
+		if data and data.variant != TowerData.Variant.NEUTRAL:
+			initial_type = data.variant
 		for _i in range(ammo):
-			ammo_queue.append(AmmoItem.new())
+			var item := AmmoItem.new()
+			item.bullet_type = initial_type
+			ammo_queue.append(item)
 		ammo = 0  # 有限弹药由队列管理
 	_update_ammo_label()
 
@@ -462,6 +473,11 @@ func _do_fire() -> void:
 	var ammo_item: AmmoItem
 	if ammo == -1:
 		ammo_item = AmmoItem.new()
+		# Infinite-ammo towers still respect their variant bullet type
+		var initial_type: TowerData.Variant = TowerData.Variant.NEGATIVE
+		if data and data.variant != TowerData.Variant.NEUTRAL:
+			initial_type = data.variant
+		ammo_item.bullet_type = initial_type
 	else:
 		ammo_item = ammo_queue[ammo_cursor]
 	consume_ammo()
