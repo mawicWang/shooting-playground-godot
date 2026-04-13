@@ -8,5 +8,4 @@ var effect_contribution_counts: Dictionary = {}
 ## bullet.gd 击中炮塔时检查此计数，决定是否触发 tower_effects。
 var tower_effect_trigger_counts: Dictionary = {}
 
-## 子弹内在属性类型（0=蓝，1=红，未来可扩展）
-var bullet_type: int = 0
+var bullet_type: TowerData.Variant = TowerData.Variant.NEGATIVE  ## 子弹极性（NEGATIVE 蓝 / POSITIVE 红）

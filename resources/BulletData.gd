@@ -8,7 +8,7 @@ var knockback_decay: float = 25.0
 var transmission_chain: Array = []
 ## 效果列表（Array[BulletEffect]），子弹携带，各触发时机依次调用
 var effects: Array = []
-var bullet_type: int = 0        ## 子弹内在属性类型（0=蓝，1=红，未来可扩展）
+var bullet_type: TowerData.Variant = TowerData.Variant.NEGATIVE  ## 子弹极性（NEGATIVE 蓝 / POSITIVE 红）
 var color: Color = Color.BLUE   ## 子弹颜色，通过 Sprite2D.modulate 应用（根据 bullet_type 设置）
 var tower_body_mask: int = 32   ## 子弹 Hitbox 碰撞遮罩（默认 TOWER_BODY 层，FlyingModule 可扩展为 32|64）
 var shadow_team_id: int = -1    ## -1 = 普通子弹，≥0 = 影子团队 ID
