@@ -317,7 +317,7 @@ func add_ammo_from_chain(amount: int, bullet_data: BulletData, override_bullet_t
 		var item := AmmoItem.new()
 		item.effect_contribution_counts = bullet_data.effect_contribution_counts.duplicate()
 		item.tower_effect_trigger_counts = bullet_data.tower_effect_trigger_counts.duplicate()
-		item.bullet_type = override_bullet_type if override_bullet_type != -1 else bullet_data.bullet_type
+		item.bullet_type = (override_bullet_type as TowerData.Variant) if override_bullet_type != -1 else bullet_data.bullet_type
 		ammo_queue.append(item)
 	_update_ammo_label()
 	if _is_firing and _cooldown_remaining <= 0.0:
