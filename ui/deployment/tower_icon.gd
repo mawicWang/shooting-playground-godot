@@ -1,6 +1,9 @@
 # tower_icon.gd
 extends TextureRect
 
+const _TOWER_TINT_SHADER := preload("res://entities/towers/tower_tint.gdshader")
+const _VARIANT_PALETTE := preload("res://resources/variant_palette.tres")
+
 @export var tower_data: TowerData = preload("res://resources/simple_emitter.tres")
 
 var current_drag_rotation = DragManager.ROT_UP
@@ -41,6 +44,7 @@ func mark_returned() -> void:
 func _ready():
 	if tower_data and tower_data.icon:
 		texture = tower_data.icon
+		_apply_variant_tint()
 	if tower_data and tower_data.tower_name:
 		tooltip_text = tower_data.tower_name
 		custom_minimum_size.y = 100
@@ -59,6 +63,14 @@ func _ready():
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(label)
 		_add_ammo_badge()
+
+func _apply_variant_tint() -> void:
+	if not tower_data:
+		return
+	var mat := ShaderMaterial.new()
+	mat.shader = _TOWER_TINT_SHADER
+	mat.set_shader_parameter("color", _VARIANT_PALETTE.get_color(tower_data.variant))
+	self.material = mat
 
 func _add_ammo_badge() -> void:
 	if not tower_data:
