@@ -63,19 +63,24 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 		# 普通子弹击中影子炮塔：跳过
 		return
 
-	# Variant filter: NEUTRAL towers accept all bullets; NEGATIVE/POSITIVE only accept matching polarity
-	if data and parent.data != null \
-			and parent.data.variant != TowerData.Variant.NEUTRAL \
-			and data.bullet_type != parent.data.variant:
-		return
-
 	# 不击中自己发射的炮塔（transmission_chain 防止自碰）
 	if data and data.transmission_chain.has(parent):
 		return
-	
+
+	# Variant filter: NEUTRAL towers accept all bullets.
+	# Mismatched polarity → bullet is silently consumed (no effects, no impact).
+	var variant_mismatch := data != null and parent.data != null \
+			and parent.data.variant != TowerData.Variant.NEUTRAL \
+			and data.bullet_type != parent.data.variant
+
 	_pending_release = true
 	visible = false
 	set_physics_process(false)
+
+	if variant_mismatch:
+		BulletPool.release.call_deferred(self)
+		return
+
 	# 碰撞特效
 	var impact := BulletImpact.new()
 	get_tree().root.add_child(impact)
