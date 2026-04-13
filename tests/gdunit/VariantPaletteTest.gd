@@ -35,6 +35,7 @@ func test_preloaded_palette_tres_loads() -> void:
 	assert_object(palette).is_not_null()
 	assert_that(palette.negative_color).is_equal(Color.BLUE)
 	assert_that(palette.positive_color).is_equal(Color.RED)
+	assert_that(palette.neutral_color).is_equal(Color.WHITE)
 
 
 func test_get_color_returns_white_for_neutral_variant() -> void:
