@@ -69,7 +69,7 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 
 	# Variant filter: NEUTRAL towers accept all bullets.
 	# Mismatched polarity → bullet is silently consumed (no effects, no impact).
-	var variant_mismatch := data != null and parent.data != null \
+	var variant_mismatch: bool = data != null and parent.data != null \
 			and parent.data.variant != TowerData.Variant.NEUTRAL \
 			and data.bullet_type != parent.data.variant
 
