@@ -1,87 +1,138 @@
 # Technical Preferences
 
-<!-- Populated by /setup-engine. Updated as the user makes decisions throughout development. -->
-<!-- All agents reference this file for project-specific standards and conventions. -->
-
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.4+
+- **Language**: GDScript 2.0 (Godot 4.x syntax)
+- **Rendering**: CanvasItem (2D)
+- **Physics**: Godot built-in CharacterBody2D
 
 ## Input & Platform
 
-<!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
-<!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
-
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Web, Mobile
+- **Input Methods**: Touch (primary on mobile), Mouse/Keyboard (web)
+- **Primary Input**: Touch
+- **Gamepad Support**: None
+- **Touch Support**: Full
+- **Platform Notes**: 720px max-width responsive layout managed by LayoutManager
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase (e.g. `TowerData`, `BulletPool`)
+- **Variables/Functions**: snake_case (e.g. `firing_rate`, `on_bullet_hit`)
+- **Signals/Events**: past-tense snake_case (e.g. `coin_changed`, `wave_started`)
+- **Files**: snake_case (e.g. `grid_manager.gd`, `dead_zone_manager.gd`)
+- **Scenes**: snake_case (e.g. `main.tscn`, `start_menu.tscn`)
+- **Constants**: UPPER_SNAKE_CASE
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60fps
+- **Frame Budget**: ~16ms
+- **Bullets**: Pooled via BulletPool — always use `spawn()`/`release()`, never instantiate directly
+- **Enemies**: Managed by EnemyManager
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: GdUnit4 (addons/gdUnit4/)
+- **Test location**: `tests/gdunit/`
+- **Base class**: `GdUnitTestSuite`
+- **Function prefix**: `test_`
+- **Scene interaction**: Prefer `GdUnitSceneRunner`
+- **Coverage**: Write tests before considering a feature done
+
+## Architecture
+
+### Key Patterns
+- Autoloaded singletons for cross-system communication
+- Data-driven Resource types (`TowerData`, `BulletData`) — no hardcoded gameplay values
+- Check if a manager is an autoload before referencing it globally
+
+### Autoload Singletons
+| Autoload | File | Responsibility |
+|----------|------|----------------|
+| `SignalBus` | `src/autoload/SignalBus.gd` | Central event bus — prefer signals over direct cross-system calls |
+| `GameState` | `src/autoload/GameState.gd` | State machine (DEPLOYMENT/RUNNING/PAUSED/GAME_OVER), coins, waves, tower reserve |
+| `DragManager` | `src/autoload/DragManager.gd` | Drag-and-drop preview system |
+| `BulletPool` | `src/autoload/BulletPool.gd` | Object pool for bullets — use `spawn()`/`release()` |
+| `EventManager` | `src/autoload/EventManager.gd` | Relic event dispatcher |
+
+### Core Systems
+| System | File | Responsibility |
+|--------|------|----------------|
+| `GameLoopManager` | `src/core/GameLoopManager.gd` | DEPLOYMENT↔RUNNING transitions, wave management |
+| `LayoutManager` | `src/core/LayoutManager.gd` | Responsive layout (720px max-width) |
+| `EffectManager` | `src/core/EffectManager.gd` | Screen shake effects |
+| `DeadZoneManager` | `src/core/dead_zone_manager.gd` | Off-screen bullet cleanup |
+
+### Grid System
+| System | File | Responsibility |
+|--------|------|----------------|
+| `GridManager` | `src/grid/grid_manager.gd` | 5×5 grid, 80×80px cells |
+| `Cell` | `src/grid/cell.gd` | Tower placement, module installation, drag/drop |
+| `RemovalZone` | `src/grid/removal_zone.gd` | Tower deletion drop zone |
+
+### Entities
+| Entity | File | Notes |
+|--------|------|-------|
+| `Tower` | `src/entities/towers/tower.gd` | TowerData + modules + firing; `entity_id` for identity |
+| `Bullet` | `src/entities/bullets/bullet.gd` | CharacterBody2D, pooled via BulletPool |
+| `Enemy` | `src/entities/enemies/enemy.gd` | CharacterBody2D, health=3, speed=50 |
+| `EnemyManager` | `src/entities/enemies/enemy_manager.gd` | Wave spawning, count = wave + 1 |
+
+### Module System
+- Base class: `src/entities/modules/module.gd`
+- Override: `apply_effect()`, `on_install()`, `on_uninstall()`
+- Resources in: `src/resources/module_data/`
+
+### Effect System
+- Flow: `BulletHitEffect` → `BulletData.hit_effects` → `Tower.on_bullet_hit()`
+- See: `design/gdd/effects.md` and `design/gdd/effect-matrix.md`
+
+### Collision Layers
+| Layer | Purpose |
+|-------|---------|
+| 2 | Enemies |
+| 3 | Bullets |
+| 4 | Bullets mask (dead zones) |
+| 5 | Grid border hitboxes |
+| 8 | Dead zones |
+
+### State Flow
+```
+StartMenu → main.tscn
+DEPLOYMENT → [Start] → RUNNING → [all enemies defeated]
+  → breach? → GameOverPopup → DEPLOYMENT
+  → no breach? → RewardPopup → DEPLOYMENT
+  → [lives=0] → GameOverPopup (final)
+```
+
+### Version
+Stored in `project.godot` under `application/config/version`. Read by `start_menu.gd`.
 
 ## Forbidden Patterns
-
-<!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- Hardcoded gameplay values (use TowerData/BulletData resources)
+- Direct cross-system calls without signals (use SignalBus)
+- Instantiating bullets directly (use BulletPool.spawn())
 
 ## Allowed Libraries / Addons
-
-<!-- Add approved third-party dependencies here -->
-- [None configured yet — add as dependencies are approved]
-
-## Architecture Decisions Log
-
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+- GdUnit4 — test framework (`addons/gdUnit4/`)
+- Godot MCP — development tooling (scene/project operations)
 
 ## Engine Specialists
 
-<!-- Written by /setup-engine when engine is configured. -->
-<!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
-<!-- to know which specialist to spawn for engine-specific validation. -->
-
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: `godot-specialist`
+- **Language/Code**: `gdscript-specialist`
+- **UI**: `ui-programmer`
+- **Shader**: `godot-specialist`
 
 ### File Extension Routing
 
-<!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
-
-| File Extension / Type | Specialist to Spawn |
-|-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| File Type | Specialist |
+|-----------|-----------|
+| `.gd` (GDScript) | `gdscript-specialist` |
+| `.tscn` (scenes) | `godot-specialist` |
+| `.tres` / `.res` (resources) | `godot-specialist` |
+| `.gdshader` | `godot-specialist` |
+| UI screens | `ui-programmer` |
+| Architecture review | `godot-specialist` |

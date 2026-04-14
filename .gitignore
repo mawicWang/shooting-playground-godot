@@ -76,3 +76,7 @@ Thumbs.db
 /reports
 
 .superpowers
+
+# CCGS production session state (ephemeral, not committed)
+production/session-state/
+production/session-logs/

@@ -1,38 +1,54 @@
 # DOC_INDEX.md
 
-本文档是 `docs/` 目录的统一入口。
+项目文档系统统一入口。
 
-## 游戏内容知识库（`content/`）
+---
 
-面向 agent 的权威参考源，定义游戏中所有可配置内容的规格。测试和实现应对齐这些文件。
+## 游戏设计文档（`design/gdd/`）
 
-| 文件 | 说明 |
-|------|------|
-| [`content/towers.md`](content/towers.md) | 4 座塔的完整规格（firing_rate、炮管数、初始弹药、命名规则） |
-| [`content/modules.md`](content/modules.md) | 14 个模块的完整规格，分 3 类（COMPUTATIONAL / LOGICAL / SPECIAL），含预期行为、测试位置 |
-| [`content/effects.md`](content/effects.md) | 效果系统接口文档（BulletEffect / TowerEffect / FireEffect），含 MockTower 接口和新增效果流程 |
-| [`content/effect-matrix.md`](content/effect-matrix.md) | 触发时机 × 触发效果矩阵，标注已实现（✅）与未实现（❌）组合 |
-| [`content/shadow-tower.md`](content/shadow-tower.md) | 影子炮塔系统完整参考：碰撞层、team 隔离、共享 Effect 陷阱、生成深度控制、生命周期 |
-| [`content/shield-enemy.md`](content/shield-enemy.md) | 护盾敌人系统：多层护盾机制、视觉组件（气泡/护盾条/破碎特效）、生成权重、测试覆盖 |
-| [`content/variants.md`](content/variants.md) | 炮塔变体系统：Variant 枚举、子弹过滤规则、VariantPalette 着色器配置 |
-| [`content/item-pool.md`](content/item-pool.md) | Item Pool — unified tower/module registry; how to add new items |
-
-## 测试文档（`tests/`）
+面向 agent 的权威设计参考，定义所有游戏机制和系统规格。系统索引见 [`design/gdd/systems-index.md`](../design/gdd/systems-index.md)。
 
 | 文件 | 说明 |
 |------|------|
-| [`tests/HOW_TO_RUN_TESTS.md`](tests/HOW_TO_RUN_TESTS.md) | 如何运行 GdUnit4 测试（编辑器方式和命令行方式），测试套件概览，MockTower 说明 |
-| [`tests/gdunit_testing.md`](tests/gdunit_testing.md) | GdUnit4 测试框架详细文档：测试覆盖详情、断言速查、编写新测试模板、生命周期钩子 |
+| [`design/gdd/systems-index.md`](../design/gdd/systems-index.md) | 所有 GDD 系统索引 |
+| [`design/gdd/towers.md`](../design/gdd/towers.md) | 4 座塔的完整规格（firing_rate、炮管数、初始弹药、命名规则） |
+| [`design/gdd/modules.md`](../design/gdd/modules.md) | 14 个模块的完整规格，分 3 类（COMPUTATIONAL / LOGICAL / SPECIAL） |
+| [`design/gdd/effects.md`](../design/gdd/effects.md) | 效果系统接口文档（BulletEffect / TowerEffect / FireEffect） |
+| [`design/gdd/effect-matrix.md`](../design/gdd/effect-matrix.md) | 触发时机 × 触发效果矩阵 |
+| [`design/gdd/shadow-tower.md`](../design/gdd/shadow-tower.md) | 影子炮塔系统完整参考 |
+| [`design/gdd/shield-enemy.md`](../design/gdd/shield-enemy.md) | 护盾敌人系统 |
+| [`design/gdd/variants.md`](../design/gdd/variants.md) | 炮塔变体系统 |
+| [`design/gdd/item-pool.md`](../design/gdd/item-pool.md) | Item Pool — 统一 tower/module 注册表 |
 
-## 开发计划（`superpowers/plans/`）
+---
+
+## 技术架构文档（`docs/architecture/`）
+
+ADR（架构决策记录）存放于此。使用 `/architecture-decision` 创建新 ADR。
+
+*暂无 ADR — 使用 `/architecture-decision` 创建第一个。*
+
+---
+
+## 测试文档（`docs/tests/`）
 
 | 文件 | 说明 |
 |------|------|
+| [`tests/HOW_TO_RUN_TESTS.md`](tests/HOW_TO_RUN_TESTS.md) | 如何运行 GdUnit4 测试，测试套件概览 |
+| [`tests/gdunit_testing.md`](tests/gdunit_testing.md) | GdUnit4 测试框架详细文档 |
+
+---
+
+## 开发计划（`docs/superpowers/plans/`）
+
+| 文件 | 说明 |
+|------|------|
+| [`superpowers/plans/2026-04-14-ccgs-migration.md`](superpowers/plans/2026-04-14-ccgs-migration.md) | CCGS 目录结构迁移实施计划 |
 | [`superpowers/plans/2026-04-02-tower-module-test-framework.md`](superpowers/plans/2026-04-02-tower-module-test-framework.md) | Tower/Module 测试框架实施计划（已完成） |
 
-## 过时文档（`outdated/`）
+---
 
-以下文档来自原 `doc/` 目录，已标记为过时，仅供参考历史上下文。
+## 过时文档（`docs/outdated/`）
 
 | 文件 | 说明 |
 |------|------|
