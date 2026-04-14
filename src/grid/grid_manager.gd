@@ -1,7 +1,7 @@
 extends Control
 
 const CELL_COLOR = Color("#F2EAE0")
-var cell_script = preload("res://grid/cell.gd") # 提前加载脚本
+var cell_script = preload("res://src/grid/cell.gd") # 提前加载脚本
 
 func _ready():
 	# 获取 GridContainer

@@ -116,7 +116,7 @@ func _spawn_shadow_at_cell(parent_tower: Node, target_cell: Node) -> void:
 	if target_cell.is_occupied:
 		return
 
-	var shadow_scene := load("res://entities/towers/shadow_tower.tscn")
+	var shadow_scene := load("res://src/entities/towers/shadow_tower.tscn")
 	if not shadow_scene:
 		push_error("Failed to load shadow tower scene")
 		return

@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://cmf3h7j5g08r"]
 
 [ext_resource type="Texture2D" uid="uid://b1awtwjdwm2jh" path="res://assets/bullet.svg" id="1_bullet_svg"]
-[ext_resource type="Script" uid="uid://brjtnn5of0xgp" path="res://entities/bullets/bullet.gd" id="2_bullet_script"]
-[ext_resource type="Shader" path="res://entities/bullets/bullet_color.gdshader" id="3_bullet_shader"]
+[ext_resource type="Script" uid="uid://brjtnn5of0xgp" path="res://src/entities/bullets/bullet.gd" id="2_bullet_script"]
+[ext_resource type="Shader" path="res://src/entities/bullets/bullet_color.gdshader" id="3_bullet_shader"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
 radius = 6.5

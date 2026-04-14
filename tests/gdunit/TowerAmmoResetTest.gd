@@ -7,9 +7,9 @@
 
 class_name TowerAmmoResetTest extends GdUnitTestSuite
 
-const AmmoItemClass = preload("res://entities/bullets/ammo_item.gd")
-const TestTowerData  = preload("res://resources/simple_emitter.tres")  # initial_ammo = 10
-const TowerScene     = preload("res://entities/towers/tower.tscn")
+const AmmoItemClass = preload("res://src/entities/bullets/ammo_item.gd")
+const TestTowerData  = preload("res://src/resources/simple_emitter.tres")  # initial_ammo = 10
+const TowerScene     = preload("res://src/entities/towers/tower.tscn")
 
 var _nodes_to_free: Array[Node] = []
 

@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="ChainModule" load_steps=7 format=3 uid="uid://bhi4g7i5ymjhx"]
 
-[ext_resource type="Script" uid="uid://chqjf7ki1rg8a" path="res://entities/modules/chain_module.gd" id="1_chain"]
-[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_lnxmg"]
-[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="2_agm0r"]
+[ext_resource type="Script" uid="uid://chqjf7ki1rg8a" path="res://src/entities/modules/chain_module.gd" id="1_chain"]
+[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://src/entities/effects/bullet_effects/bullet_effect.gd" id="1_lnxmg"]
+[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://src/entities/effects/fire_effects/fire_effect.gd" id="2_agm0r"]
 [ext_resource type="Texture2D" uid="uid://cehynituxp320" path="res://assets/modules/flying.png" id="2_icon"]
-[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="5_ltwva"]
-[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="6_baiug"]
+[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://src/resources/TowerStatModifierRes.gd" id="5_ltwva"]
+[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://src/entities/effects/tower_effects/tower_effect.gd" id="6_baiug"]
 
 [resource]
 script = ExtResource("1_chain")

@@ -12,19 +12,19 @@ config_version=5
 
 config/name="shooting-playground-godot"
 config/version="v0.13.0"
-run/main_scene="res://ui/start_menu/start_menu.tscn"
+run/main_scene="res://src/ui/start_menu/start_menu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.png"
 
 [autoload]
 
-Layers="*res://autoload/Layers.gd"
-SignalBus="*res://autoload/SignalBus.gd"
-GameState="*res://autoload/GameState.gd"
-DragManager="*res://autoload/DragManager.gd"
-Paths="*res://core/Paths.gd"
-BulletPool="*res://autoload/BulletPool.gd"
-EventManager="*res://autoload/EventManager.gd"
+Layers="*res://src/autoload/Layers.gd"
+SignalBus="*res://src/autoload/SignalBus.gd"
+GameState="*res://src/autoload/GameState.gd"
+DragManager="*res://src/autoload/DragManager.gd"
+Paths="*res://src/core/Paths.gd"
+BulletPool="*res://src/autoload/BulletPool.gd"
+EventManager="*res://src/autoload/EventManager.gd"
 
 [display]
 
@@ -47,7 +47,7 @@ settings/test/test_discovery=true
 
 [gui]
 
-theme/custom="res://resources/default_theme.tres"
+theme/custom="res://src/resources/default_theme.tres"
 
 [rendering]
 

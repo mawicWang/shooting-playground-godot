@@ -1,9 +1,9 @@
 # tower_icon.gd
 extends TextureRect
 
-const _VARIANT_PALETTE := preload("res://resources/variant_palette.tres")
+const _VARIANT_PALETTE := preload("res://src/resources/variant_palette.tres")
 
-@export var tower_data: TowerData = preload("res://resources/simple_emitter.tres")
+@export var tower_data: TowerData = preload("res://src/resources/simple_emitter.tres")
 
 var current_drag_rotation = DragManager.ROT_UP
 var is_dragging_initiated = false

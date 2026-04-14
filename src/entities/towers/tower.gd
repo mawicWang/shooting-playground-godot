@@ -1,8 +1,8 @@
 extends Node2D
 
-const CooldownOverlayScript = preload("res://entities/towers/cooldown_overlay.gd")
-const _VARIANT_PALETTE = preload("res://resources/variant_palette.tres")
-const _TOWER_TINT_SHADER = preload("res://entities/towers/tower_tint.gdshader")
+const CooldownOverlayScript = preload("res://src/entities/towers/cooldown_overlay.gd")
+const _VARIANT_PALETTE = preload("res://src/resources/variant_palette.tres")
+const _TOWER_TINT_SHADER = preload("res://src/entities/towers/tower_tint.gdshader")
 
 @export var data: TowerData
 
@@ -76,7 +76,7 @@ func _ready():
 	_setup_tower_body()
 	_create_cd_overlay()
 	_create_cd_label()
-	var overlay_scene = load("res://entities/towers/boost_overlay.tscn")
+	var overlay_scene = load("res://src/entities/towers/boost_overlay.tscn")
 	if overlay_scene:
 		_boost_overlay = overlay_scene.instantiate()
 		add_child(_boost_overlay)

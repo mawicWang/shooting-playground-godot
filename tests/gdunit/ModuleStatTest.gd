@@ -5,7 +5,7 @@
 class_name ModuleStatTest
 extends GdUnitTestSuite
 
-const MODULE_DIR := "res://resources/module_data/"
+const MODULE_DIR := "res://src/resources/module_data/"
 
 
 ## 加速器：BULLET_SPEED +150 (ADDITIVE)

@@ -1,4 +1,4 @@
-extends "res://entities/enemies/enemy.gd"
+extends "res://src/entities/enemies/enemy.gd"
 
 var shield_layers: int = 2
 var max_shield_layers: int = 2
@@ -13,12 +13,12 @@ func _ready():
 	_setup_shield_visuals()
 
 func _setup_shield_visuals() -> void:
-	var BubbleScript := preload("res://entities/enemies/shield_bubble.gd")
+	var BubbleScript := preload("res://src/entities/enemies/shield_bubble.gd")
 	_shield_bubble = BubbleScript.new()
 	add_child(_shield_bubble)
 	_shield_bubble.setup(max_shield_layers)
 
-	var BarScript := preload("res://ui/hud/shield_bar.gd")
+	var BarScript := preload("res://src/ui/hud/shield_bar.gd")
 	_shield_bar = BarScript.new()
 	add_child(_shield_bar)
 	_shield_bar.update(shield_layers, max_shield_layers)
@@ -45,7 +45,7 @@ func take_damage(amount: float, bullet_data: BulletData = null) -> void:
 func _break_shield() -> void:
 	_is_stunned = true
 	_shield_bubble.play_break()
-	var ShieldBreakEffectScript := preload("res://entities/enemies/shield_break_effect.gd")
+	var ShieldBreakEffectScript := preload("res://src/entities/enemies/shield_break_effect.gd")
 	var effect := ShieldBreakEffectScript.new()
 	get_tree().root.add_child(effect)
 	effect.play(global_position)

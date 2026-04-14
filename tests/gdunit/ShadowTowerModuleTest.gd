@@ -2,7 +2,7 @@
 class_name ShadowTowerModuleTest
 extends GdUnitTestSuite
 
-const MODULE_PATH := "res://resources/module_data/shadow_tower_module.tres"
+const MODULE_PATH := "res://src/resources/module_data/shadow_tower_module.tres"
 
 func test_shadow_tower_body_layer_constant_exists() -> void:
     # This will fail until we add the constant
@@ -18,7 +18,7 @@ func test_bullet_data_has_shadow_team_id_field() -> void:
     assert_int(bd.shadow_team_id).is_equal(123)
 
 func test_spawn_shadow_tower_effect_class_exists() -> void:
-    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    var effect_script = load("res://src/entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
     assert_object(effect_script).is_not_null()
 
 func test_shadow_tower_module_resource_exists() -> void:
@@ -31,7 +31,7 @@ func test_shadow_tower_module_resource_exists() -> void:
     assert_int(module.fire_effects.size()).is_equal(1)
 
 func test_shadow_tower_script_exists() -> void:
-    var script = load("res://entities/towers/shadow_tower.gd")
+    var script = load("res://src/entities/towers/shadow_tower.gd")
     assert_object(script).is_not_null()
     # Check it extends tower.gd by looking at instance
     var tower = Node2D.new()
@@ -41,7 +41,7 @@ func test_shadow_tower_script_exists() -> void:
     tower.free()
 
 func test_shadow_tower_scene_exists() -> void:
-    var scene = load("res://entities/towers/shadow_tower.tscn")
+    var scene = load("res://src/entities/towers/shadow_tower.tscn")
     assert_object(scene).is_not_null()
 
     var instance = scene.instantiate()
@@ -49,7 +49,7 @@ func test_shadow_tower_scene_exists() -> void:
     instance.free()
 
 func test_bullet_collision_team_filtering() -> void:
-    var bullet_script = load("res://entities/bullets/bullet.gd")
+    var bullet_script = load("res://src/entities/bullets/bullet.gd")
     assert_object(bullet_script).is_not_null()
 
 func test_module_installation() -> void:
@@ -57,20 +57,20 @@ func test_module_installation() -> void:
     assert_object(module).is_not_null()
 
     # Create mock tower (use Node2D with script set dynamically)
-    var tower_script = load("res://entities/towers/tower.gd")
+    var tower_script = load("res://src/entities/towers/tower.gd")
     var tower = Node2D.new()
     tower.set_script(tower_script)
     # Tower data is not set, so we just test module effects directly
     # without needing full tower initialization
 
     # Verify the effect class can be instantiated
-    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    var effect_script = load("res://src/entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
     var effect = effect_script.new()
     assert_object(effect).is_not_null()
     assert_int(effect.origin_entity_id).is_equal(-1)
 
 func test_bullet_counter_increments() -> void:
-    var effect_script = load("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+    var effect_script = load("res://src/entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
     var effect = effect_script.new()
     effect.origin_entity_id = 2002
 
@@ -89,19 +89,19 @@ func test_bullet_counter_increments() -> void:
 
 func test_shadow_tower_uses_correct_collision_layer() -> void:
     # Verify the script sets the correct layer by checking the code
-    var script = load("res://entities/towers/shadow_tower.gd")
+    var script = load("res://src/entities/towers/shadow_tower.gd")
     var source = script.source_code
     assert_str(source).contains("Layers.SHADOW_TOWER_BODY")
 
 func test_shadow_tower_blue_appearance() -> void:
     # Verify the script sets blue tint
-    var script = load("res://entities/towers/shadow_tower.gd")
+    var script = load("res://src/entities/towers/shadow_tower.gd")
     var source = script.source_code
     assert_str(source).contains("Color(0.4, 0.4, 1.0, 0.7)")
 
 func test_shadow_tower_game_stopped_connection() -> void:
     # Verify the script has _on_game_stopped method
-    var script = load("res://entities/towers/shadow_tower.gd")
+    var script = load("res://src/entities/towers/shadow_tower.gd")
     var source = script.source_code
     assert_str(source).contains("_on_game_stopped")
     assert_str(source).contains("game_stopped.connect")

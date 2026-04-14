@@ -30,7 +30,7 @@ func test_default_colors_are_blue_and_red() -> void:
 
 
 func test_preloaded_palette_tres_loads() -> void:
-	var palette := load("res://resources/variant_palette.tres") as VariantPalette
+	var palette := load("res://src/resources/variant_palette.tres") as VariantPalette
 
 	assert_object(palette).is_not_null()
 	assert_that(palette.negative_color).is_equal(Color.BLUE)

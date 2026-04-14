@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="Module" load_steps=8 format=3 uid="uid://crrdwu0sdwbeh"]
 
-[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://entities/effects/bullet_effects/bullet_effect.gd" id="1_47taw"]
-[ext_resource type="Script" uid="uid://ekx107biajnf" path="res://entities/modules/module.gd" id="1_module"]
-[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://entities/effects/fire_effects/fire_effect.gd" id="2_cocq7"]
-[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://resources/TowerStatModifierRes.gd" id="2_tsmr"]
+[ext_resource type="Script" uid="uid://do2jgxl5quy1u" path="res://src/entities/effects/bullet_effects/bullet_effect.gd" id="1_47taw"]
+[ext_resource type="Script" uid="uid://ekx107biajnf" path="res://src/entities/modules/module.gd" id="1_module"]
+[ext_resource type="Script" uid="uid://c1dpu43lt5kgn" path="res://src/entities/effects/fire_effects/fire_effect.gd" id="2_cocq7"]
+[ext_resource type="Script" uid="uid://colbecdbctu8q" path="res://src/resources/TowerStatModifierRes.gd" id="2_tsmr"]
 [ext_resource type="Texture2D" uid="uid://cme1hck1c6ccj" path="res://assets/modules/multiplier.png" id="3_icon"]
-[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://entities/effects/tower_effects/tower_effect.gd" id="6_fblei"]
+[ext_resource type="Script" uid="uid://dp3m8vtf2fdtx" path="res://src/entities/effects/tower_effects/tower_effect.gd" id="6_fblei"]
 
 [sub_resource type="Resource" id="Resource_0pvno"]
 script = ExtResource("2_tsmr")

@@ -1,4 +1,4 @@
-extends "res://entities/towers/tower.gd"
+extends "res://src/entities/towers/tower.gd"
 
 ## NOT Tower：所有链式弹药补充均翻转子弹极性（NEGATIVE↔POSITIVE）
 

@@ -3,8 +3,8 @@ extends Node
 ## GameLoopManager.gd - 游戏循环管理
 ## 负责游戏状态转换和核心游戏逻辑
 
-const DeadZoneManager = preload("res://core/dead_zone_manager.gd")
-const EnemyManager = preload("res://entities/enemies/enemy_manager.gd")
+const DeadZoneManager = preload("res://src/core/dead_zone_manager.gd")
+const EnemyManager = preload("res://src/entities/enemies/enemy_manager.gd")
 
 const CELL_SIZE = 80.0
 

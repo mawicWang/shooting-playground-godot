@@ -1,7 +1,7 @@
 class_name TowerVariantVisualTest
 extends GdUnitTestSuite
 
-const TowerScene := preload("res://entities/towers/tower.tscn")
+const TowerScene := preload("res://src/entities/towers/tower.tscn")
 
 var _nodes_to_free: Array[Node] = []
 

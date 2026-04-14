@@ -87,4 +87,4 @@ func _load_settings() -> void:
 
 func _on_back_pressed() -> void:
 	settings_closed.emit()
-	get_tree().change_scene_to_file("res://ui/start_menu/start_menu.tscn")
+	get_tree().change_scene_to_file("res://src/ui/start_menu/start_menu.tscn")

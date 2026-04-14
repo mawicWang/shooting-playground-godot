@@ -5,8 +5,8 @@
 class_name TowerVariantFilterTest
 extends GdUnitTestSuite
 
-const TowerScene := preload("res://entities/towers/tower.tscn")
-const BulletScene := preload("res://entities/bullets/bullet.tscn")
+const TowerScene := preload("res://src/entities/towers/tower.tscn")
+const BulletScene := preload("res://src/entities/bullets/bullet.tscn")
 
 var _nodes_to_free: Array[Node] = []
 

@@ -1,4 +1,4 @@
-extends "res://entities/enemies/enemy.gd"
+extends "res://src/entities/enemies/enemy.gd"
 
 func _ready():
 	speed = 20.0

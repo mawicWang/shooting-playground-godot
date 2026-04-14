@@ -23,7 +23,7 @@ func _add(node: Node) -> Node:
 # Test: in dev mode, destroying the single enemy does NOT emit all_enemies_defeated
 func test_dev_mode_no_all_enemies_defeated_signal() -> void:
 	GameState.start_game()
-	var em: Node2D = load("res://entities/enemies/enemy_manager.gd").new()
+	var em: Node2D = load("res://src/entities/enemies/enemy_manager.gd").new()
 	em.name = "EnemyManagerTest"
 	_add(em)
 	await await_idle_frame()
@@ -55,7 +55,7 @@ func test_dev_mode_no_all_enemies_defeated_signal() -> void:
 # Test: in dev mode, a new enemy is spawned after the old one is destroyed
 func test_dev_mode_enemy_respawns_after_death() -> void:
 	GameState.start_game()
-	var em: Node2D = load("res://entities/enemies/enemy_manager.gd").new()
+	var em: Node2D = load("res://src/entities/enemies/enemy_manager.gd").new()
 	em.name = "EnemyManagerTest2"
 	_add(em)
 	await await_idle_frame()
@@ -84,7 +84,7 @@ func test_dev_mode_enemy_respawns_after_death() -> void:
 func test_normal_mode_all_enemies_defeated_signal() -> void:
 	GameState.game_mode = GameState.GameMode.CHAOS
 	GameState.start_game()
-	var em: Node2D = load("res://entities/enemies/enemy_manager.gd").new()
+	var em: Node2D = load("res://src/entities/enemies/enemy_manager.gd").new()
 	em.name = "EnemyManagerTest3"
 	_add(em)
 	await await_idle_frame()

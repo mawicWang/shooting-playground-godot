@@ -9,9 +9,9 @@
 class_name ShadowTowerCollisionTest
 extends GdUnitTestSuite
 
-const ShadowTowerScene := preload("res://entities/towers/shadow_tower.tscn")
-const BulletScene := preload("res://entities/bullets/bullet.tscn")
-const TowerScene := preload("res://entities/towers/tower.tscn")
+const ShadowTowerScene := preload("res://src/entities/towers/shadow_tower.tscn")
+const BulletScene := preload("res://src/entities/bullets/bullet.tscn")
+const TowerScene := preload("res://src/entities/towers/tower.tscn")
 
 var _nodes_to_free: Array[Node] = []
 
@@ -391,7 +391,7 @@ func test_shadow_bullet_still_destroyed_on_regular_tower() -> void:
 	await await_idle_frame()
 
 	# Create a regular tower
-	var tower_scene := load("res://entities/towers/tower.tscn")
+	var tower_scene := load("res://src/entities/towers/tower.tscn")
 	var regular_tower: Node2D = tower_scene.instantiate()
 	regular_tower.data = TowerData.new()
 	regular_tower.data.firing_rate = 1.0

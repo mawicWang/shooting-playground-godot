@@ -4,7 +4,7 @@
 class_name ModuleTest
 extends GdUnitTestSuite
 
-const MODULE_DATA_DIR := "res://resources/module_data/"
+const MODULE_DATA_DIR := "res://src/resources/module_data/"
 
 # 扫描到的模块列表
 var _module_names: Array[String] = []
@@ -146,7 +146,7 @@ func test_flying_module() -> void:
 	assert_that(module.category).is_equal(Module.Category.SPECIAL)
 
 	# 验证脚本类
-	var script := load("res://entities/modules/flying_module.gd") as GDScript
+	var script := load("res://src/entities/modules/flying_module.gd") as GDScript
 	var instance = script.new()
 	assert_object(instance).is_instanceof(Module)
 
@@ -160,7 +160,7 @@ func test_anti_air_module() -> void:
 	assert_that(module.module_name).is_equal("防空炮")
 
 	# 验证脚本类
-	var script := load("res://entities/modules/anti_air_module.gd") as GDScript
+	var script := load("res://src/entities/modules/anti_air_module.gd") as GDScript
 	var instance = script.new()
 	assert_object(instance).is_instanceof(Module)
 

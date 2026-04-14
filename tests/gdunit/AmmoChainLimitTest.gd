@@ -9,9 +9,9 @@
 class_name AmmoChainLimitTest extends GdUnitTestSuite
 
 # 被测类预加载
-const AmmoItemClass = preload("res://entities/bullets/ammo_item.gd")
-const BulletDataClass = preload("res://resources/BulletData.gd")
-const ChainModuleClass = preload("res://entities/modules/chain_module.gd")
+const AmmoItemClass = preload("res://src/entities/bullets/ammo_item.gd")
+const BulletDataClass = preload("res://src/resources/BulletData.gd")
+const ChainModuleClass = preload("res://src/entities/modules/chain_module.gd")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AmmoItem 基础测试

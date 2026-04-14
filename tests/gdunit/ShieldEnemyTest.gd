@@ -4,7 +4,7 @@
 class_name ShieldEnemyTest
 extends GdUnitTestSuite
 
-const SHIELD_ENEMY_SCENE := preload("res://entities/enemies/shield_enemy.tscn")
+const SHIELD_ENEMY_SCENE := preload("res://src/entities/enemies/shield_enemy.tscn")
 
 var _nodes_to_free: Array[Node] = []
 

@@ -2,9 +2,9 @@
 ## 用权重决定每波生成普通敌人还是强敌
 class_name EnemySpawnPicker
 
-const ENEMY_SCENE = preload("res://entities/enemies/enemy.tscn")
-const STRONG_ENEMY_SCENE = preload("res://entities/enemies/strong_enemy.tscn")
-const SHIELD_ENEMY_SCENE = preload("res://entities/enemies/shield_enemy.tscn")
+const ENEMY_SCENE = preload("res://src/entities/enemies/enemy.tscn")
+const STRONG_ENEMY_SCENE = preload("res://src/entities/enemies/strong_enemy.tscn")
+const SHIELD_ENEMY_SCENE = preload("res://src/entities/enemies/shield_enemy.tscn")
 
 const BASE_ENEMY_WEIGHT: int = 5        # 普通敌人固定权重
 const STRONG_ENEMY_START_WAVE: int = 3  # 第几波开始生成强敌

@@ -5,7 +5,7 @@
 class_name ModuleBehaviorTest
 extends GdUnitTestSuite
 
-const MODULE_DIR := "res://resources/module_data/"
+const MODULE_DIR := "res://src/resources/module_data/"
 
 
 ## 辅助：从塔的 bullet_effects 中触发 on_hit_tower

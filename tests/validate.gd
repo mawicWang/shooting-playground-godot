@@ -11,11 +11,11 @@ extends SceneTree
 
 const KEY_SCENES: Array[String] = [
 	"res://main.tscn",
-	"res://entities/towers/tower.tscn",
-	"res://entities/enemies/enemy.tscn",
-	"res://entities/bullets/bullet.tscn",
-	"res://ui/start_menu/start_menu.tscn",
-	"res://ui/popups/game_over_popup.tscn",
+	"res://src/entities/towers/tower.tscn",
+	"res://src/entities/enemies/enemy.tscn",
+	"res://src/entities/bullets/bullet.tscn",
+	"res://src/ui/start_menu/start_menu.tscn",
+	"res://src/ui/popups/game_over_popup.tscn",
 	# reward_popup has no .tscn — it is built programmatically in main.gd
 ]
 

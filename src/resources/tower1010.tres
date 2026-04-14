@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="TowerData" load_steps=3 format=3 uid="uid://bdmtd553es65n"]
 
-[ext_resource type="Script" uid="uid://ch3f0r75qtmfc" path="res://resources/TowerData.gd" id="1_towerdata"]
+[ext_resource type="Script" uid="uid://ch3f0r75qtmfc" path="res://src/resources/TowerData.gd" id="1_towerdata"]
 [ext_resource type="Texture2D" uid="uid://dtmrgentliip0" path="res://assets/tower1010.svg" id="2_sprite"]
 
 [resource]

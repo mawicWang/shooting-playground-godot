@@ -3,18 +3,18 @@ extends Control
 ## main.gd - 游戏主入口
 ## 职责：初始化所有管理器，协调高层逻辑
 
-const GameOverPopupScene := preload("res://ui/popups/game_over_popup.tscn")
-const RewardPopupScript := preload("res://ui/popups/reward_popup.gd")
+const GameOverPopupScene := preload("res://src/ui/popups/game_over_popup.tscn")
+const RewardPopupScript := preload("res://src/ui/popups/reward_popup.gd")
 
-const LayoutManager := preload("res://core/LayoutManager.gd")
-const GameLoopManager := preload("res://core/GameLoopManager.gd")
-const EffectManager := preload("res://core/EffectManager.gd")
-const SimpleEmitterData := preload("res://resources/simple_emitter.tres")
-const Replenish1Data := preload("res://resources/module_data/replenish1.tres")
-const TowerIconScript := preload("res://ui/deployment/tower_icon.gd")
-const ModuleStackIconScript := preload("res://ui/deployment/module_stack_icon.gd")
-const TowerReserveBarScript := preload("res://ui/deployment/tower_reserve_bar.gd")
-const BattlefieldContainerScript := preload("res://core/battlefield_container.gd")
+const LayoutManager := preload("res://src/core/LayoutManager.gd")
+const GameLoopManager := preload("res://src/core/GameLoopManager.gd")
+const EffectManager := preload("res://src/core/EffectManager.gd")
+const SimpleEmitterData := preload("res://src/resources/simple_emitter.tres")
+const Replenish1Data := preload("res://src/resources/module_data/replenish1.tres")
+const TowerIconScript := preload("res://src/ui/deployment/tower_icon.gd")
+const ModuleStackIconScript := preload("res://src/ui/deployment/module_stack_icon.gd")
+const TowerReserveBarScript := preload("res://src/ui/deployment/tower_reserve_bar.gd")
+const BattlefieldContainerScript := preload("res://src/core/battlefield_container.gd")
 
 
 @onready var game_content = $GameContent
@@ -528,7 +528,7 @@ func _on_debug_stop_pressed():
 		_game_loop.prepare_enemy_warnings()
 
 func _on_menu_pressed():
-	get_tree().change_scene_to_file("res://ui/start_menu/start_menu.tscn")
+	get_tree().change_scene_to_file("res://src/ui/start_menu/start_menu.tscn")
 
 # ── 游戏状态事件 ──────────────────────────────────────────────
 

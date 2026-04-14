@@ -4,7 +4,7 @@
 class_name EffectTriggerTest
 extends GdUnitTestSuite
 
-const MODULE_DATA_DIR := "res://resources/module_data/"
+const MODULE_DATA_DIR := "res://src/resources/module_data/"
 
 
 func test_cd_reduce_on_enemy_effect() -> void:

@@ -4,7 +4,7 @@ extends Node
 ## 管理子弹复用，减少运行时 instantiate/queue_free 的 GC 压力
 ## 使用：BulletPool.spawn() 创建，BulletPool.release() 回收
 
-const BulletScene := preload("res://entities/bullets/bullet.tscn")
+const BulletScene := preload("res://src/entities/bullets/bullet.tscn")
 
 var _pool: Array = []
 

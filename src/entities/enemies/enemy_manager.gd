@@ -1,6 +1,6 @@
 extends Node2D
 
-const WARNING_SCENE = preload("res://entities/enemies/enemy_warning.tscn")
+const WARNING_SCENE = preload("res://src/entities/enemies/enemy_warning.tscn")
 var enemy_count: int = 1  # 当前波次的敌人数量（由外部设置）
 var current_wave: int = 1   # 当前波次（影响敌人生成权重）
 const SPAWN_MARGIN = 240.0  # 生成位置距离 Grid 边缘的距离（3 个 Cell）

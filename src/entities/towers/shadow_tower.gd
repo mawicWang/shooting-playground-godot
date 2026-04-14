@@ -1,4 +1,4 @@
-extends "res://entities/towers/tower.gd"
+extends "res://src/entities/towers/tower.gd"
 
 ## 影子团队ID(起源炮塔的 entity_id)
 var shadow_team_id: int = -1

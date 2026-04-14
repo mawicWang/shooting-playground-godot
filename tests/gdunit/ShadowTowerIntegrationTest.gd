@@ -3,19 +3,19 @@
 class_name ShadowTowerIntegrationTest
 extends GdUnitTestSuite
 
-const SpawnEffectScript = preload("res://entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
+const SpawnEffectScript = preload("res://src/entities/effects/fire_effects/spawn_shadow_tower_effect.gd")
 
 # ── Module + Effect Interaction ─────────────────────────────
 
 func test_shadow_module_contains_spawn_effect() -> void:
-	var module = load("res://resources/module_data/shadow_tower_module.tres")
+	var module = load("res://src/resources/module_data/shadow_tower_module.tres")
 	assert_object(module).is_not_null()
 	assert_int(module.fire_effects.size()).is_equal(1)
 	var effect = module.fire_effects[0]
 	assert_that(effect.get_script()).is_equal(SpawnEffectScript)
 
 func test_shadow_tower_bullet_data_has_team_id() -> void:
-	var scene = load("res://entities/towers/shadow_tower.tscn")
+	var scene = load("res://src/entities/towers/shadow_tower.tscn")
 	var tower = scene.instantiate()
 
 	# Set minimal data

@@ -10,7 +10,7 @@
 class_name ModuleSpecialTest
 extends GdUnitTestSuite
 
-const MODULE_DIR := "res://resources/module_data/"
+const MODULE_DIR := "res://src/resources/module_data/"
 
 
 # ──────────────────────────────────────────────

@@ -5,10 +5,10 @@
 class_name TowerDataTest
 extends GdUnitTestSuite
 
-const TOWER_DIR := "res://resources/"
+const TOWER_DIR := "res://src/resources/"
 
 
-## 自动扫描 res://resources/ 中所有 tower*.tres 文件
+## 自动扫描 res://src/resources/ 中所有 tower*.tres 文件
 func _get_tower_paths() -> Array[String]:
 	var paths: Array[String] = []
 	var dir := DirAccess.open(TOWER_DIR)
@@ -44,7 +44,7 @@ func test_all_towers_satisfy_invariants() -> void:
 
 ## 双向炮 (tower1010) 具体值验证
 func test_tower1010_shuangxiang_pao() -> void:
-	var td := load("res://resources/tower1010.tres") as TowerData
+	var td := load("res://src/resources/tower1010.tres") as TowerData
 	assert_object(td).is_not_null()
 	assert_str(td.tower_name).is_equal("双向炮")
 	assert_float(td.firing_rate).is_equal(1.0)
@@ -54,7 +54,7 @@ func test_tower1010_shuangxiang_pao() -> void:
 
 ## 直角炮 (tower1100) 具体值验证
 func test_tower1100_zhijiao_pao() -> void:
-	var td := load("res://resources/tower1100.tres") as TowerData
+	var td := load("res://src/resources/tower1100.tres") as TowerData
 	assert_object(td).is_not_null()
 	assert_str(td.tower_name).is_equal("直角炮")
 	assert_float(td.firing_rate).is_equal(1.0)
@@ -64,7 +64,7 @@ func test_tower1100_zhijiao_pao() -> void:
 
 ## 三向炮 (tower1110) 具体值验证
 func test_tower1110_sanxiang_pao() -> void:
-	var td := load("res://resources/tower1110.tres") as TowerData
+	var td := load("res://src/resources/tower1110.tres") as TowerData
 	assert_object(td).is_not_null()
 	assert_str(td.tower_name).is_equal("三向炮")
 	assert_float(td.firing_rate).is_equal(1.0)
@@ -74,7 +74,7 @@ func test_tower1110_sanxiang_pao() -> void:
 
 ## 四向炮 (tower1111) 具体值验证
 func test_tower1111_sixiang_pao() -> void:
-	var td := load("res://resources/tower1111.tres") as TowerData
+	var td := load("res://src/resources/tower1111.tres") as TowerData
 	assert_object(td).is_not_null()
 	assert_str(td.tower_name).is_equal("四向炮")
 	assert_float(td.firing_rate).is_equal(1.0)

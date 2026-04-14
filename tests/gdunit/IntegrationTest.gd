@@ -6,7 +6,7 @@
 class_name IntegrationTest
 extends GdUnitTestSuite
 
-const TestTowerData := preload("res://resources/simple_emitter.tres")
+const TestTowerData := preload("res://src/resources/simple_emitter.tres")
 
 var _nodes_to_free: Array[Node] = []
 
@@ -36,7 +36,7 @@ func _add_child(node: Node) -> Node:
 
 func test_tower_fires_bullet() -> void:
 	"""Tower should fire bullets when start_firing() is called"""
-	var tower_scene := load("res://entities/towers/tower.tscn")
+	var tower_scene := load("res://src/entities/towers/tower.tscn")
 	var tower: Node2D = tower_scene.instantiate()
 	_add_child(tower)
 	await await_idle_frame()
@@ -58,7 +58,7 @@ func test_tower_fires_bullet() -> void:
 
 func test_bullet_hits_enemy() -> void:
 	"""enemy_hit fires when bullet area enters enemy hitbox (direct callback test)"""
-	var enemy_scene := load("res://entities/enemies/enemy.tscn")
+	var enemy_scene := load("res://src/entities/enemies/enemy.tscn")
 	var enemy: CharacterBody2D = enemy_scene.instantiate()
 	_add_child(enemy)
 	await await_idle_frame()
@@ -71,7 +71,7 @@ func test_bullet_hits_enemy() -> void:
 	# Simulate a bullet entering the enemy's area by directly calling the handler.
 	# This tests the signal-chain (area_entered → enemy_hit) without depending on
 	# CharacterBody2D physics, which is unreliable in the GdUnit4 test environment.
-	var bullet_scene := load("res://entities/bullets/bullet.tscn")
+	var bullet_scene := load("res://src/entities/bullets/bullet.tscn")
 	var bullet: Node2D = bullet_scene.instantiate()
 	_add_child(bullet)
 	bullet.data = BulletData.new()
@@ -86,11 +86,11 @@ func test_bullet_hits_enemy() -> void:
 
 func test_enemy_takes_damage() -> void:
 	"""Enemy should take damage when hit by bullet"""
-	var tower_scene := load("res://entities/towers/tower.tscn")
+	var tower_scene := load("res://src/entities/towers/tower.tscn")
 	var tower: Node2D = tower_scene.instantiate()
 	_add_child(tower)
 
-	var enemy_scene := load("res://entities/enemies/enemy.tscn")
+	var enemy_scene := load("res://src/entities/enemies/enemy.tscn")
 	var enemy: CharacterBody2D = enemy_scene.instantiate()
 	_add_child(enemy)
 
@@ -126,7 +126,7 @@ func test_enemy_takes_damage() -> void:
 
 func test_enemy_destroyed_after_3_hits() -> void:
 	"""Enemy is destroyed after taking 3 × 1 damage (max_health = 3)"""
-	var enemy_scene := load("res://entities/enemies/enemy.tscn")
+	var enemy_scene := load("res://src/entities/enemies/enemy.tscn")
 	var enemy: CharacterBody2D = enemy_scene.instantiate()
 	_add_child(enemy)
 	await await_idle_frame()
@@ -149,7 +149,7 @@ func test_enemy_destroyed_after_3_hits() -> void:
 
 func test_tower_ammo_decreases() -> void:
 	"""Tower ammo should decrease when firing"""
-	var tower_scene := load("res://entities/towers/tower.tscn")
+	var tower_scene := load("res://src/entities/towers/tower.tscn")
 	var tower: Node2D = tower_scene.instantiate()
 	_add_child(tower)
 
@@ -173,7 +173,7 @@ func test_tower_ammo_decreases() -> void:
 
 func test_multiple_bullets_over_time() -> void:
 	"""Tower should fire multiple bullets over time"""
-	var tower_scene := load("res://entities/towers/tower.tscn")
+	var tower_scene := load("res://src/entities/towers/tower.tscn")
 	var tower: Node2D = tower_scene.instantiate()
 	_add_child(tower)
 

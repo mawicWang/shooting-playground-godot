@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://entities/enemies/shield_enemy.gd" id="1_shield_script"]
+[ext_resource type="Script" path="res://src/entities/enemies/shield_enemy.gd" id="1_shield_script"]
 [ext_resource type="Texture2D" uid="uid://c6ye1c544qp1q" path="res://assets/strong_enemy.png" id="2_shield_tex"]
-[ext_resource type="Shader" uid="uid://byspx7q3ltaqk" path="res://entities/enemies/enemy_shader.gdshader" id="3_enemy_shader"]
+[ext_resource type="Shader" uid="uid://byspx7q3ltaqk" path="res://src/entities/enemies/enemy_shader.gdshader" id="3_enemy_shader"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_shield"]
 noise_type = 3

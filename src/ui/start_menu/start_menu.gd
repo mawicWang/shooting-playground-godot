@@ -76,7 +76,7 @@ func _update_mode_label() -> void:
 		2: _mode_label.add_theme_color_override("font_color", Color(0.9, 0.45, 0.0))
 
 func _on_settings_pressed() -> void:
-	get_tree().change_scene_to_file("res://ui/settings/settings.tscn")
+	get_tree().change_scene_to_file("res://src/ui/settings/settings.tscn")
 
 func _on_start_pressed() -> void:
 	match _selected_mode:

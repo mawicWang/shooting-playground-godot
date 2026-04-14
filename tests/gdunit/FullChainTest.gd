@@ -4,7 +4,7 @@
 class_name FullChainTest
 extends GdUnitTestSuite
 
-const MODULE_DATA_DIR := "res://resources/module_data/"
+const MODULE_DATA_DIR := "res://src/resources/module_data/"
 
 class TestTower extends Node:
 	"""用于测试的 Tower 模拟类，提供 Effect 所需的所有方法"""

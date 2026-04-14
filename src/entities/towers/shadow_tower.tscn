@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cgxlm2e4o8cts"]
 
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1000.svg" id="1_k1sas"]
-[ext_resource type="Script" path="res://entities/towers/shadow_tower.gd" id="2_shadow_script"]
+[ext_resource type="Script" path="res://src/entities/towers/shadow_tower.gd" id="2_shadow_script"]
 
 [node name="ShadowTower" type="Node2D"]
 script = ExtResource("2_shadow_script")
