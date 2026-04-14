@@ -11,6 +11,7 @@ func _ready() -> void:
 	_mode_names = MODE_NAMES_DEBUG if OS.is_debug_build() else MODE_NAMES_RELEASE
 	_build_mode_selector()
 	$CenterContainer/StartButton.pressed.connect(_on_start_pressed)
+	$CenterContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VersionLabel.text = ProjectSettings.get_setting("application/config/version", "v?")
 
 func _build_mode_selector() -> void:
@@ -73,6 +74,9 @@ func _update_mode_label() -> void:
 		0: _mode_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.15))
 		1: _mode_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.15))
 		2: _mode_label.add_theme_color_override("font_color", Color(0.9, 0.45, 0.0))
+
+func _on_settings_pressed() -> void:
+	get_tree().change_scene_to_file("res://ui/settings/settings.tscn")
 
 func _on_start_pressed() -> void:
 	match _selected_mode:

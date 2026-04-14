@@ -39,6 +39,8 @@ var _battlefield_container: Node2D
 @onready var _coin_label: Label = $CoinLabel
 @onready var _fps_label: Label = $FpsLabel
 
+var _menu_button: Button
+
 # 储备区
 var _tower_reserve: HBoxContainer   # 炮塔行，最多 5 个，附 TowerReserveBarScript
 var _module_reserve: HBoxContainer  # 模块行，叠加显示
@@ -57,7 +59,15 @@ func _ready():
 
 func _process(_delta: float) -> void:
 	if _fps_label:
-		_fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
+		_fps_label.visible = _get_fps_visible()
+		if _fps_label.visible:
+			_fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
+
+func _get_fps_visible() -> bool:
+	var config = ConfigFile.new()
+	if config.load("user://settings.cfg") == OK:
+		return config.get_value("game", "show_fps", true)
+	return true
 
 func _setup_managers():
 	# ── BattlefieldContainer：将 GridRoot 移入战场容器 ──
@@ -179,6 +189,21 @@ func _setup_ui():
 	_debug_stop_button.offset_bottom = 88.0
 	_debug_stop_button.pressed.connect(_on_debug_stop_pressed)
 	add_child(_debug_stop_button)
+
+	# ── 返回主菜单按钮 ──
+	_menu_button = Button.new()
+	_menu_button.text = "返回主菜单"
+	_menu_button.size = Vector2(200, 300)
+	_menu_button.layout_mode = 1
+	_menu_button.anchor_left = 1.0
+	_menu_button.anchor_right = 1.0
+	_menu_button.offset_left = -130.0
+	_menu_button.offset_top = 10.0
+	_menu_button.offset_right = -10.0
+	_menu_button.offset_bottom = 46.0
+	_menu_button.add_theme_font_size_override("font_size", 20)
+	_menu_button.pressed.connect(_on_menu_pressed)
+	add_child(_menu_button)
 
 	_update_button_style()
 	_create_game_over_popup()
@@ -501,6 +526,9 @@ func _on_debug_stop_pressed():
 	if GameState.is_running():
 		_game_loop.stop_game()
 		_game_loop.prepare_enemy_warnings()
+
+func _on_menu_pressed():
+	get_tree().change_scene_to_file("res://ui/start_menu/start_menu.tscn")
 
 # ── 游戏状态事件 ──────────────────────────────────────────────
 

@@ -10,6 +10,7 @@ const ENEMY_SCENE := "res://entities/enemies/enemy.tscn"
 const ENEMY_WARNING_SCENE := "res://entities/enemies/enemy_warning.tscn"
 const SHIELD_ENEMY_SCENE := "res://entities/enemies/shield_enemy.tscn"
 const GAME_OVER_POPUP_SCENE := "res://ui/popups/game_over_popup.tscn"
+const SETTINGS_SCENE := "res://ui/settings/settings.tscn"
 
 # ========== Autoloads ==========
 const MAIN_PATH := "/root/main"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dn6h150snsb4c"]
+[gd_scene load_steps=14 format=3 uid="uid://dn6h150snsb4c"]
 
 [ext_resource type="Script" uid="uid://dgb0nswlx16dc" path="res://grid/grid_manager.gd" id="1_f9bqe"]
 [ext_resource type="Texture2D" uid="uid://c1wbms40reft2" path="res://assets/tower1000.svg" id="2_0xm2m"]
@@ -7,7 +7,6 @@
 [ext_resource type="Script" uid="uid://ciexd3qgugumt" path="res://main.gd" id="5_main_script"]
 [ext_resource type="Texture2D" uid="uid://b1awtwjdwm2jh" path="res://assets/bullet.svg" id="6_bullet_tex"]
 [ext_resource type="Script" uid="uid://csjd44671a5vd" path="res://ui/deployment/module_icon.gd" id="7_module_icon"]
-[ext_resource type="Script" uid="uid://blb3psp1bnrac" path="res://ui/deployment/relic_icon.gd" id="8_relic_icon"]
 [ext_resource type="Resource" uid="uid://bdmtd553es65n" path="res://resources/tower1010.tres" id="9_tower1010"]
 [ext_resource type="Resource" path="res://resources/tower1100.tres" id="10_tower1100"]
 [ext_resource type="Resource" path="res://resources/tower1110.tres" id="11_tower1110"]
@@ -169,23 +168,6 @@ texture = ExtResource("6_bullet_tex")
 expand_mode = 1
 script = ExtResource("7_module_icon")
 module_res_path = "res://resources/module_data/accelerator.tres"
-
-[node name="RelicPanel" type="VBoxContainer" parent="GameContent"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -100.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 110.0
-grow_horizontal = 0
-
-[node name="DoubleShotRelic" type="Panel" parent="GameContent/RelicPanel"]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 2
-script = ExtResource("8_relic_icon")
-relic_res_path = "res://resources/relic_data/double_shot.tres"
 
 [node name="CenterContainer" type="CenterContainer" parent="GameContent"]
 layout_mode = 1
