@@ -83,4 +83,4 @@ func _on_start_pressed() -> void:
 		0: GameState.game_mode = GameState.GameMode.CHAOS
 		1: GameState.game_mode = GameState.GameMode.NORMAL
 		2: GameState.game_mode = GameState.GameMode.DEV
-	get_tree().change_scene_to_file("res://main.tscn")
+	get_tree().change_scene_to_file("res://src/main.tscn")
