@@ -25,3 +25,5 @@ fire_effects = Array[ExtResource("3_wspdw")]([])
 tower_effects = Array[ExtResource("7_l5mta")]([])
 bullet_effects = Array[ExtResource("1_gtj2o")]([SubResource("Resource_1pq8k")])
 stat_modifiers = Array[ExtResource("6_gtj2o")]([])
+in_normal_pool = true
+in_dev_pool = true
