@@ -48,8 +48,8 @@ func _trigger_receive_hit(tower: MockTower) -> void:
 # ──────────────────────────────────────────────
 
 func test_cd_on_hit_tower_self_reduces_source_cd() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "cd_on_hit_tower_self.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -63,8 +63,8 @@ func test_cd_on_hit_tower_self_reduces_source_cd() -> void:
 
 
 func test_cd_on_hit_tower_self_does_not_affect_target() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "cd_on_hit_tower_self.tres") as Module
 
 	source.install_module(module)
@@ -78,8 +78,8 @@ func test_cd_on_hit_tower_self_does_not_affect_target() -> void:
 # ──────────────────────────────────────────────
 
 func test_cd_on_hit_tower_target_reduces_target_cd() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "cd_on_hit_tower_target.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -91,8 +91,8 @@ func test_cd_on_hit_tower_target_reduces_target_cd() -> void:
 
 
 func test_cd_on_hit_tower_target_does_not_affect_source() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "cd_on_hit_tower_target.tres") as Module
 
 	source.install_module(module)
@@ -106,7 +106,7 @@ func test_cd_on_hit_tower_target_does_not_affect_source() -> void:
 # ──────────────────────────────────────────────
 
 func test_cd_on_receive_hit_reduces_self_cd_by_half() -> void:
-	var tower := auto_free(MockTower.new())
+	var tower: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "cd_on_receive_hit.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -124,8 +124,8 @@ func test_cd_on_receive_hit_reduces_self_cd_by_half() -> void:
 # ──────────────────────────────────────────────
 
 func test_replenish2_adds_two_ammo_to_target() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	target.ammo = 5
 	var module := load(MODULE_DIR + "replenish2.tres") as Module
 	assert_object(module).is_not_null()
@@ -138,8 +138,8 @@ func test_replenish2_adds_two_ammo_to_target() -> void:
 
 
 func test_replenish2_does_not_add_to_infinite_ammo_tower() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	target.ammo = -1  # infinite
 	var module := load(MODULE_DIR + "replenish2.tres") as Module
 
@@ -155,8 +155,8 @@ func test_replenish2_does_not_add_to_infinite_ammo_tower() -> void:
 # ──────────────────────────────────────────────
 
 func test_speed_boost_calls_apply_speed_boost_on_kill() -> void:
-	var source := auto_free(MockTower.new())
-	var enemy := auto_free(Node.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var enemy: Node = auto_free(Node.new())
 	var module := load(MODULE_DIR + "speed_boost.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -174,8 +174,8 @@ func test_speed_boost_calls_apply_speed_boost_on_kill() -> void:
 # ──────────────────────────────────────────────
 
 func test_hit_speed_boost_calls_apply_speed_boost_on_target() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "hit_speed_boost.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -187,8 +187,8 @@ func test_hit_speed_boost_calls_apply_speed_boost_on_target() -> void:
 
 
 func test_hit_speed_boost_does_not_affect_source() -> void:
-	var source := auto_free(MockTower.new())
-	var target := auto_free(MockTower.new())
+	var source: MockTower = auto_free(MockTower.new())
+	var target: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "hit_speed_boost.tres") as Module
 
 	source.install_module(module)

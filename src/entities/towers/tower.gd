@@ -91,6 +91,7 @@ func _apply_data():
 	_bullet_speed_stat = StatAttribute.new(200.0)
 	_bullet_attack_stat = StatAttribute.new(1.0)
 	_ammo_extra_stat   = StatAttribute.new(0.0)
+	_apply_character_passives()
 	if data:
 		if data.sprite:
 			sprite.texture = data.sprite
@@ -111,6 +112,13 @@ func _apply_data():
 			ammo_queue.append(item)
 		ammo = 0  # 有限弹药由队列管理，ammo 只保留 -1（无限）标志位
 	_update_ammo_label()
+
+func _apply_character_passives() -> void:
+	var char_data := GameState.get_character()
+	var dmg_mod := StatModifier.new(char_data.damage_multiplier, StatModifier.Type.MULTIPLICATIVE, self)
+	_bullet_attack_stat.add_modifier(dmg_mod)
+	var cd_mod := StatModifier.new(1.0 / maxf(char_data.fire_rate_multiplier, 0.01), StatModifier.Type.MULTIPLICATIVE, self)
+	_cd_stat.add_modifier(cd_mod)
 
 ## 应用变体着色器颜色
 func _apply_variant_shader() -> void:

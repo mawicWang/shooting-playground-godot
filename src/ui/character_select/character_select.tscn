@@ -1,0 +1,114 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/ui/character_select/character_select.gd" id="1_select"]
+
+[sub_resource type="StyleBoxFlat" id="detail_panel_style"]
+bg_color = Color(1.0, 1.0, 1.0, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+content_margin_left = 16
+content_margin_right = 16
+content_margin_top = 12
+content_margin_bottom = 12
+
+[sub_resource type="StyleBoxFlat" id="btn_normal"]
+bg_color = Color(0.0, 0.478, 1.0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+
+[sub_resource type="StyleBoxFlat" id="btn_hover"]
+bg_color = Color(0.0, 0.376, 0.859, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+
+[sub_resource type="StyleBoxFlat" id="btn_pressed"]
+bg_color = Color(0.0, 0.278, 0.678, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+
+[node name="CharacterSelect" type="Control"]
+script = ExtResource("1_select")
+anchor_right = 1.0
+anchor_bottom = 1.0
+layout_mode = 3
+anchors_preset = 15
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+color = Color(0.92, 0.92, 0.94, 1)
+
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 16.0
+offset_right = -24.0
+offset_bottom = -16.0
+theme_override_constants/separation = 8
+
+[node name="TopBar" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="RootVBox/TopBar"]
+layout_mode = 2
+text = "← 返回"
+theme_override_colors/font_color = Color(0.1, 0.1, 0.12, 1)
+theme_override_font_sizes/font_size = 16
+flat = true
+
+[node name="CardRow" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_vertical = 0
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="HSeparator" type="HSeparator" parent="RootVBox"]
+layout_mode = 2
+
+[node name="DetailPanel" type="PanelContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("detail_panel_style")
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/DetailPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DetailName" type="Label" parent="RootVBox/DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
+
+[node name="DetailTagline" type="Label" parent="RootVBox/DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.28, 0.28, 0.31, 1)
+italic = true
+
+[node name="DetailDescription" type="Label" parent="RootVBox/DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.15, 0.15, 0.17, 1)
+autowrap_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="RootVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(200, 48)
+text = "确认选择"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("btn_normal")
+theme_override_styles/hover = SubResource("btn_hover")
+theme_override_styles/pressed = SubResource("btn_pressed")

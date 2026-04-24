@@ -97,7 +97,7 @@ func test_shadow_tower_blue_appearance() -> void:
     # Verify the script sets blue tint
     var script = load("res://src/entities/towers/shadow_tower.gd")
     var source = script.source_code
-    assert_str(source).contains("Color(0.4, 0.4, 1.0, 0.7)")
+    assert_str(source).contains("Color(0.15, 0.15, 0.2, 0.65)")
 
 func test_shadow_tower_game_stopped_connection() -> void:
     # Verify the script has _on_game_stopped method

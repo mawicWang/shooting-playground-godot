@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3 uid="uid://dct83aytjro2f"]
+
+[ext_resource type="Script" uid="uid://6tkrnyriequ7" path="res://src/resources/CharacterData.gd" id="1_chardata"]
+[ext_resource type="Texture2D" uid="uid://dbpnoqt733mb3" path="res://assets/characters/vera_portrait.png" id="2_portrait"]
+
+[resource]
+script = ExtResource("1_chardata")
+id = &"vera"
+display_name = "薇拉"
+tagline = "一发入魂，足以致命。"
+description = "薇拉的塔攻击力极高但需要耐心等待。一轮齐射可清空一波敌人，但火力空档代价高昂。"
+is_available = true
+portrait = ExtResource("2_portrait")
+damage_multiplier = 2.0
+fire_rate_multiplier = 0.5
+bonus_coins_per_kill = 0
+starting_lives_offset = 0

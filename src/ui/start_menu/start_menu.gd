@@ -8,6 +8,7 @@ var _selected_mode: int = 1
 var _mode_label: Label
 
 func _ready() -> void:
+	GameState.character = null
 	_mode_names = MODE_NAMES_DEBUG if OS.is_debug_build() else MODE_NAMES_RELEASE
 	_build_mode_selector()
 	$CenterContainer/StartButton.pressed.connect(_on_start_pressed)
@@ -83,4 +84,7 @@ func _on_start_pressed() -> void:
 		0: GameState.game_mode = GameState.GameMode.CHAOS
 		1: GameState.game_mode = GameState.GameMode.NORMAL
 		2: GameState.game_mode = GameState.GameMode.DEV
-	get_tree().change_scene_to_file("res://src/main.tscn")
+	if GameState.is_dev_mode():
+		get_tree().change_scene_to_file("res://src/main.tscn")
+	else:
+		get_tree().change_scene_to_file("res://src/ui/character_select/character_select.tscn")

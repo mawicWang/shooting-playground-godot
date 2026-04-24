@@ -18,7 +18,7 @@ const MODULE_DIR := "res://src/resources/module_data/"
 # ──────────────────────────────────────────────
 
 func test_flying_sets_is_flying_true_on_install() -> void:
-	var tower := auto_free(MockTower.new())
+	var tower: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "flying.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -28,7 +28,7 @@ func test_flying_sets_is_flying_true_on_install() -> void:
 
 
 func test_flying_clears_is_flying_on_uninstall() -> void:
-	var tower := auto_free(MockTower.new())
+	var tower: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "flying.tres") as Module
 
 	tower.install_module(module)
@@ -39,8 +39,8 @@ func test_flying_clears_is_flying_on_uninstall() -> void:
 
 
 func test_flying_restores_sprite_scale_on_uninstall() -> void:
-	var tower := auto_free(MockTower.new())
-	var original_scale := tower.sprite.scale
+	var tower: MockTower = auto_free(MockTower.new())
+	var original_scale: Vector2 = tower.sprite.scale
 	var module := load(MODULE_DIR + "flying.tres") as Module
 
 	tower.install_module(module)
@@ -57,7 +57,7 @@ func test_flying_restores_sprite_scale_on_uninstall() -> void:
 # ──────────────────────────────────────────────
 
 func test_anti_air_sets_has_anti_air_true_on_install() -> void:
-	var tower := auto_free(MockTower.new())
+	var tower: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "anti_air.tres") as Module
 	assert_object(module).is_not_null()
 
@@ -67,7 +67,7 @@ func test_anti_air_sets_has_anti_air_true_on_install() -> void:
 
 
 func test_anti_air_clears_has_anti_air_on_uninstall() -> void:
-	var tower := auto_free(MockTower.new())
+	var tower: MockTower = auto_free(MockTower.new())
 	var module := load(MODULE_DIR + "anti_air.tres") as Module
 
 	tower.install_module(module)

@@ -17,6 +17,7 @@ func before_test() -> void:
 	_nodes_to_free.clear()
 
 func after_test() -> void:
+	GameState.character = null
 	for node in _nodes_to_free:
 		if is_instance_valid(node):
 			node.queue_free()
@@ -45,18 +46,16 @@ func test_has_ammo_depends_on_queue_not_ammo_field() -> void:
 	for _i in range(3):
 		ammo_queue.append(AmmoItemClass.new())
 
-	# has_ammo() 等效逻辑
-	var has_ammo_fn = func(): return ammo == -1 or ammo_cursor < ammo_queue.size()
-
-	assert_bool(has_ammo_fn.call()).is_true()
+	# 内联 has_ammo() 等效逻辑（不用 lambda，避免 GDScript 基本类型按值捕获的问题）
+	assert_bool(ammo == -1 or ammo_cursor < ammo_queue.size()).is_true()
 
 	# 消耗全部
 	ammo_cursor = 3
-	assert_bool(has_ammo_fn.call()).is_false()
+	assert_bool(ammo == -1 or ammo_cursor < ammo_queue.size()).is_false()
 
 	# 旧 Bug 重现：只改 ammo 字段，不碰 queue/cursor
 	ammo = 3  # 模拟旧 _reset_all_tower_ammo 的行为
-	assert_bool(has_ammo_fn.call()).is_false()  # 仍然没弹药 —— Bug！
+	assert_bool(ammo == -1 or ammo_cursor < ammo_queue.size()).is_false()  # 仍然没弹药 —— Bug！
 
 	# 正确修复：重置 queue 和 cursor
 	ammo_queue.clear()
@@ -64,7 +63,7 @@ func test_has_ammo_depends_on_queue_not_ammo_field() -> void:
 	for _i in range(3):
 		ammo_queue.append(AmmoItemClass.new())
 	ammo = 0  # 有限弹药标志位
-	assert_bool(has_ammo_fn.call()).is_true()  # 弹药恢复
+	assert_bool(ammo == -1 or ammo_cursor < ammo_queue.size()).is_true()  # 弹药恢复
 
 ## 验证 ammo_count() 在消耗后的计算
 func test_ammo_count_after_consume() -> void:
@@ -74,23 +73,21 @@ func test_ammo_count_after_consume() -> void:
 	for _i in range(5):
 		ammo_queue.append(AmmoItemClass.new())
 
-	var ammo_count_fn = func(): return ammo_queue.size() - ammo_cursor
-
-	assert_int(ammo_count_fn.call()).is_equal(5)
+	assert_int(ammo_queue.size() - ammo_cursor).is_equal(5)
 
 	ammo_cursor = 5
-	assert_int(ammo_count_fn.call()).is_equal(0)
+	assert_int(ammo_queue.size() - ammo_cursor).is_equal(0)
 
 	# 旧 Bug：ammo 设为 5 后，ammo_count() 还是 0（cursor 没动）
 	# 注意：tower.gd 中 ammo_count() 不看 ammo 字段，看 queue.size()-cursor
-	assert_int(ammo_count_fn.call()).is_equal(0)  # Bug 仍在
+	assert_int(ammo_queue.size() - ammo_cursor).is_equal(0)  # Bug 仍在
 
 	# 修复后
 	ammo_queue.clear()
 	ammo_cursor = 0
 	for _i in range(5):
 		ammo_queue.append(AmmoItemClass.new())
-	assert_int(ammo_count_fn.call()).is_equal(5)
+	assert_int(ammo_queue.size() - ammo_cursor).is_equal(5)
 
 ## 无限弹药不受 reset 影响
 func test_infinite_ammo_unaffected_by_reset() -> void:

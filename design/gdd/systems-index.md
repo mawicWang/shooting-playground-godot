@@ -14,3 +14,5 @@ All game design documents for this project. Update this index when adding a new 
 | Shadow Tower | [shadow-tower.md](shadow-tower.md) | Feature | Documented |
 | Shield Enemy | [shield-enemy.md](shield-enemy.md) | Feature | Documented |
 | Variants | [variants.md](variants.md) | Presentation | Documented |
+| Character Selection | [character-selection.md](character-selection.md) | Feature | Documented |
+| Character Select UI | [character-select.md](../ux/character-select.md) | Feature | Documented |

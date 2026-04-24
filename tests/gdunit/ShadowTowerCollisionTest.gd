@@ -45,9 +45,9 @@ func test_shadow_tower_body_uses_correct_collision_layer() -> void:
 	await await_idle_frame()
 
 	var tower_body: Area2D = tower.get_node_or_null("TowerBody")
-	assert_object(tower_body).describes("Shadow tower should have TowerBody node").is_not_null()
-	assert_int(tower_body.collision_layer).describes("TowerBody should be on SHADOW_TOWER_BODY layer").is_equal(Layers.SHADOW_TOWER_BODY)
-	assert_int(tower_body.collision_layer).describes("Should NOT be on regular TOWER_BODY layer").is_not_equal(Layers.TOWER_BODY)
+	assert_object(tower_body).override_failure_message("Shadow tower should have TowerBody node").is_not_null()
+	assert_int(tower_body.collision_layer).override_failure_message("TowerBody should be on SHADOW_TOWER_BODY layer").is_equal(Layers.SHADOW_TOWER_BODY)
+	assert_int(tower_body.collision_layer).override_failure_message("Should NOT be on regular TOWER_BODY layer").is_not_equal(Layers.TOWER_BODY)
 	assert_bool(tower_body.monitorable).is_true()
 
 
@@ -73,7 +73,7 @@ func test_shadow_tower_bullet_data_has_correct_mask() -> void:
 
 	assert_int(bd.shadow_team_id).is_equal(42)
 	assert_int(bd.tower_body_mask).is_equal(Layers.SHADOW_TOWER_BODY)
-	assert_int(bd.tower_body_mask & Layers.SHADOW_TOWER_BODY).describes(
+	assert_int(bd.tower_body_mask & Layers.SHADOW_TOWER_BODY).override_failure_message(
 		"Bullet mask should overlap with shadow tower body layer"
 	).is_not_equal(0)
 
@@ -92,7 +92,7 @@ func test_bullet_reset_sets_correct_collision_mask() -> void:
 	await await_idle_frame()
 
 	var hitbox: Area2D = bullet.get_node("Hitbox")
-	assert_int(hitbox.collision_mask).describes(
+	assert_int(hitbox.collision_mask).override_failure_message(
 		"Hitbox collision_mask should be SHADOW_TOWER_BODY after reset"
 	).is_equal(Layers.SHADOW_TOWER_BODY)
 
@@ -120,11 +120,11 @@ func test_shadow_tower_has_collision_shape() -> void:
 		if child is CollisionShape2D:
 			has_shape = true
 			var shape_node := child as CollisionShape2D
-			assert_object(shape_node.shape).describes(
+			assert_object(shape_node.shape).override_failure_message(
 				"CollisionShape2D should have a valid shape"
 			).is_not_null()
 			break
-	assert_bool(has_shape).describes(
+	assert_bool(has_shape).override_failure_message(
 		"TowerBody should have a CollisionShape2D child after deferred init"
 	).is_true()
 
@@ -153,7 +153,7 @@ func test_same_team_shadow_bullet_should_hit_shadow_tower() -> void:
 
 	# Test the filtering logic directly (same as bullet.gd _on_hitbox_area_entered)
 	var should_hit := _simulate_bullet_collision_filter(bullet_data, target_tower)
-	assert_bool(should_hit).describes(
+	assert_bool(should_hit).override_failure_message(
 		"Same-team shadow bullet SHOULD hit shadow tower"
 	).is_true()
 
@@ -177,7 +177,7 @@ func test_different_team_shadow_bullet_should_not_hit_shadow_tower() -> void:
 	await await_idle_frame()
 
 	var should_hit := _simulate_bullet_collision_filter(bullet_data, target_tower)
-	assert_bool(should_hit).describes(
+	assert_bool(should_hit).override_failure_message(
 		"Different-team shadow bullet should NOT hit shadow tower"
 	).is_false()
 
@@ -195,7 +195,7 @@ func test_shadow_bullet_should_not_hit_regular_tower() -> void:
 	await await_idle_frame()
 
 	var should_hit := _simulate_bullet_collision_filter(bullet_data, regular_tower)
-	assert_bool(should_hit).describes(
+	assert_bool(should_hit).override_failure_message(
 		"Shadow bullet should NOT hit regular tower"
 	).is_false()
 
@@ -214,7 +214,7 @@ func test_normal_bullet_should_not_hit_shadow_tower() -> void:
 	await await_idle_frame()
 
 	var should_hit := _simulate_bullet_collision_filter(bullet_data, shadow_tower)
-	assert_bool(should_hit).describes(
+	assert_bool(should_hit).override_failure_message(
 		"Normal bullet should NOT hit shadow tower"
 	).is_false()
 
@@ -260,7 +260,7 @@ func test_bullet_area_entered_registers_shadow_tower_hit() -> void:
 
 	# Verify collision mask overlap
 	var mask_overlap := bullet_hitbox.collision_mask & tower_body.collision_layer
-	assert_int(mask_overlap).describes(
+	assert_int(mask_overlap).override_failure_message(
 		"Bullet mask and tower layer should overlap"
 	).is_not_equal(0)
 
@@ -305,17 +305,17 @@ func test_shadow_bullet_not_destroyed_on_same_team_hit() -> void:
 	bullet._on_hitbox_area_entered(tower_body)
 
 	# Key assertion: bullet should NOT be marked for release (piercing behavior)
-	assert_bool(bullet._pending_release).describes(
+	assert_bool(bullet._pending_release).override_failure_message(
 		"Shadow bullet should NOT set _pending_release when hitting same-team shadow tower (piercing)"
 	).is_false()
 
 	# Bullet should still be visible
-	assert_bool(bullet.visible).describes(
+	assert_bool(bullet.visible).override_failure_message(
 		"Shadow bullet should remain visible after hitting same-team shadow tower"
 	).is_true()
 
 	# Bullet should still be processing physics
-	assert_bool(bullet.is_physics_processing()).describes(
+	assert_bool(bullet.is_physics_processing()).override_failure_message(
 		"Shadow bullet should continue physics processing after hitting same-team shadow tower"
 	).is_true()
 
@@ -365,13 +365,13 @@ func test_shadow_bullet_can_hit_multiple_same_team_towers() -> void:
 
 	# Hit tower1
 	bullet._on_hitbox_area_entered(tower1_body)
-	assert_bool(bullet._pending_release).describes(
+	assert_bool(bullet._pending_release).override_failure_message(
 		"Bullet should NOT be pending release after hitting tower1"
 	).is_false()
 
 	# Hit tower2 — should still work because bullet wasn't destroyed
 	bullet._on_hitbox_area_entered(tower2_body)
-	assert_bool(bullet._pending_release).describes(
+	assert_bool(bullet._pending_release).override_failure_message(
 		"Bullet should NOT be pending release after hitting tower2"
 	).is_false()
 
@@ -406,7 +406,7 @@ func test_shadow_bullet_still_destroyed_on_regular_tower() -> void:
 	bullet._on_hitbox_area_entered(tower_click_area)
 
 	# Normal bullet should be destroyed on hit
-	assert_bool(bullet._pending_release).describes(
+	assert_bool(bullet._pending_release).override_failure_message(
 		"Normal bullet should be pending release after hitting regular tower"
 	).is_true()
 

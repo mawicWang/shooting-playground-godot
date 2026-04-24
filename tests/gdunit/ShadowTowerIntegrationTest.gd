@@ -67,7 +67,7 @@ func test_duplicate_with_mods_preserves_shadow_team_id() -> void:
 
 	var copy := original.duplicate_with_mods({})
 
-	assert_int(copy.shadow_team_id).describes(
+	assert_int(copy.shadow_team_id).override_failure_message(
 		"duplicate_with_mods must preserve shadow_team_id (root cause of shadow tower collision bug)"
 	).is_equal(42)
 	assert_int(copy.tower_body_mask).is_equal(Layers.SHADOW_TOWER_BODY)

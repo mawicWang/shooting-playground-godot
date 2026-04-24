@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/character_select/character_card.gd" id="1_card"]
+
+[node name="CharacterCard" type="PanelContainer"]
+script = ExtResource("1_card")
+custom_minimum_size = Vector2(140, 140)
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+theme_override_constants/corner_radius_bottom_left = 12
+theme_override_constants/corner_radius_bottom_right = 12
+theme_override_constants/corner_radius_top_left = 12
+theme_override_constants/corner_radius_top_right = 12
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 4
+
+[node name="Avatar" type="TextureRect" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+size_flags_horizontal = 1
+size_flags_vertical = 0
+stretch_mode = 5
+expand_mode = 0
+
+[node name="NameLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.1, 0.1, 0.12, 1)
+horizontal_alignment = 1
+
+[node name="TaglineLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.3, 0.3, 0.33, 1)
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PassiveList" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+visible = false
+
+[node name="ComingSoonBadge" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.4, 0.4, 0.42, 1)
+text = "即将推出"
+horizontal_alignment = 1
+
+[node name="CheckIcon" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -22.0
+offset_right = -4.0
+offset_top = 4.0
+offset_bottom = 24.0
+text = "✓"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.0, 0.478, 1.0, 1)
+horizontal_alignment = 1
+vertical_alignment = 1

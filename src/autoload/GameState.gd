@@ -7,6 +7,15 @@ extends Node
 enum State { DEPLOYMENT, RUNNING, PAUSED, GAME_OVER }
 enum GameMode { CHAOS, NORMAL, DEV }
 
+const _NEUTRAL_CHARACTER: CharacterData = preload("res://src/resources/characters/neutral.tres")
+
+## Active character for the current run. Always read via get_character(), never directly.
+var character: CharacterData = null
+
+## Returns the active character, or neutral (all multipliers 1.0) when no character is selected.
+func get_character() -> CharacterData:
+	return character if character != null else _NEUTRAL_CHARACTER
+
 var game_mode: GameMode = GameMode.CHAOS
 
 func is_dev_mode() -> bool:
@@ -60,7 +69,7 @@ func reset_to_deployment() -> void:
 	current_state = State.DEPLOYMENT
 
 func reset_lives() -> void:
-	player_lives = MAX_LIVES
+	player_lives = MAX_LIVES + get_character().starting_lives_offset
 	SignalBus.lives_changed.emit(player_lives)
 
 # 金币

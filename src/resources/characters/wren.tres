@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3 uid="uid://danm8duc35u7d"]
+
+[ext_resource type="Script" uid="uid://6tkrnyriequ7" path="res://src/resources/CharacterData.gd" id="1_chardata"]
+[ext_resource type="Texture2D" uid="uid://ghb0iu3a8vq5" path="res://assets/characters/wren_portrait.png" id="2_portrait"]
+
+[resource]
+script = ExtResource("1_chardata")
+id = &"wren"
+display_name = "瑞恩"
+tagline = "久经沙场，坚如磐石。"
+description = "瑞恩经历过无数恶战，以坚韧著称。开局拥有更多生命，容错率更高，适合稳扎稳打的玩家。"
+is_available = false
+portrait = ExtResource("2_portrait")
+damage_multiplier = 1.0
+fire_rate_multiplier = 1.0
+bonus_coins_per_kill = 0
+starting_lives_offset = 0

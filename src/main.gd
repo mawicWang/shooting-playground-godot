@@ -38,6 +38,7 @@ var _battlefield_container: Node2D
 @onready var _lives_label: Label = $LivesLabel
 @onready var _coin_label: Label = $CoinLabel
 @onready var _fps_label: Label = $FpsLabel
+@onready var _character_label: Label = $CharacterLabel
 
 var _menu_button: Button
 
@@ -208,6 +209,7 @@ func _setup_ui():
 	_update_button_style()
 	_create_game_over_popup()
 	_create_reward_popup()
+	_update_character_display()
 
 # ── 普通储备面板 ───────────────────────────────────────────────
 
@@ -596,6 +598,29 @@ func _on_lives_changed(remaining: int):
 
 func _build_lives_text(lives: int) -> String:
 	return "生命: " + "♥ ".repeat(lives).strip_edges()
+
+## 显示当前角色及其被动效果
+func _update_character_display() -> void:
+	if not is_instance_valid(_character_label):
+		return
+	var character := GameState.get_character()
+	if character and character.id != &"neutral":
+		var effects: Array[String] = []
+		if character.damage_multiplier != 1.0:
+			var pct = int((character.damage_multiplier - 1.0) * 100)
+			effects.append("伤害" + ("+%d%%" if pct > 0 else "%d%%") % pct)
+		if character.fire_rate_multiplier != 1.0:
+			var pct = int((character.fire_rate_multiplier - 1.0) * 100)
+			effects.append("射速" + ("+%d%%" if pct > 0 else "%d%%") % pct)
+		if character.bonus_coins_per_kill > 0:
+			effects.append("击杀 +%d 金币" % character.bonus_coins_per_kill)
+		if character.starting_lives_offset > 0:
+			effects.append("生命 +%d" % character.starting_lives_offset)
+		var effect_str = ", ".join(effects) if effects else ""
+		_character_label.text = "%s  ·  %s" % [character.display_name, effect_str] if effect_str else character.display_name
+		_character_label.visible = true
+	else:
+		_character_label.visible = false
 
 # ── 弹窗创建 ──────────────────────────────────────────────────
 

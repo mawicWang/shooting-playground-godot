@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="shooting-playground-godot"
-config/version="v0.13.0"
+config/version="v0.14.0"
 run/main_scene="res://src/ui/start_menu/start_menu.tscn"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.png"
 
 [autoload]

@@ -70,6 +70,9 @@ func take_damage(amount: float, bullet_data: BulletData = null) -> void:
 		if _last_bullet_data:
 			for effect in _last_bullet_data.effects:
 				effect.on_killed_enemy(_last_bullet_data, self)
+		var bonus := GameState.get_character().bonus_coins_per_kill
+		if bonus > 0:
+			GameState.add_coins(bonus)
 		destroy()
 
 func apply_knockback(impulse: Vector2, decay: float) -> void:

@@ -52,15 +52,22 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 	if not is_instance_valid(parent) or not parent.is_in_group("towers"):
 		return
 
-	# 团队过滤逻辑
+	# 影子子弹：只击中同团队的影子炮塔，穿透（子弹不销毁）
 	if data and data.shadow_team_id >= 0:
-		# 影子子弹：只击中同团队的影子炮塔
 		if not parent.has_method("get_shadow_team_id"):
 			return  # 不是影子炮塔
 		if parent.get_shadow_team_id() != data.shadow_team_id:
 			return  # 不同团队
-	elif parent.has_method("get_shadow_team_id"):
-		# 普通子弹击中影子炮塔：跳过
+		# 穿透命中：触发效果，但不停止子弹
+		if data:
+			for effect in data.effects:
+				effect.on_hit_tower(data, parent)
+		if data and parent.has_method("on_bullet_hit"):
+			parent.on_bullet_hit(data)
+		return
+
+	# 普通子弹击中影子炮塔：跳过
+	if parent.has_method("get_shadow_team_id"):
 		return
 
 	# 不击中自己发射的炮塔（transmission_chain 防止自碰）
@@ -68,18 +75,16 @@ func _on_hitbox_area_entered(other_area: Area2D) -> void:
 		return
 
 	# Variant filter: NEUTRAL towers accept all bullets.
-	# Mismatched polarity → bullet is silently consumed (no effects, no impact).
-	var variant_mismatch: bool = data != null and parent.data != null \
+	# Mismatched polarity → bullet passes through silently (no effects, no stop).
+	if data != null and parent.data != null \
 			and parent.data.variant != TowerData.Variant.NEUTRAL \
-			and data.bullet_type != parent.data.variant
+			and data.bullet_type != parent.data.variant:
+		return
 
+	# 有效命中：停止子弹
 	_pending_release = true
 	visible = false
 	set_physics_process(false)
-
-	if variant_mismatch:
-		BulletPool.release.call_deferred(self)
-		return
 
 	# 碰撞特效
 	var impact := BulletImpact.new()
